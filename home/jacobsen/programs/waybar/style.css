@@ -1,0 +1,136 @@
+/* base00: "#191724"
+  base01: "#1f1d2e"
+  base02: "#26233a"
+  base03: "#6e6a86"
+  base04: "#908caa"
+  base05: "#e0def4"
+  base06: "#e0def4"
+  base07: "#524f67"
+  base08: "#eb6f92"
+  base09: "#f6c177"
+  base0A: "#ebbcba"
+  base0B: "#31748f"
+  base0C: "#9ccfd8"
+  base0D: "#c4a7e7"
+  base0E: "#f6c177"
+  base0F: "#524f67" */
+
+@define-color warning 	@base09;
+@define-color critical	@base08;
+
+/* Reset all styles */
+* {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  text-shadow: none;
+  icon-shadow: none;
+}
+
+#waybar {
+  background: @base01;
+  color: @base07;
+}
+
+.modules-left {
+  background: @base02;
+  color: @base04;
+}
+
+.modules-center {
+  background: @base01;
+  color: @base07;
+}
+
+.modules-right {
+  background: @base02;
+  color: @base04;
+}
+
+/* Each module */
+#mode,
+#window,
+#cpu,
+#memory,
+#temperature,
+#disk,
+#network,
+#bluetooth,
+#backlight,
+#battery,
+#wireplumber,
+#tray,
+#custom,
+#idle_inhibitor,
+#clock {
+  padding-left: 4pt;
+  padding-right: 4pt;
+}
+
+#mode {
+  background: @base06;
+  color: @base00;
+}
+
+/* Workspaces stuff */
+#workspaces button {
+  /*font-weight: bold;*/
+  padding-left: 2pt;
+  padding-right: 2pt;
+  color: @base04;
+}
+
+/* Style when cursor is on the button */
+/* #workspaces button:hover {} */
+
+/* Inactive (on unfocused output) */
+/* #workspaces button.visible {} */
+
+/* Active (on focused output) */
+#workspaces button.active {
+  /* background: @base07; */
+  color: @base05;
+}
+
+#workspaces button.focused {
+  /* background: @base07; */
+  color: @base05;
+}
+
+/* Contains an urgent window */
+#workspaces button.urgent {
+  color: @base00;
+  background: @warning;
+}
+
+#window {
+  background: @base01;
+  color: @base07;
+}
+
+#clock {
+  background: @base06;
+  color: @base00;
+}
+
+@keyframes blink {
+  to {
+    color: @critical;
+  }
+}
+
+#battery.warning {
+  color: @warning;
+}
+
+#battery.critical:not(.charging) {
+  color: @critical;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}

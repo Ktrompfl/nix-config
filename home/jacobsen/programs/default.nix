@@ -1,0 +1,41 @@
+{ ... }:
+{
+  imports = [
+    ./btop.nix
+    ./chromium.nix
+    ./direnv.nix
+    ./discord.nix
+    ./eza.nix
+    ./fastfetch.nix
+    ./fish.nix
+    ./firefox.nix
+    ./foot.nix
+    ./fuzzel.nix
+    ./fzf.nix
+    ./gh.nix
+    ./git.nix
+    ./hytale.nix
+    ./jujutsu.nix
+    ./julia.nix
+    ./kitty.nix
+    ./latex.nix
+    ./mangohud.nix
+    ./minecraft
+    ./moonlight.nix
+    ./neovim.nix
+    ./python.nix
+    ./seafile.nix
+    ./signal.nix
+    ./spotify.nix
+    ./starship.nix
+    ./steam.nix
+    ./swaylock.nix
+    ./thunderbird.nix
+    ./viewnior.nix
+    ./vlc.nix
+    ./vscode.nix
+    ./yatto.nix
+    ./waybar
+    ./zathura.nix
+  ];
+}

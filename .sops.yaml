@@ -1,0 +1,11 @@
+# After adding a new host to this file, all secrets must be updated. This can be done like so:
+# sops updatekeys secrets/default.yaml
+keys:
+  - &luthadel age1zuv3e0rfxk35d5zryrnmaedwz7nd27sh0aq6uwua6xpu8ay7mutqe8hayp
+  - &hallandren age1wk83u4hn7xqu0sjs82vaxzuxaw4cx7mqflz3zlr4cyd7qxw7g5dqyea5cq
+creation_rules:
+  - path_regex: "secrets/.*\\.yaml$"
+    key_groups:
+    - age:
+      - *luthadel
+      - *hallandren

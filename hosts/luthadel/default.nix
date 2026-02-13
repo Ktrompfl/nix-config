@@ -64,23 +64,28 @@
     pipewire.enable = true;
 
     # greeter
-    greetd = {
-      enable = true;
-      settings = {
-        terminal.vt = 1;
+    greetd =
+      let
+        # bypass jay.desktop entry
+        session = "uwsm start -F jay run";
+      in
+      {
+        enable = true;
+        settings = {
+          terminal.vt = 1;
 
-        # auto-login into session without requiring a password on initial boot (disk decryption prompts for a password anyways)
-        initial_session = {
-          command = "uwsm start jay-uwsm.desktop";
-          user = "jacobsen";
-        };
+          # auto-login into session without requiring a password on initial boot (disk decryption prompts for a password anyways)
+          initial_session = {
+            command = session;
+            user = "jacobsen";
+          };
 
-        # require username and password on subsequent logins
-        default_session = {
-          command = ''${pkgs.greetd}/bin/agreety --cmd "uwsm start jay-uwsm.desktop"'';
-          user = "greeter";
+          # require username and password on subsequent logins
+          default_session = {
+            command = ''${pkgs.greetd}/bin/agreety --cmd "${session}"'';
+            user = "greeter";
+          };
         };
       };
-    };
   };
 }

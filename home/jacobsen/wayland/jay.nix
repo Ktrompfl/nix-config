@@ -211,6 +211,40 @@ in
           "${modifier}-shift-Up" = "move-up";
           "${modifier}-shift-Right" = "move-right";
 
+          # The move-to-output action moves the window that has the keyboard focus to the next output in the specified direction.
+          "${modifier}-shift-ctrl-h" = {
+            type = "move-to-output";
+            direction = "left";
+          };
+          "${modifier}-shift-ctrl-j" = {
+            type = "move-to-output";
+            direction = "down";
+          };
+          "${modifier}-shift-ctrl-k" = {
+            type = "move-to-output";
+            direction = "up";
+          };
+          "${modifier}-shift-ctrl-l" = {
+            type = "move-to-output";
+            direction = "right";
+          };
+          "${modifier}-shift-ctrl-Left" = {
+            type = "move-to-output";
+            direction = "left";
+          };
+          "${modifier}-shift-ctrl-Down" = {
+            type = "move-to-output";
+            direction = "down";
+          };
+          "${modifier}-shift-ctrl-Up" = {
+            type = "move-to-output";
+            direction = "up";
+          };
+          "${modifier}-shift-ctrl-Right" = {
+            type = "move-to-output";
+            direction = "right";
+          };
+
           # The toggle-fullscreen action toggles the current window between
           # windowed and fullscreen.
           "${modifier}-f" = "toggle-fullscreen";

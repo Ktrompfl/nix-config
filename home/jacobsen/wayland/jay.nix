@@ -618,27 +618,30 @@ in
           }
         ];
 
-        # the match criteria are not optimal yet
-        # either find a different method or create exe-regex dynamically from packages
-        # like ^${lib.getExe pkgs.waybar} ...
         clients = [
           {
-            match.exe-regex = "^/nix/store/[a-z0-9]+-SwayNotificationCenter-.*";
+            match.exe-regex = "^${pkgs.swaynotificationcenter}/.*";
             capabilities = [
               "layer-shell"
             ];
           }
           {
-            match.exe-regex = "^/nix/store/[a-z0-9]+-waybar-.*";
+            match.exe-regex = "^${pkgs.waybar}/.*";
             capabilities = [
               "layer-shell"
               "workspace-manager"
             ];
           }
           {
+            match.exe-regex = "^${pkgs.wayland-pipewire-idle-inhibit}/.*";
+            capabilities = [
+              "layer-shell"
+            ];
+          }
+          {
             # warning: this allows unrestricted access to the clipboard with wl-copy and wl-paste
             # without these capabilities wl-copy just freezes and programs like neovim which require wl-copy/wl-paste for yanking/pasting to the global clipboard become unusable
-            match.exe-regex = "^/nix/store/[a-z0-9]+-wl-clipboard-.*";
+            match.exe-regex = "^${pkgs.wl-clipboard}/.*";
             capabilities = [
               "data-control"
             ];

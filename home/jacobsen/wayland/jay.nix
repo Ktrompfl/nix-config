@@ -80,6 +80,57 @@ let
     # --- notify ---
     ${pkgs.libnotify}/bin/notify-send --app-name="Screenshot" --urgency=normal --expire-time=3000 --icon="$output"  "Screenshot Saved" "Screenshot saved to $output and copied to clipboard"
   '';
+
+  # track the mode stack in a tmpfile and send a signal to waybar on changes
+  # to update a mode indicator until jay / waybar support this natively via ipc
+  jay-mode =
+    let
+      signal = 1;
+      socket = "$XDG_RUNTIME_DIR/waybar/custom/mode";
+    in
+    pkgs.writeShellScript "jay-mode" /* sh */ ''
+      mkdir -p "$(dirname "${socket}")"
+
+      if [[ $1 ]]; then
+        # append argument as new line
+        echo "$1" >> "${socket}"
+      else
+        # drop last line
+        sed -i '$ d' "${socket}" 2>/dev/null
+      fi
+
+      # notify waybar about update
+      pkill -RTMIN+${toString signal} waybar
+    '';
+  push-mode = mode: {
+    type = "multi";
+    actions = [
+      {
+        type = "push-mode";
+        name = mode;
+      }
+      {
+        type = "exec";
+        exec = [
+          "${jay-mode}"
+          mode
+        ];
+      }
+    ];
+  };
+  pop-mode = {
+    type = "multi";
+    actions = [
+      {
+        type = "simple";
+        cmd = "pop-mode";
+      }
+      {
+        type = "exec";
+        exec = "${jay-mode}";
+      }
+    ];
+  };
 in
 {
   wayland.windowManager.jay = {
@@ -126,6 +177,27 @@ in
               prog = "${lib.getExe pkgs.swaylock}";
               privileged = true;
             };
+          };
+          poweroff = {
+            type = "exec";
+            exec = [
+              "systemctl"
+              "poweroff"
+            ];
+          };
+          reboot = {
+            type = "exec";
+            exec = [
+              "systemctl"
+              "reboot"
+            ];
+          };
+          suspend = {
+            type = "exec";
+            exec = [
+              "systemctl"
+              "suspend"
+            ];
           };
         };
 
@@ -354,16 +426,8 @@ in
           };
 
           ## modes
-          "${modifier}-p" = {
-            # Temporarily pushes an input mode on top of the input-mode stack. The new mode will automatically be popped when the next shortcut is invoked.
-            type = "latch-mode";
-            name = "power";
-          };
-          "${modifier}-r" = {
-            # Pushes an input mode on top of the input-mode stack. The mode can be popped with the pop-mode action.
-            type = "push-mode";
-            name = "resize";
-          };
+          "${modifier}-p" = push-mode "system";
+          "${modifier}-r" = push-mode "resize";
 
           ## media keys
           # audio control (wireplumber)
@@ -510,24 +574,33 @@ in
           };
         };
 
-        # modes = {
-        #   resize.shortcuts = {
-        #     # return to default mode
-        #     "${modifier}-r" = {
-        #       type = "pop-mode";
-        #     };
-        #     "Escape" = {
-        #       type = "pop-mode";
-        #     };
-        #   };
+        modes = {
+          resize.shortcuts = {
+            "${modifier}-r" = pop-mode;
+            "Escape" = pop-mode;
+          };
 
-        #   power.shortcuts = {
-        #     # "l" = mkCmd "${lib.getExe pkgs.swaylock}";
-        #     # "s" = mkCmd "systemctl poweroff";
-        #     # "r" = mkCmd "systemctl reboot";
-        #     # "h" = mkCmd "systemctl suspend";
-        #   };
-        # };
+          system.shortcuts = {
+            "${modifier}-p" = pop-mode;
+            "Escape" = pop-mode;
+            "l" = [
+              pop-mode
+              "$lock"
+            ];
+            "s" = [
+              pop-mode
+              "$poweroff"
+            ];
+            "r" = [
+              pop-mode
+              "$reboot"
+            ];
+            "h" = [
+              pop-mode
+              "$suspend"
+            ];
+          };
+        };
 
         # see https://wiki.archlinux.org/title/X_keyboard_extension for xkb keymap settings
         keymaps = [
@@ -662,6 +735,9 @@ in
           {
             match.exe-regex = "^${pkgs.waybar}/.*";
             capabilities = [
+              # TODO: it should be possible to display the active window title using zwlr_foreign_toplevel_manager_v1
+              # by combing parts of the waybar modules wlr/taskbar and sway/window
+              "foreign-toplevel-manager"
               "layer-shell"
               "workspace-manager"
             ];
@@ -689,10 +765,7 @@ in
           # This is a visual indicator that the system will soon get idle.
           grace-period.seconds = 5;
         };
-        on-idle = {
-          type = "named";
-          name = "lock";
-        };
+        on-idle = "$lock";
 
         focus-follows-mouse = true;
         workspace-display-order = "sorted";

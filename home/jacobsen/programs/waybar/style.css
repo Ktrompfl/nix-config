@@ -51,6 +51,7 @@
 }
 
 /* Each module */
+#custom-mode,
 #mode,
 #window,
 #cpu,
@@ -70,6 +71,7 @@
   padding-right: 4pt;
 }
 
+#custom-mode,
 #mode {
   background: @base06;
   color: @base00;

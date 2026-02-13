@@ -53,6 +53,7 @@
         modules-left = [
           # group/wayland
           "sway/mode"
+          "custom/mode"
           "ext/workspaces"
           "sway/window"
         ];
@@ -84,6 +85,22 @@
           # group/clock
           "clock"
         ];
+
+        "custom/mode" =
+          let
+            # when waybar receives the specified signal, print the mode from the socket file or otherwise the default mode
+            default = "normal";
+            signal = 1;
+            socket = "$XDG_RUNTIME_DIR/waybar/custom/mode";
+          in
+          {
+            inherit signal;
+            exec = ''(line=$(tail -n1 "${socket}" 2>/dev/null); [ -z "$line" ] && echo "${default}" || echo "$line") | tr '[:lower:]' '[:upper:]' '';
+            hide-empty-text = true;
+            exec-on-event = false;
+            max-length = 10;
+            tooltip = false;
+          };
 
         "ext/workspaces" = {
           all-outputs = false;

@@ -79,6 +79,7 @@ in
         jay = {
           owner = "root";
           group = "root";
+          permissions = "a+rx";
           source = "${lib.getExe cfg.package}";
           capabilities = "cap_sys_nice+p";
         };

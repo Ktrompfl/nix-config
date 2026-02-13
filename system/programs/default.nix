@@ -7,6 +7,5 @@
     ./nix-ld.nix
     ./shell.nix
     ./steam.nix
-    ./sway.nix
   ];
 }

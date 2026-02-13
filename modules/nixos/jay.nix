@@ -91,17 +91,7 @@ in
       extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
     };
 
-    # make jay session available to uwsm
-    programs.uwsm.waylandCompositors = {
-      jay = {
-        prettyName = "Jay";
-        comment = "Jay compositor managed by UWSM";
-        binPath = "/run/current-system/sw/bin/jay";
-        extraArgs = [ "run" ];
-      };
-    };
-
-    # make jay session available to display managers
+    # make jay session available to display managers and uwsm
     services.displayManager.sessionPackages = [ cfg.package ];
   };
 }

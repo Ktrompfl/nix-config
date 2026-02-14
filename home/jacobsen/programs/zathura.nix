@@ -36,4 +36,8 @@
   xdg.mimeApps.defaultApplications = {
     "application/pdf" = "org.pwmt.zathura-pdf-mupdf.desktop";
   };
+
+  preservation.preserveAt.state-dir.directories = [
+    ".local/share/zathura"
+  ];
 }

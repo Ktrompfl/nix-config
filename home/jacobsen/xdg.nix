@@ -21,6 +21,7 @@
 
   # persist xdg home directories
   preservation.preserveAt.data-dir.directories = [
+    # xdg home directories
     "Archive"
     "Desktop"
     "Documents"
@@ -33,12 +34,16 @@
     "Repositories"
     "Templates"
     "Videos"
+
+    # xdg data home, preservation delegated to individual programs
+    # ".local/share"
   ];
 
-  # TODO: refine what really needs to be persisted here
   preservation.preserveAt.state-dir.directories = [
+    # xdg cache home
     ".local/cache"
-    ".local/share"
+
+    # xdg state home
     ".local/state"
   ];
 

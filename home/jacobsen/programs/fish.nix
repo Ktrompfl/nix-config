@@ -55,4 +55,8 @@
       zathura = "zathura --fork";
     };
   };
+
+  preservation.preserveAt.state-dir.files = [
+    ".local/share/fish/fish_history"
+  ];
 }

@@ -1,3 +1,4 @@
+# local package until https://github.com/NixOS/nixpkgs/pull/342187 is merged
 {
   lib,
   stdenv,

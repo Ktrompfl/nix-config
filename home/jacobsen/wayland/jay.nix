@@ -426,6 +426,7 @@ in
           };
 
           ## modes
+          "${modifier}-m" = push-mode "mirror";
           "${modifier}-p" = push-mode "system";
           "${modifier}-r" = push-mode "resize";
 
@@ -572,33 +573,37 @@ in
               "-t"
             ];
           };
-
-          # screen mirror
-          "${modifier}-m" = {
-            type = "exec";
-            exec = {
-              prog = [
-                "${pkgs.wl-mirror}/bin/wl-present"
-                "mirror"
-                # TODO: make this configurable / use screen picker
-                "eDP-1"
-              ];
-              privileged = true;
-            };
-          };
-          "${modifier}-z" = {
-            type = "exec";
-            exec = {
-              prog = [
-                "${pkgs.wl-mirror}/bin/wl-present"
-                "toggle-freeze"
-              ];
-              privileged = true;
-            };
-          };
         };
 
         modes = {
+          mirror.shortcuts =
+            let
+              wl-present = "${pkgs.wl-mirror}/bin/wl-present";
+              present-action = action: [
+                pop-mode
+                {
+                  type = "exec";
+                  exec = [
+                    wl-present
+                    action
+                  ];
+                }
+              ];
+            in
+            {
+              "${modifier}-m" = pop-mode;
+              "Escape" = pop-mode;
+
+              "m" = present-action "mirror";
+
+              "c" = present-action "custom";
+              "f" = present-action "toggle-freeze";
+              "o" = present-action "set-output";
+              "r" = present-action "set-region";
+              "shift-r" = present-action "unset-region";
+              "s" = present-action "set-scaling";
+            };
+
           resize.shortcuts = {
             "${modifier}-r" = pop-mode;
             "Escape" = pop-mode;
@@ -764,6 +769,12 @@ in
               "foreign-toplevel-manager"
               "layer-shell"
               "workspace-manager"
+            ];
+          }
+          {
+            match.exe-regex = "^${pkgs.wl-mirror}/.*";
+            capabilities = [
+              "screencopy"
             ];
           }
           {

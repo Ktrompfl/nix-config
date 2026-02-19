@@ -36,6 +36,7 @@
     ./vscode.nix
     ./yatto.nix
     ./waybar
+    ./waydroid.nix
     ./zathura.nix
   ];
 }

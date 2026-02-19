@@ -7,5 +7,6 @@
     ./nix-ld.nix
     ./shell.nix
     ./steam.nix
+    ./waydroid.nix
   ];
 }

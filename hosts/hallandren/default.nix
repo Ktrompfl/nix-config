@@ -89,4 +89,6 @@
         };
       };
   };
+
+  virtualisation.waydroid.enable = true;
 }

@@ -32,7 +32,7 @@ local toggle_remaps_key = "Delete"
 
 -- ==== REMAPS ====
 local remaps_text_config = { text = "rebinds off", x = 50, y = 50, size = 2, color = "#FFFFFF" }
-local f3_key = "X"
+local f3_key = "LEFTALT"
 local keyboard_remaps = {
     -- remaps when the remap toggle is on
     enabled = {

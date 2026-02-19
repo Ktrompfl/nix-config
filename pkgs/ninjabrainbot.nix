@@ -8,7 +8,15 @@
   copyDesktopItems,
   jre,
   libxkbcommon,
-  xorg,
+  libx11,
+  libxt,
+  libxtst,
+  libxext,
+  libxi,
+  libxrender,
+  libxrandr,
+  libxfixes,
+  libxkbfile,
   xkeyboard_config,
 }:
 stdenv.mkDerivation rec {
@@ -30,15 +38,15 @@ stdenv.mkDerivation rec {
   # All required runtime libraries for the application to function correctly.
   runtimeLibs = [
     libxkbcommon
-    xorg.libX11
-    xorg.libXt
-    xorg.libXtst
-    xorg.libXext
-    xorg.libXi
-    xorg.libXrender
-    xorg.libXrandr
-    xorg.libXfixes
-    xorg.libxkbfile
+    libx11
+    libxt
+    libxtst
+    libxext
+    libxi
+    libxrender
+    libxrandr
+    libxfixes
+    libxkbfile
     xkeyboard_config
   ];
 

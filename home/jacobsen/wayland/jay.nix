@@ -476,24 +476,6 @@ in
             ];
           };
 
-          # brightness control
-          XF86MonBrightnessUp = {
-            type = "exec";
-            exec = [
-              "${lib.getExe pkgs.brightnessctl}"
-              "set"
-              "4%+"
-            ];
-          };
-          XF86MonBrightnessDown = {
-            type = "exec";
-            exec = [
-              "${lib.getExe pkgs.brightnessctl}"
-              "set"
-              "4%-"
-            ];
-          };
-
           # player control
           XF86AudioPlay = {
             type = "exec";
@@ -644,7 +626,7 @@ in
                 xkb_types    { include "complete" };
                 xkb_compat   { include "complete" };
                 xkb_symbols  { include "pc+de(qwerty)+inet(evdev)+capslock(escape)" };
-                xkb_geometry  { include "pc(pc105)"	};
+                xkb_geometry { include "pc(pc105)" };
               };
             '';
           }
@@ -656,7 +638,7 @@ in
                 xkb_types    { include "complete" };
                 xkb_compat   { include "complete" };
                 xkb_symbols  { include "pc+us(altgr-intl)+inet(evdev)+capslock(escape)" };
-                xkb_geometry  { include "pc(pc104)"	};
+                xkb_geometry { include "pc(pc104)"};
               };
             '';
           }

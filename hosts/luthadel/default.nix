@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   imports = [
     ./hardware-configuration.nix
@@ -59,6 +59,23 @@
     # power saving
     tlp.enable = true;
     upower.enable = true;
+
+    # brightness controls
+    actkbd = {
+      enable = true;
+      bindings = [
+        {
+          keys = [ 224 ];
+          events = [ "key" ];
+          command = "${lib.getExe pkgs.brightnessctl} set 4%-";
+        }
+        {
+          keys = [ 225 ];
+          events = [ "key" ];
+          command = "${lib.getExe pkgs.brightnessctl} set 4%+";
+        }
+      ];
+    };
 
     # wayland session
     pipewire.enable = true;

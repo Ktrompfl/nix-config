@@ -37,6 +37,7 @@
       inputs.awww.overlays.default
       inputs.nur.overlays.default
       inputs.nix-minecraft.overlay
+      inputs.rust-overlay.overlays.default
 
       # Make supported packages use lix instead of nix
       (final: prev: {

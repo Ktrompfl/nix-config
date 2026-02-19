@@ -170,6 +170,9 @@ in
           QT_STYLE_OVERRIDE = "${config.qt.style.name}";
         };
 
+        # enable debug logging for unstable builds
+        log-level = "debug";
+
         actions = {
           lock = {
             type = "exec";

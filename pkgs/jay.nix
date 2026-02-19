@@ -1,6 +1,6 @@
 {
   lib,
-  rustPlatform,
+  makeRustPlatform,
   fetchFromGitHub,
   libGL,
   libinput,
@@ -14,19 +14,27 @@
   vulkan-loader,
   autoPatchelfHook,
   installShellFiles,
+  rust-bin,
 }:
+let
+  # requires unstable rust features
+  rustPlatform = makeRustPlatform {
+    cargo = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
+    rustc = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
+  };
+in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "jay";
-  version = "unstable-2026-02-12";
+  version = "unstable-2026-02-19";
 
   src = fetchFromGitHub {
     owner = "mahkoh";
     repo = "jay";
-    rev = "346c6a7345e4295ddf64e2b6f823e7f8741d056b";
-    sha256 = "sha256-w9+VlzWAQ2UYxlLuIIbaYWqCLNOJAATgo8/Qntyr/hA=";
+    rev = "f0c78c3fe6c31bdb7a0912b6748e4ffe22a9bf16";
+    sha256 = "sha256-TMleLTCzlzauYDOTfS2trhs7n5bXeUsdXMNi3Ydqvbc=";
   };
 
-  cargoHash = "sha256-NnuNgEwLpgrxA3TtaJRfb9GX/5hspfM0vNPUNjMBTGA=";
+  cargoHash = "sha256-h9fky7UHZ7PxNUEmZ+J2/QjaRT4oJ/WWNZW1i4D2WMA=";
 
   SHADERC_LIB_DIR = "${lib.getLib shaderc}/lib";
 
@@ -81,7 +89,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://github.com/mahkoh/jay";
     license = lib.licenses.gpl3;
     platforms = lib.platforms.linux;
-    maintainers = with lib.maintainers; [ dit7ya ];
     mainProgram = "jay";
   };
 })

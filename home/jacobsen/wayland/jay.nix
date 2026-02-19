@@ -326,7 +326,7 @@ in
 
           # The toggle-mono action changes whether the current container shows
           # a single window or all windows next to each other.
-          "${modifier}-m" = "toggle-mono";
+          # "${modifier}-m" = "toggle-mono";
           # The toggle-split action changes the split direction of the current
           # container.
           "${modifier}-v" = "toggle-split";
@@ -571,6 +571,30 @@ in
               "swaync-client"
               "-t"
             ];
+          };
+
+          # screen mirror
+          "${modifier}-m" = {
+            type = "exec";
+            exec = {
+              prog = [
+                "${pkgs.wl-mirror}/bin/wl-present"
+                "mirror"
+                # TODO: make this configurable / use screen picker
+                "eDP-1"
+              ];
+              privileged = true;
+            };
+          };
+          "${modifier}-z" = {
+            type = "exec";
+            exec = {
+              prog = [
+                "${pkgs.wl-mirror}/bin/wl-present"
+                "toggle-freeze"
+              ];
+              privileged = true;
+            };
           };
         };
 

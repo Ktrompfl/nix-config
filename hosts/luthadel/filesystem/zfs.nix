@@ -53,7 +53,7 @@
 
   preservation.preserveAt.state-dir.files = [
     {
-      directory = "/etc/zfs/zpool.cache";
+      file = "/etc/zfs/zpool.cache";
       inInitrd = true;
     }
   ];

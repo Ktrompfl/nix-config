@@ -1,8 +1,9 @@
-{ ... }:
 {
   imports = [
+    ./bat.nix
     ./btop.nix
     ./chromium.nix
+    ./delta.nix
     ./direnv.nix
     ./discord.nix
     ./eza.nix

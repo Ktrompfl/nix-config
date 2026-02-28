@@ -583,6 +583,8 @@ in
 
               "c" = present-action "custom";
               "f" = present-action "toggle-freeze";
+              "z" = present-action "freeze";
+              "shift-z" = present-action "unfreeze";
               "o" = present-action "set-output";
               "r" = present-action "set-region";
               "shift-r" = present-action "unset-region";

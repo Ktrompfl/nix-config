@@ -8,6 +8,7 @@
     ./filesystem
     ./network
     ./rocm.nix
+    ./webdav.nix
   ];
 
   host = {

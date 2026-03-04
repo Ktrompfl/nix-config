@@ -10,6 +10,7 @@
       jacobsen = {
         isNormalUser = true;
         description = "Nicolaus Jacobsen";
+        uid = 1000;
         extraGroups = [
           "input"
           "wheel"

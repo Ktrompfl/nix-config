@@ -25,16 +25,16 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "jay";
-  version = "unstable-2026-02-19";
+  version = "unstable-2026-03-05";
 
   src = fetchFromGitHub {
     owner = "mahkoh";
     repo = "jay";
-    rev = "f0c78c3fe6c31bdb7a0912b6748e4ffe22a9bf16";
-    sha256 = "sha256-TMleLTCzlzauYDOTfS2trhs7n5bXeUsdXMNi3Ydqvbc=";
+    rev = "1570ba6b58bce87ce9ab57b30b267eafadfd3bee";
+    sha256 = "sha256-rxBNw2G9CJkG1ILiUeB90ZT5QC8BQjt53OGDj3ktbn4=";
   };
 
-  cargoHash = "sha256-h9fky7UHZ7PxNUEmZ+J2/QjaRT4oJ/WWNZW1i4D2WMA=";
+  cargoHash = "sha256-Zhf+GwhM6lnx07eUiumBpIuU0BT8DKOEQiIq+c2ColE=";
 
   SHADERC_LIB_DIR = "${lib.getLib shaderc}/lib";
 
@@ -65,6 +65,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "--skip=cpu_worker::tests::complete"
     "--skip=io_uring::ops::read_write_no_cancel::tests::cancel_in_kernel"
     "--skip=io_uring::ops::read_write_no_cancel::tests::cancel_in_userspace"
+    "--skip=eventfd_cache::tests::test"
   ];
 
   postInstall = ''

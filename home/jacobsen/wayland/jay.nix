@@ -204,6 +204,8 @@ in
           };
         };
 
+        window-management-key = "Super_L"; # this uses different symbol names, so logo become Super_L
+
         shortcuts = {
           ## tty controls
           # The switch-to-vt action switches to a different virtual terminal.
@@ -265,6 +267,10 @@ in
           ## window controls
           # The close action requests the currently focused window to close.
           "${modifier}-q" = "close";
+
+          # Focus the next/previous window in the focus history.
+          "${modifier}-Tab" = "focus-next";
+          "${modifier}-shift-Tab" = "focus-prev";
 
           # The focus-X actions move the keyboard focus to next window on the X.
           "${modifier}-h" = "focus-left";
@@ -329,14 +335,10 @@ in
 
           # The toggle-mono action changes whether the current container shows
           # a single window or all windows next to each other.
-          # "${modifier}-m" = "toggle-mono";
+          "${modifier}-n" = "toggle-mono";
           # The toggle-split action changes the split direction of the current
           # container.
           "${modifier}-v" = "toggle-split";
-          # The split-X action places the currently focused window in a container
-          # and sets the split direction of the container to X.
-          # "${modifier}-b" = "split-horizontal";
-          # "${modifier}-n" = "split-vertical";
 
           # Disable the currently active pointer constraint, allowing you to move the pointer outside the window.
           # The constraint will be re-enabled when the pointer re-enters the window.
@@ -675,6 +677,14 @@ in
             match.name = "I-CHIP YUNZII AL68 2.4G Mouse";
             keymap.name = "external";
           }
+          # {
+          #   match.name = "SmartCloud AL68 Keyboard";
+          #   keymap.name = "external";
+          # }
+          # {
+          #   match.name = "SmartCloud AL68 Keyboard Mouse";
+          #   keymap.name = "external";
+          # }
           {
             match.name = "Lid Switch";
             on-lid-closed = [

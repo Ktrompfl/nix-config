@@ -19,7 +19,7 @@
 
     export ELECTRON_OZONE_PLATFORM_HINT=wayland
     export OZONE_PLATFORM=wayland
-    export NIXOS_OZONE=1
+    export NIXOS_OZONE_WL=1
 
     export GTK_THEME=${config.gtk.theme.name}
     export XCURSOR_THEME=${config.home.pointerCursor.name}

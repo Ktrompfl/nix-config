@@ -156,7 +156,7 @@ in
           # enable wayland for electron apps
           ELECTRON_OZONE_PLATFORM_HINT = "wayland";
           OZONE_PLATFORM = "wayland";
-          NIXOS_OZONE = "1";
+          NIXOS_OZONE_WL = "1";
 
           # cursor theme
           XCURSOR_THEME = "${config.home.pointerCursor.name}";
@@ -741,6 +741,40 @@ in
           }
         ];
 
+        windows = [
+          {
+            name = "spotify";
+            match.app-id = "spotify";
+            action = [
+              {
+                type = "move-to-workspace";
+                name = "5";
+              }
+              {
+                type = "move-to-output";
+                workspace = "5";
+                output.name = "vertical";
+              }
+            ];
+          }
+          {
+            name = "vesktop";
+            match.app-id = "vesktop";
+            action = [
+              {
+                type = "move-to-workspace";
+                name = "5";
+              }
+              {
+                type = "move-to-output";
+                workspace = "5";
+                output.name = "vertical";
+              }
+            ];
+          }
+          # TODO: move wl-mirror instances to workspace 0 on HDMI-A-1 output and fullscreen.
+        ];
+
         clients = [
           {
             match.exe-regex = "^${pkgs.swaynotificationcenter}/.*";
@@ -803,7 +837,6 @@ in
           border-width = 1;
           border-color = base03;
 
-          # title-height = 1; # disable title bars
           title-font = config.stylix.fonts.monospace.name;
           attention-requested-bg-color = base09;
           captured-focused-title-bg-color = base08;

@@ -1,7 +1,7 @@
 {
+  inputs,
+  pkgs,
   lib,
-  makeRustPlatform,
-  fetchFromGitHub,
   libGL,
   libinput,
   pkgconf,
@@ -14,29 +14,25 @@
   vulkan-loader,
   autoPatchelfHook,
   installShellFiles,
-  rust-bin,
+  allowRealtimeConfigSO ? false,
+  ...
 }:
 let
-  # requires unstable rust features
-  rustPlatform = makeRustPlatform {
-    cargo = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
-    rustc = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
-  };
+  src = inputs.jay;
+
+  # jay requires unstable rust features, use rust nightly
+  craneLib = (inputs.crane.mkLib pkgs).overrideToolchain (
+    p: p.rust-bin.selectLatestNightlyWith (toolchain: toolchain.default)
+  );
 in
-rustPlatform.buildRustPackage (finalAttrs: {
+craneLib.buildPackage {
+  inherit src;
+
   pname = "jay";
-  version = "unstable-2026-03-05";
-
-  src = fetchFromGitHub {
-    owner = "mahkoh";
-    repo = "jay";
-    rev = "1570ba6b58bce87ce9ab57b30b267eafadfd3bee";
-    sha256 = "sha256-rxBNw2G9CJkG1ILiUeB90ZT5QC8BQjt53OGDj3ktbn4=";
-  };
-
-  cargoHash = "sha256-Zhf+GwhM6lnx07eUiumBpIuU0BT8DKOEQiIq+c2ColE=";
+  version = "unstable";
 
   SHADERC_LIB_DIR = "${lib.getLib shaderc}/lib";
+  JAY_ALLOW_REALTIME_CONFIG_SO = if allowRealtimeConfigSO then 1 else 0;
 
   nativeBuildInputs = [
     autoPatchelfHook
@@ -59,14 +55,20 @@ rustPlatform.buildRustPackage (finalAttrs: {
     vulkan-loader
   ];
 
-  checkFlags = [
-    # the following tests fail in the sandboxed build environment and must be disabled
-    "--skip=cpu_worker::tests::cancel"
-    "--skip=cpu_worker::tests::complete"
-    "--skip=io_uring::ops::read_write_no_cancel::tests::cancel_in_kernel"
-    "--skip=io_uring::ops::read_write_no_cancel::tests::cancel_in_userspace"
-    "--skip=eventfd_cache::tests::test"
-  ];
+  cargoTestExtraArgs =
+    let
+      # The following tests fail in the sandboxed build environment and must be disabled.
+      skipTests = [
+        "cpu_worker::tests::cancel"
+        "cpu_worker::tests::complete"
+        "eventfd_cache::tests::test"
+        "io_uring::ops::read_write_no_cancel::tests::cancel_in_kernel"
+        "io_uring::ops::read_write_no_cancel::tests::cancel_in_userspace"
+      ];
+    in
+    # All the arguments following the two dashes (--) are passed to the test binaries
+    # and thus to libtest (rustc’s built in unit-test and micro-benchmarking framework).
+    "-- ${lib.strings.concatMapStringsSep " " (t: "--skip=${t}") skipTests}";
 
   postInstall = ''
     # install desktop portal
@@ -92,4 +94,4 @@ rustPlatform.buildRustPackage (finalAttrs: {
     platforms = lib.platforms.linux;
     mainProgram = "jay";
   };
-})
+}

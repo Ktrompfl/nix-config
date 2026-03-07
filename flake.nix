@@ -14,6 +14,8 @@
       };
     };
 
+    crane.url = "github:ipetkov/crane";
+
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -166,7 +168,13 @@
 
       # Your custom packages
       # Accessible through 'nix build', 'nix shell', etc
-      packages = eachSystem (system: import ./pkgs nixpkgs.legacyPackages.${system});
+      packages = eachSystem (
+        system:
+        import ./pkgs {
+          inherit inputs;
+          pkgs = nixpkgs.legacyPackages.${system};
+        }
+      );
 
       # Your custom packages and modifications, exported as overlays
       overlays = import ./overlays { inherit inputs; };

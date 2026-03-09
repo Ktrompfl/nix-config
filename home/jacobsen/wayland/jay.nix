@@ -677,14 +677,22 @@ in
             match.name = "I-CHIP YUNZII AL68 2.4G Mouse";
             keymap.name = "external";
           }
-          # {
-          #   match.name = "SmartCloud AL68 Keyboard";
-          #   keymap.name = "external";
-          # }
-          # {
-          #   match.name = "SmartCloud AL68 Keyboard Mouse";
-          #   keymap.name = "external";
-          # }
+          {
+            match.name = "SmartCloud AL68 Keyboard";
+            keymap.name = "external";
+          }
+          {
+            match.name = "SmartCloud AL68 Keyboard Mouse";
+            keymap.name = "external";
+          }
+          {
+            match.name = "SmartCloud AL68 Keyboard Consumer Control";
+            keymap.name = "external";
+          }
+          {
+            match.name = "SmartCloud AL68 Keyboard System Control";
+            keymap.name = "external";
+          }
           {
             match.name = "Lid Switch";
             on-lid-closed = [

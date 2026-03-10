@@ -272,6 +272,13 @@ in
           "${modifier}-Tab" = "focus-next";
           "${modifier}-shift-Tab" = "focus-prev";
 
+          # Focus the tile layer.
+          "${modifier}-Delete" = "focus-tiles";
+
+          # Focus the layer above/below the currently focused layer.
+          "${modifier}-Prior" = "focus-above";
+          "${modifier}-Next" = "focus-below";
+
           # The focus-X actions move the keyboard focus to next window on the X.
           "${modifier}-h" = "focus-left";
           "${modifier}-j" = "focus-down";
@@ -281,6 +288,9 @@ in
           "${modifier}-Down" = "focus-down";
           "${modifier}-Up" = "focus-up";
           "${modifier}-Right" = "focus-right";
+
+          # Focus the parent of the currently focused window.
+          "${modifier}-g" = "focus-parent";
 
           # The move-X actions move window that has the keyboard focus to the X.
           "${modifier}-shift-h" = "move-left";
@@ -339,6 +349,10 @@ in
           # The toggle-split action changes the split direction of the current
           # container.
           "${modifier}-v" = "toggle-split";
+
+          # Split the currently focused window horizontally/vertically.
+          "${modifier}-u" = "split-horizontal";
+          "${modifier}-i" = "split-vertical";
 
           # Disable the currently active pointer constraint, allowing you to move the pointer outside the window.
           # The constraint will be re-enabled when the pointer re-enters the window.
@@ -842,6 +856,7 @@ in
         on-idle = "$lock";
 
         focus-follows-mouse = true;
+        mouse-refocus = true;
         workspace-display-order = "sorted";
 
         show-bar = false;

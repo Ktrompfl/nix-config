@@ -15,7 +15,7 @@
     ./fzf.nix
     ./gh.nix
     ./git.nix
-    ./hytale.nix
+    # ./hytale.nix
     ./jujutsu.nix
     ./julia.nix
     ./kitty.nix

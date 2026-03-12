@@ -4,6 +4,7 @@
     ./hardware-configuration.nix
     ./filesystem
     ./network
+    ./webdav.nix
   ];
 
   host = {

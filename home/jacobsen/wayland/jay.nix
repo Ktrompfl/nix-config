@@ -358,6 +358,10 @@ in
           # The constraint will be re-enabled when the pointer re-enters the window.
           "${modifier}-Escape" = "disable-pointer-constraint";
 
+          # Hide/show window titles.
+          "${modifier}-t" = "show-titles";
+          "${modifier}-shift-t" = "hide-titles";
+
           ## workspace controls
           # The show-workspace action switches to a workspace. If the workspace is not
           # currently being used, it is created on the output that contains the pointer.

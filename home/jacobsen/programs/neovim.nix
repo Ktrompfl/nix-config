@@ -33,6 +33,7 @@
       ruff
       texlab
       yaml-language-server
+      rust-analyzer
 
       # dependencies for typst-preview
       tinymist
@@ -1394,83 +1395,86 @@
         plugin = nvim-lspconfig;
         type = "lua";
         config = /* lua */ ''
-                    -- [[ Language Servers ]]
-                    -- lsp setup is managed via vim.lsp, but nvim-lspconfig provides the configurations
-                    -- see https://github.com/neovim/nvim-lspconfig/tree/master/lsp for defaults
+          -- [[ Language Servers ]]
+          -- lsp setup is managed via vim.lsp, but nvim-lspconfig provides the configurations
+          -- see https://github.com/neovim/nvim-lspconfig/tree/master/lsp for defaults
 
-                    -- C
-                    vim.lsp.enable('clangd')
+          -- C
+          vim.lsp.enable('clangd')
 
-                    -- Haskell
-                    vim.lsp.enable('hls')
+          -- Haskell
+          vim.lsp.enable('hls')
 
-                    -- Julia
-                    -- NOTE: this requires manual setup for now
-                    --- LanguageServer.jl, SymbolServer.jl and StaticLint.jl can be installed with `julia` and `Pkg`:
-                    --- ```sh
-                    --- julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.add("LanguageServer"); Pkg.add("SymbolServer"); Pkg.add("StaticLint")'
-                    --- ```
-                    --- where `~/.julia/environments/nvim-lspconfig` is the location where
-                    --- the default configuration expects LanguageServer.jl, SymbolServer.jl and StaticLint.jl to be installed.
-                    ---
-                    --- To update an existing install, use the following command:
-                    --- ```sh
-                    --- julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.update()'
-                    --- ```
-                    ---
-                    --- Note: In order to have LanguageServer.jl pick up installed packages or dependencies in a
-                    --- Julia project, you must make sure that the project is instantiated:
-                    --- ```sh
-                    --- julia --project=/path/to/my/project -e 'using Pkg; Pkg.instantiate()'
-                    --- ```
-                    ---
-                    --- Note: The julia programming language searches for global environments within the `environments/`
-                    --- folder of `$JULIA_DEPOT_PATH` entries. By default this simply `~/.julia/environments`
-                    vim.lsp.enable('julials')
+          -- Julia
+          -- NOTE: this requires manual setup for now
+          --- LanguageServer.jl, SymbolServer.jl and StaticLint.jl can be installed with `julia` and `Pkg`:
+          --- ```sh
+          --- julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.add("LanguageServer"); Pkg.add("SymbolServer"); Pkg.add("StaticLint")'
+          --- ```
+          --- where `~/.julia/environments/nvim-lspconfig` is the location where
+          --- the default configuration expects LanguageServer.jl, SymbolServer.jl and StaticLint.jl to be installed.
+          ---
+          --- To update an existing install, use the following command:
+          --- ```sh
+          --- julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.update()'
+          --- ```
+          ---
+          --- Note: In order to have LanguageServer.jl pick up installed packages or dependencies in a
+          --- Julia project, you must make sure that the project is instantiated:
+          --- ```sh
+          --- julia --project=/path/to/my/project -e 'using Pkg; Pkg.instantiate()'
+          --- ```
+          ---
+          --- Note: The julia programming language searches for global environments within the `environments/`
+          --- folder of `$JULIA_DEPOT_PATH` entries. By default this simply `~/.julia/environments`
+          vim.lsp.enable('julials')
 
-                    -- Lua
-                    vim.lsp.enable('lua_ls')
-                    vim.lsp.enable('stylua')
+          -- Lua
+          vim.lsp.enable('lua_ls')
+          vim.lsp.enable('stylua')
 
-                    -- Markdown
-                    vim.lsp.enable('markdown_oxide')
-                    vim.lsp.enable('marksman')
+          -- Markdown
+          vim.lsp.enable('markdown_oxide')
+          vim.lsp.enable('marksman')
 
-                    -- Nginx
-                    vim.lsp.enable('nginx_language_server')
+          -- Nginx
+          vim.lsp.enable('nginx_language_server')
 
-                    -- Nix
-                    vim.lsp.config('nixd', {
-                      cmd = { "nixd" },
-                        settings = {
-                        nixd = {
-                          nixpkgs = {
-                            expr = "import <nixpkgs> { }",
-                          },
-                          formatting = {
-                            command = { "nixfmt" },
-                          },
-                        },
-          	          },
-                    })
-                    vim.lsp.enable('nixd')
+          -- Nix
+          vim.lsp.config('nixd', {
+            cmd = { "nixd" },
+              settings = {
+              nixd = {
+                nixpkgs = {
+                  expr = "import <nixpkgs> { }",
+                },
+                formatting = {
+                  command = { "nixfmt" },
+                },
+              },
+            },
+          })
+          vim.lsp.enable('nixd')
 
-                    -- Python
-                    vim.lsp.enable('basedpyright')
-                    vim.lsp.enable('ruff')
+          -- Python
+          vim.lsp.enable('basedpyright')
+          vim.lsp.enable('ruff')
 
-                    -- TeX
-                    vim.lsp.enable('texlab')
+          -- Rust
+          vim.lsp.enable('rust_analyzer')
 
-                    -- Typst
-                    vim.lsp.enable("tinymist")
+          -- TeX
+          vim.lsp.enable('texlab')
 
-                    -- YAML
-                    vim.lsp.enable("yamlls")
+          -- Typst
+          vim.lsp.enable("tinymist")
 
-                    -- Language Tool
-                    vim.lsp.enable("ltex_plus")
-                    -- TODO: setup languages, like https://github.com/DannyBronzino/nvim-lua-config/blob/a9992b64c7d7ea67e6f8666fa79887437cfff811/lua/plugins/lsp.lua#L114
+          -- YAML
+          vim.lsp.enable("yamlls")
+
+          -- Language Tool
+          vim.lsp.enable("ltex_plus")
+          -- TODO: setup languages, like https://github.com/DannyBronzino/nvim-lua-config/blob/a9992b64c7d7ea67e6f8666fa79887437cfff811/lua/plugins/lsp.lua#L114
         '';
       }
       {

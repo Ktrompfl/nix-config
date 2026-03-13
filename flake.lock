@@ -302,11 +302,11 @@
     "jay": {
       "flake": false,
       "locked": {
-        "lastModified": 1772808967,
-        "narHash": "sha256-F4ZYChLfWymZhdUZIRuz1HNt2htm3vawAh9BY3yuWBU=",
+        "lastModified": 1773413755,
+        "narHash": "sha256-qG01CTLndQuUPZMW74asVqHght/qqOuH3cSLfFck2wk=",
         "owner": "mahkoh",
         "repo": "jay",
-        "rev": "893be823b6e215eea14bfc11f3025aa6dd1d6c70",
+        "rev": "f289eb8424afe83c7c255ed1f4d9fc17566f9f1d",
         "type": "github"
       },
       "original": {

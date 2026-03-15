@@ -859,9 +859,9 @@ in
         };
         on-idle = "$lock";
 
-        fallback-output-mode = "focus"; # more useful with mouse-refocus
+        fallback-output-mode = "focus"; # more useful with mouse-follows-focus
         focus-follows-mouse = true;
-        mouse-refocus = true; # mouse-follows-focus
+        mouse-follows-focus = true;
 
         workspace-display-order = "sorted";
 

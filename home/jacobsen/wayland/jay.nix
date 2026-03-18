@@ -292,6 +292,9 @@ in
           # Focus the parent of the currently focused window.
           "${modifier}-g" = "focus-parent";
 
+          # Warp the cursor to the center of the currently focused window.
+          "${modifier}-c" = "warp-mouse-to-focus";
+
           # The move-X actions move window that has the keyboard focus to the X.
           "${modifier}-shift-h" = "move-left";
           "${modifier}-shift-j" = "move-down";

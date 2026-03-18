@@ -47,7 +47,8 @@
     };
 
     jay = {
-      url = "github:mahkoh/jay";
+      # url = "github:mahkoh/jay";
+      url = "github:Ktrompfl/jay/warp-cursor-on-move-focus";
       flake = false;
     };
 

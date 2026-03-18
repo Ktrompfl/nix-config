@@ -302,15 +302,16 @@
     "jay": {
       "flake": false,
       "locked": {
-        "lastModified": 1773413755,
-        "narHash": "sha256-qG01CTLndQuUPZMW74asVqHght/qqOuH3cSLfFck2wk=",
-        "owner": "mahkoh",
+        "lastModified": 1773670242,
+        "narHash": "sha256-0umnrsrlf6ac3azqE0imuRbmTNy1wmCqwAAVYwrL3C8=",
+        "owner": "Ktrompfl",
         "repo": "jay",
-        "rev": "f289eb8424afe83c7c255ed1f4d9fc17566f9f1d",
+        "rev": "ffb67b02c558f946dde0cd93ca50d259dd99c6c5",
         "type": "github"
       },
       "original": {
-        "owner": "mahkoh",
+        "owner": "Ktrompfl",
+        "ref": "warp-cursor-on-move-focus",
         "repo": "jay",
         "type": "github"
       }

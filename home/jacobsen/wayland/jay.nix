@@ -623,10 +623,38 @@ in
               "s" = present-action "set-scaling";
             };
 
-          resize.shortcuts = {
-            "${modifier}-r" = pop-mode;
-            "Escape" = pop-mode;
-          };
+          resize.shortcuts =
+            let
+              resize = key: val: {
+                type = "resize";
+                ${key} = val;
+              };
+              amount = 10;
+            in
+            {
+              "${modifier}-r" = pop-mode;
+              "Escape" = pop-mode;
+
+              # Grow the currently focused window by 10 pixels.
+              "h" = resize "dx1" (-amount);
+              "k" = resize "dy1" (-amount);
+              "l" = resize "dx2" amount;
+              "j" = resize "dy2" amount;
+              "Left" = resize "dx1" (-amount);
+              "Up" = resize "dy1" (-amount);
+              "Right" = resize "dx2" amount;
+              "Down" = resize "dy2" amount;
+
+              # Shrink the currently focused window by 10 pixels.
+              "shift-h" = resize "dx1" amount;
+              "shift-k" = resize "dy1" amount;
+              "shift-l" = resize "dx2" (-amount);
+              "shift-j" = resize "dy2" (-amount);
+              "shift-Left" = resize "dx1" amount;
+              "shift-Up" = resize "dy1" amount;
+              "shift-Right" = resize "dx2" (-amount);
+              "shift-Down" = resize "dy2" (-amount);
+            };
 
           system.shortcuts = {
             "${modifier}-p" = pop-mode;
@@ -873,7 +901,7 @@ in
 
         fallback-output-mode = "focus"; # more useful with mouse-follows-focus
         focus-follows-mouse = true;
-        mouse-follows-focus = true;
+        # mouse-follows-focus = true;
 
         workspace-display-order = "sorted";
 

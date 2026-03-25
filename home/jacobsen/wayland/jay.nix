@@ -268,6 +268,15 @@ in
           # The close action requests the currently focused window to close.
           "${modifier}-q" = "close";
 
+          # Create mark for currently focused window / jump to mark.
+          # The next pressed key identifies the mark.
+          "${modifier}-y" = {
+            type = "jump-to-mark";
+          };
+          "${modifier}-shift-y" = {
+            type = "create-mark";
+          };
+
           # Focus the next/previous window in the focus history.
           "${modifier}-Tab" = "focus-next";
           "${modifier}-shift-Tab" = "focus-prev";

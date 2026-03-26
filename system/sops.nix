@@ -12,6 +12,9 @@
   # Finally, update the encrypted secrets secrets with `sops updatekeys secrets/default.yaml`.
 
   # To edit secrets run `sops secrets/default.yaml`
+  environment.sessionVariables = {
+    SOPS_AGE_KEY_FILE = "/persist/sops/age/keys.txt";
+  };
 
   sops = {
     defaultSopsFile = ../secrets/default.yaml;

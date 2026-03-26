@@ -4,6 +4,7 @@
     ./hardware-configuration.nix
     ./filesystem
     ./network
+    ./samba.nix
     ./webdav.nix
   ];
 

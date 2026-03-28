@@ -47,9 +47,8 @@
     };
 
     jay = {
-      # url = "github:mahkoh/jay/";
+      url = "github:mahkoh/jay/";
       # url = "github:Ktrompfl/jay/warp-cursor-on-move-focus";
-      url = "github:mahkoh/jay/jorth/resize";
       flake = false;
     };
 

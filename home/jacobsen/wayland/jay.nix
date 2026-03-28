@@ -901,7 +901,7 @@ in
 
         fallback-output-mode = "focus"; # more useful with mouse-follows-focus
         focus-follows-mouse = true;
-        # mouse-follows-focus = true;
+        unstable-mouse-follows-focus = true;
 
         workspace-display-order = "sorted";
 

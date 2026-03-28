@@ -22,7 +22,7 @@
     # sonusmix # Next-gen Pipewire audio routing tool
 
     # multi media
-    inkscape
+    # inkscape
     libreoffice
 
     # languages

@@ -42,7 +42,7 @@
       # formatters
       stylua
       nixfmt
-      nodePackages.prettier # general use formatter
+      prettier # general use formatter
       shfmt # shell parser and formatter
     ];
 

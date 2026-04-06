@@ -5,15 +5,6 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     systems.url = "github:nix-systems/default-linux";
 
-    awww = {
-      url = "git+https://codeberg.org/LGFae/awww";
-      inputs = {
-        flake-compat.follows = "flake-compat";
-        nixpkgs.follows = "nixpkgs";
-        rust-overlay.follows = "rust-overlay";
-      };
-    };
-
     crane.url = "github:ipetkov/crane";
 
     disko = {

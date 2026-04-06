@@ -34,7 +34,6 @@
       inputs.self.overlays.modifications
 
       # Add overlays from other flakes
-      inputs.awww.overlays.default
       inputs.nur.overlays.default
       inputs.nix-minecraft.overlay
       inputs.rust-overlay.overlays.default

@@ -38,9 +38,10 @@
     };
 
     jay = {
-      url = "github:mahkoh/jay/";
-      # url = "github:Ktrompfl/jay/warp-cursor-on-move-focus";
-      flake = false;
+      # url = "github:mahkoh/jay/";
+      # flake = false;
+      url = "github:Ktrompfl/jay/nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nixcraft = {

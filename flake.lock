@@ -272,17 +272,22 @@
       }
     },
     "jay": {
-      "flake": false,
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1775471285,
-        "narHash": "sha256-iW/bMq6a8kMnKu7J1IRl19/MXPcZ2pw5J2uloFeh8Os=",
-        "owner": "mahkoh",
+        "lastModified": 1775830156,
+        "narHash": "sha256-p4Ydfxv8w1eZ1mI0HCVP/i2JuRJGInkBaL2OqUM2Eig=",
+        "owner": "Ktrompfl",
         "repo": "jay",
-        "rev": "a55ea39858d1deedc632852afaf568b69571de80",
+        "rev": "913bb0ea7a5c88dd6cc01123bc23e997eb5bc8b8",
         "type": "github"
       },
       "original": {
-        "owner": "mahkoh",
+        "owner": "Ktrompfl",
+        "ref": "nix-flake",
         "repo": "jay",
         "type": "github"
       }

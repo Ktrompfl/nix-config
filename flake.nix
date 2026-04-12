@@ -38,9 +38,7 @@
     };
 
     jay = {
-      # url = "github:mahkoh/jay/";
-      # flake = false;
-      url = "github:Ktrompfl/jay/nix-flake";
+      url = "github:mahkoh/jay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

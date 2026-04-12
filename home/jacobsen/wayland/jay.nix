@@ -848,6 +848,21 @@ in
               }
             ];
           }
+          {
+            name = "firefox";
+            match.app-id = "firefox";
+            action = [
+              {
+                type = "move-to-workspace";
+                name = "1";
+              }
+              {
+                type = "move-to-output";
+                workspace = "1";
+                output.name = "horizontal";
+              }
+            ];
+          }
           # TODO: move wl-mirror instances to workspace 0 on HDMI-A-1 output and fullscreen.
         ];
 

@@ -7,6 +7,7 @@
     ./hardware-configuration.nix
     ./filesystem
     ./network
+    ./home.nix
     ./rocm.nix
     ./webdav.nix
   ];
@@ -35,7 +36,7 @@
       "amd_prefcore=enable"
     ];
 
-    plymouth.enable = true;
+    # plymouth.enable = true;
   };
 
   console.keyMap = "us";

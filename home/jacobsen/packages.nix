@@ -24,6 +24,7 @@
     # multi media
     # inkscape
     libreoffice
+    sqlitebrowser
 
     # languages
     ghc # haskell

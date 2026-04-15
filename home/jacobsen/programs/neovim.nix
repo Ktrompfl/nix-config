@@ -1537,15 +1537,15 @@
           end)
         '';
       }
-      {
-        plugin = hardtime-nvim;
-        type = "lua";
-        config = /* lua */ ''
-          later(function()
-            require("hardtime").setup()
-          end)
-        '';
-      }
+      # {
+      #   plugin = hardtime-nvim;
+      #   type = "lua";
+      #   config = /* lua */ ''
+      #     later(function()
+      #       require("hardtime").setup()
+      #     end)
+      #   '';
+      # }
     ];
   };
 

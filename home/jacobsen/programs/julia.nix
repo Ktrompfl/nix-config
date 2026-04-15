@@ -8,7 +8,7 @@
   preservation.preserveAt.state-dir.directories = [ ".julia" ];
 
   # automatically load revise and terminal loggers on startup
-  xdg.configFile.".julia/config/startup.jl".text = /* julia */ ''
+  home.file.".julia/config/startup.jl".text = /* julia */ ''
     atreplinit() do repl
         try
             using Logging: global_logger

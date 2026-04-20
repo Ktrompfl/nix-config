@@ -781,10 +781,23 @@ in
           {
             match.connector = "eDP-1";
             name = "laptop-integrated";
+            x = 0;
+            y = 0;
             mode = {
               width = 1920;
               height = 1080;
               refresh-rate = 60.049;
+            };
+          }
+          {
+            match.model = "EPSON PJ";
+            name = "beamer";
+            x = 0;
+            y = 1080;
+            mode = {
+              width = 1920;
+              height = 1080;
+              refresh-rate = 60.0;
             };
           }
           {
@@ -863,7 +876,26 @@ in
               }
             ];
           }
-          # TODO: move wl-mirror instances to workspace 0 on HDMI-A-1 output and fullscreen.
+          {
+            name = "wl-mirror";
+            match.app-id = "at.yrlf.wl_mirror";
+            match.just-mapped = true;
+            auto-focus = false;
+            action = [
+              {
+                type = "move-to-workspace";
+                name = "0";
+              }
+              {
+                type = "move-to-output";
+                output.name = "beamer";
+              }
+              {
+                type = "simple";
+                cmd = "enter-fullscreen";
+              }
+            ];
+          }
         ];
 
         clients = [

@@ -2,6 +2,7 @@
   inputs,
   pkgs,
   lib,
+  stdenv,
   libGL,
   libinput,
   pkgconf,
@@ -9,7 +10,7 @@
   libgbm,
   pango,
   udev,
-  shaderc,
+  fontconfig,
   libglvnd,
   vulkan-loader,
   autoPatchelfHook,
@@ -31,7 +32,6 @@ craneLib.buildPackage {
   pname = "jay";
   version = "unstable";
 
-  SHADERC_LIB_DIR = "${lib.getLib shaderc}/lib";
   JAY_ALLOW_REALTIME_CONFIG_SO = if allowRealtimeConfigSO then 1 else 0;
 
   nativeBuildInputs = [
@@ -45,9 +45,9 @@ craneLib.buildPackage {
     xkeyboard_config
     libgbm
     pango
+    fontconfig
     udev
     libinput
-    shaderc
   ];
 
   runtimeDependencies = [
@@ -57,7 +57,7 @@ craneLib.buildPackage {
 
   cargoTestExtraArgs =
     let
-      # The following tests fail in the sandboxed build environment and must be disabled.
+      # the following tests require access to io_uring, which is disabled in the sandboxed build environment
       skipTests = [
         "cpu_worker::tests::cancel"
         "cpu_worker::tests::complete"
@@ -71,18 +71,15 @@ craneLib.buildPackage {
     "-- ${lib.strings.concatMapStringsSep " " (t: "--skip=${t}") skipTests}";
 
   postInstall = ''
-    # install desktop portal
     install -D etc/jay.portal $out/share/xdg-desktop-portal/portals/jay.portal
     install -D etc/jay-portals.conf $out/share/xdg-desktop-portal/jay-portals.conf
-
-    # install desktop entry for display managers
     install -D etc/jay.desktop $out/share/wayland-sessions/jay.desktop
-
-    # install shell completions
+  ''
+  + lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd jay \
-      --bash <($out/bin/jay generate-completion bash) \
-      --fish <($out/bin/jay generate-completion fish) \
-      --zsh <($out/bin/jay generate-completion zsh)
+      --bash <("$out/bin/jay" generate-completion bash) \
+      --zsh <("$out/bin/jay" generate-completion zsh) \
+      --fish <("$out/bin/jay" generate-completion fish)
   '';
 
   passthru.providedSessions = [ "jay" ];

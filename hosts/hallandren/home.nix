@@ -5,15 +5,15 @@
         # auto start frequently used apps
         {
           type = "exec";
-          exec = "firefox";
+          exec = "app2unit firefox";
         }
         {
           type = "exec";
-          exec = "spotify";
+          exec = "app2unit spotify";
         }
         {
           type = "exec";
-          exec = "vesktop";
+          exec = "app2unit vesktop";
         }
       ];
     };

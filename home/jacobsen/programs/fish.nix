@@ -55,6 +55,7 @@
       wget = "wget -c";
 
       zathura = "zathura --fork";
+      zed = "zeditor";
     };
   };
 

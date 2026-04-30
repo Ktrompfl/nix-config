@@ -9,6 +9,12 @@
         "rptu.de"
       ];
       init.defaultBranch = "main";
+      signing = {
+        format = "ssh";
+        # TODO: maybe use a dedicated key for signing
+        key = "~/.ssh/id_ed25519.pub";
+        signByDefault = true;
+      };
     };
     ignores = lib.strings.splitString "\n" ''
       ### archive

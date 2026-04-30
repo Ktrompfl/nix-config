@@ -15,6 +15,11 @@
 
     defaultEditor = true; # set nvim as default editor with the $EDITOR session variable
 
+    # disable various providers for plugins
+    # these are disabled by default in home-manager state versions >= 26.05
+    withPython3 = false;
+    withRuby = false;
+
     extraPackages = with pkgs; [
       # core dependencies
       git

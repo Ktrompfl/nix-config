@@ -888,6 +888,7 @@ in
               }
               {
                 type = "move-to-output";
+                workspace = "0";
                 output.name = "beamer";
               }
               {

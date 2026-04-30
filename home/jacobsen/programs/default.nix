@@ -39,5 +39,6 @@
     ./waybar
     ./waydroid.nix
     ./zathura.nix
+    ./zed.nix
   ];
 }

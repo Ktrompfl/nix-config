@@ -117,6 +117,7 @@
       terminal = {
         "terminal.integrated.gpuAcceleration" = "on";
         "terminal.integrated.minimumContrastRatio" = 1;
+        "terminal.integrated.shell.linux" = "${pkgs.fish}/bin/fish";
       };
 
       # Extension settings

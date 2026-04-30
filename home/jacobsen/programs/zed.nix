@@ -1,3 +1,4 @@
+{ lib, pkgs, ... }:
 {
   programs.zed-editor = {
     enable = true;
@@ -22,22 +23,86 @@
       "xml"
     ];
 
+    extraPackages = with pkgs; [
+      claude-code
+    ];
+
     userSettings = {
       auto_update = false;
-
-      autosave = "on_window_change";
-      auto_signature_help = true; # Show method signatures in the editor, when inside parentheses.
-      base_keymap = "VSCode";
-      ensure_final_newline_on_save = true;
-      inlay_hints.enable = true;
-      journal.hour_format = "hour24";
-      load_direnv = "shell_hook"; # load direnv configuration through the shell hook, works for POSIX shells and fish
-      vim_mode = false;
+      auto_install_extensions = false;
 
       # disable telemetry
       telemetry = {
         diagnostics = false;
         metrics = false;
+      };
+
+      autosave = "on_focus_change";
+
+      auto_signature_help = true;
+      inlay_hints.enable = true;
+
+      load_direnv = "shell_hook"; # load direnv configuration through the shell hook, works for POSIX shells and fish
+
+      terminal = {
+        shell.program = lib.getExe pkgs.fish;
+      };
+
+      journal.hour_format = "hour24";
+
+      base_keymap = "VSCode";
+      vim_mode = true;
+      which_key.enable = true;
+
+      # control ui elements
+      agent.dock = "right";
+      outline_panel.dock = "left";
+      git_panel.dock = "left";
+      collaboration_panel.button = false;
+      collaboration_panel.dock = "right";
+      title_bar = {
+        show_sign_in = false;
+        show_user_menu = false;
+        show_user_picture = false;
+      };
+
+      languages = {
+        Nix = {
+          tab_size = 2;
+          formatter.external.command = lib.getExe pkgs.nixfmt;
+          language_servers = [
+            "nixd"
+            "!nil"
+          ];
+        };
+      };
+
+      lsp = {
+        basedpyright = {
+          binary.path = lib.getExe pkgs.basedpyright;
+        };
+        clangd = {
+          binary.path = lib.getExe' pkgs.clang-tools "clangd";
+        };
+        nixd = {
+          binary.path = lib.getExe pkgs.nixd;
+          nixpkgs.expr = "import <nixpkgs> {}";
+          formatting.command = [ (lib.getExe pkgs.nixfmt) ];
+        };
+        tinymist = {
+          binary.path = lib.getExe pkgs.tinymist;
+        };
+        ruff = {
+          binary.path = lib.getExe pkgs.ruff;
+        };
+        rust-analyzer = {
+          binary.path = lib.getExe pkgs.rust-analyzer;
+        };
+      };
+
+      node = {
+        path = lib.getExe pkgs.nodejs;
+        npm_path = lib.getExe' pkgs.nodejs "npm";
       };
     };
   };

@@ -4,6 +4,8 @@
   # man page cache generation slows build with fish enabled
   programs.man.generateCaches = false;
 
+  programs.nix-your-shell.enable = true;
+
   programs.fish = {
     enable = true;
     interactiveShellInit = /* fish */ ''

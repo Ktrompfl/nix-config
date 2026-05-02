@@ -41,6 +41,7 @@
 
       auto_signature_help = true;
       inlay_hints.enable = true;
+      diagnostics.inline.enable = true;
 
       load_direnv = "shell_hook"; # load direnv configuration through the shell hook, works for POSIX shells and fish
 
@@ -56,10 +57,12 @@
 
       # control ui elements
       agent.dock = "right";
+      project_panel.dock = "left";
       outline_panel.dock = "left";
       git_panel.dock = "left";
       collaboration_panel.button = false;
       collaboration_panel.dock = "right";
+      tabs.file_icons = true;
       title_bar = {
         show_sign_in = false;
         show_user_menu = false;

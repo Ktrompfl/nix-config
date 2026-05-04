@@ -3,6 +3,7 @@
     ./bat.nix
     ./btop.nix
     ./chromium.nix
+    ./claude.nix
     ./delta.nix
     ./direnv.nix
     ./discord.nix

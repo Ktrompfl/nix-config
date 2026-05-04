@@ -23,10 +23,6 @@
       "xml"
     ];
 
-    extraPackages = with pkgs; [
-      claude-code
-    ];
-
     userSettings = {
       auto_update = false;
       auto_install_extensions = false;

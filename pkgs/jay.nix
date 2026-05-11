@@ -16,6 +16,7 @@
   autoPatchelfHook,
   installShellFiles,
   allowRealtimeConfigSO ? false,
+  sqlite,
   ...
 }:
 let
@@ -53,6 +54,7 @@ craneLib.buildPackage {
   runtimeDependencies = [
     libglvnd
     vulkan-loader
+    sqlite
   ];
 
   cargoTestExtraArgs =

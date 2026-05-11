@@ -5,7 +5,9 @@
   ...
 }:
 let
-  # screenshot script to work around the following problems
+  # --- scripts ---
+
+  # workaround for:
   # - jay has no proper screenshot selections yet, see https://github.com/mahkoh/jay/issues/564
   # - grim fails for multi-monitor setups with transforms, see https://todo.sr.ht/~emersion/grim/100
   jay-screenshot = pkgs.writeShellScript "jay-screenshot" /* sh */ ''
@@ -44,7 +46,6 @@ let
         ')
         ;;
       region)
-        # interactively select region with slurp
         region=$(${lib.getExe pkgs.slurp} | awk '{split($1,a,","); split($2,b,"x"); printf "%sx%s+%s+%s\n", b[1], b[2], a[1], a[2]}');
         ;;
       *)
@@ -72,17 +73,17 @@ let
     jay screenshot "$TMPFILE"
 
     # --- crop screenshot to region ---
-    ${pkgs.imagemagick}/bin/magick "$TMPFILE" -crop "$region" +repage "$output"
+    ${lib.getExe' pkgs.imagemagick "magick"} "$TMPFILE" -crop "$region" +repage "$output"
 
     # --- copy to clipboard ---
     wl-copy --type "image/png" < "$output"
 
     # --- notify ---
-    ${pkgs.libnotify}/bin/notify-send --app-name="Screenshot" --urgency=normal --expire-time=3000 --icon="$output"  "Screenshot Saved" "Screenshot saved to $output and copied to clipboard"
+    ${lib.getExe' pkgs.libnotify "notify-send"} --app-name="Screenshot" --urgency=normal --expire-time=3000 --icon="$output" "Screenshot Saved" "Screenshot saved to $output and copied to clipboard"
   '';
 
-  # track the mode stack in a tmpfile and send a signal to waybar on changes
-  # to update a mode indicator until jay / waybar support this natively via ipc
+  # track the mode stack in a tmpfile and signal waybar on changes to update a
+  # mode indicator until jay / waybar support this natively via ipc
   jay-mode =
     let
       signal = 1;
@@ -92,43 +93,55 @@ let
       mkdir -p "$(dirname "${socket}")"
 
       if [[ $1 ]]; then
-        # append argument as new line
         echo "$1" >> "${socket}"
       else
-        # drop last line
         sed -i '$ d' "${socket}" 2>/dev/null
       fi
 
-      # notify waybar about update
       pkill -RTMIN+${toString signal} waybar
     '';
-  push-mode = mode: {
+
+  # --- action constructors ---
+
+  mkExec = exec: {
+    type = "exec";
+    inherit exec;
+  };
+
+  mkMoveToOutput = ws: output: [
+    {
+      type = "move-to-workspace";
+      name = ws;
+    }
+    {
+      type = "move-to-output";
+      workspace = ws;
+      output.name = output;
+    }
+  ];
+
+  mkPushMode = mode: {
     type = "multi";
     actions = [
       {
         type = "push-mode";
         name = mode;
       }
-      {
-        type = "exec";
-        exec = [
-          "${jay-mode}"
-          mode
-        ];
-      }
+      (mkExec [
+        "${jay-mode}"
+        mode
+      ])
     ];
   };
-  pop-mode = {
+
+  popMode = {
     type = "multi";
     actions = [
       {
         type = "simple";
         cmd = "pop-mode";
       }
-      {
-        type = "exec";
-        exec = "${jay-mode}";
-      }
+      (mkExec "${jay-mode}")
     ];
   };
 in
@@ -138,10 +151,88 @@ in
     settings =
       let
         modifier = "logo";
+
+        dirKeys = [
+          {
+            key = "h";
+            arrow = "Left";
+            dir = "left";
+            field = "dx1";
+            sign = -1;
+          }
+          {
+            key = "j";
+            arrow = "Down";
+            dir = "down";
+            field = "dy2";
+            sign = 1;
+          }
+          {
+            key = "k";
+            arrow = "Up";
+            dir = "up";
+            field = "dy1";
+            sign = -1;
+          }
+          {
+            key = "l";
+            arrow = "Right";
+            dir = "right";
+            field = "dx2";
+            sign = 1;
+          }
+        ];
+
+        # generate {prefix}{key} and {prefix}{arrow} bindings for all four directions
+        dirBindings =
+          prefix: mkAction:
+          lib.listToAttrs (
+            lib.concatMap (
+              {
+                key,
+                arrow,
+                dir,
+                ...
+              }:
+              [
+                (lib.nameValuePair "${prefix}${key}" (mkAction dir))
+                (lib.nameValuePair "${prefix}${arrow}" (mkAction dir))
+              ]
+            ) dirKeys
+          );
+
+        vtBindings = lib.listToAttrs (
+          lib.genList (
+            n:
+            lib.nameValuePair "ctrl-alt-F${toString (n + 1)}" {
+              type = "switch-to-vt";
+              num = n + 1;
+            }
+          ) 12
+        );
+
+        workspaceBindings = lib.listToAttrs (
+          lib.concatMap (
+            n:
+            let
+              ws = toString n;
+            in
+            [
+              (lib.nameValuePair "${modifier}-${ws}" {
+                type = "show-workspace";
+                name = ws;
+              })
+              (lib.nameValuePair "${modifier}-shift-${ws}" {
+                type = "move-to-workspace";
+                name = ws;
+              })
+            ]
+          ) (lib.range 0 9)
+        );
       in
       {
         env = {
-          # enable wayland backends
+          # wayland backends
           CLUTTER_BACKEND = "wayland";
           GDK_BACKEND = "wayland,x11,*";
           QT_QPA_PLATFORM = "wayland;xcb";
@@ -153,12 +244,12 @@ in
           QT_AUTO_SCREEN_SCALE_FACTOR = "1";
           WLR_NO_HARDWARE_CURSORS = "1";
 
-          # enable wayland for electron apps
+          # electron apps
           ELECTRON_OZONE_PLATFORM_HINT = "wayland";
           OZONE_PLATFORM = "wayland";
           NIXOS_OZONE_WL = "1";
 
-          # cursor theme
+          # cursor
           XCURSOR_THEME = "${config.home.pointerCursor.name}";
           XCURSOR_SIZE = "${toString config.home.pointerCursor.size}";
 
@@ -171,512 +262,9 @@ in
         };
 
         # enable debug logging for unstable builds
-        log-level = "debug";
+        # log-level = "debug";
 
-        actions = {
-          lock = {
-            type = "exec";
-            exec = {
-              prog = "${lib.getExe pkgs.swaylock}";
-              privileged = true;
-            };
-          };
-          poweroff = {
-            type = "exec";
-            exec = [
-              "systemctl"
-              "poweroff"
-            ];
-          };
-          reboot = {
-            type = "exec";
-            exec = [
-              "systemctl"
-              "reboot"
-            ];
-          };
-          suspend = {
-            type = "exec";
-            exec = [
-              "systemctl"
-              "suspend"
-            ];
-          };
-        };
-
-        window-management-key = "Super_L"; # this uses different symbol names, so logo become Super_L
-
-        shortcuts = {
-          ## tty controls
-          # The switch-to-vt action switches to a different virtual terminal.
-          "ctrl-alt-F1" = {
-            type = "switch-to-vt";
-            num = 1;
-          };
-          "ctrl-alt-F2" = {
-            type = "switch-to-vt";
-            num = 2;
-          };
-          "ctrl-alt-F3" = {
-            type = "switch-to-vt";
-            num = 3;
-          };
-          "ctrl-alt-F4" = {
-            type = "switch-to-vt";
-            num = 4;
-          };
-          "ctrl-alt-F5" = {
-            type = "switch-to-vt";
-            num = 5;
-          };
-          "ctrl-alt-F6" = {
-            type = "switch-to-vt";
-            num = 6;
-          };
-          "ctrl-alt-F7" = {
-            type = "switch-to-vt";
-            num = 7;
-          };
-          "ctrl-alt-F8" = {
-            type = "switch-to-vt";
-            num = 8;
-          };
-          "ctrl-alt-F9" = {
-            type = "switch-to-vt";
-            num = 9;
-          };
-          "ctrl-alt-F10" = {
-            type = "switch-to-vt";
-            num = 10;
-          };
-          "ctrl-alt-F11" = {
-            type = "switch-to-vt";
-            num = 11;
-          };
-          "ctrl-alt-F12" = {
-            type = "switch-to-vt";
-            num = 12;
-          };
-
-          ## compositor controls
-          # The quit action terminates the compositor.
-          "${modifier}-shift-q" = "quit";
-          # The reload-config-toml action reloads the TOML configuration file.
-          "${modifier}-shift-r" = "reload-config-toml";
-
-          ## window controls
-          # The close action requests the currently focused window to close.
-          "${modifier}-q" = "close";
-
-          # Create mark for currently focused window / jump to mark.
-          # The next pressed key identifies the mark.
-          "${modifier}-y" = {
-            type = "jump-to-mark";
-          };
-          "${modifier}-shift-y" = {
-            type = "create-mark";
-          };
-
-          # Focus the next/previous window in the focus history.
-          "${modifier}-Tab" = "focus-next";
-          "${modifier}-shift-Tab" = "focus-prev";
-
-          # Focus the tile layer.
-          "${modifier}-Delete" = "focus-tiles";
-
-          # Focus the layer above/below the currently focused layer.
-          "${modifier}-Prior" = "focus-above";
-          "${modifier}-Next" = "focus-below";
-
-          # The focus-X actions move the keyboard focus to next window on the X.
-          "${modifier}-h" = "focus-left";
-          "${modifier}-j" = "focus-down";
-          "${modifier}-k" = "focus-up";
-          "${modifier}-l" = "focus-right";
-          "${modifier}-Left" = "focus-left";
-          "${modifier}-Down" = "focus-down";
-          "${modifier}-Up" = "focus-up";
-          "${modifier}-Right" = "focus-right";
-
-          # Focus the parent of the currently focused window.
-          "${modifier}-g" = "focus-parent";
-
-          # Warp the cursor to the center of the currently focused window.
-          "${modifier}-c" = "warp-mouse-to-focus";
-
-          # The move-X actions move window that has the keyboard focus to the X.
-          "${modifier}-shift-h" = "move-left";
-          "${modifier}-shift-j" = "move-down";
-          "${modifier}-shift-k" = "move-up";
-          "${modifier}-shift-l" = "move-right";
-          "${modifier}-shift-Left" = "move-left";
-          "${modifier}-shift-Down" = "move-down";
-          "${modifier}-shift-Up" = "move-up";
-          "${modifier}-shift-Right" = "move-right";
-
-          # The move-to-output action moves the window that has the keyboard focus to the next output in the specified direction.
-          "${modifier}-shift-ctrl-h" = {
-            type = "move-to-output";
-            direction = "left";
-          };
-          "${modifier}-shift-ctrl-j" = {
-            type = "move-to-output";
-            direction = "down";
-          };
-          "${modifier}-shift-ctrl-k" = {
-            type = "move-to-output";
-            direction = "up";
-          };
-          "${modifier}-shift-ctrl-l" = {
-            type = "move-to-output";
-            direction = "right";
-          };
-          "${modifier}-shift-ctrl-Left" = {
-            type = "move-to-output";
-            direction = "left";
-          };
-          "${modifier}-shift-ctrl-Down" = {
-            type = "move-to-output";
-            direction = "down";
-          };
-          "${modifier}-shift-ctrl-Up" = {
-            type = "move-to-output";
-            direction = "up";
-          };
-          "${modifier}-shift-ctrl-Right" = {
-            type = "move-to-output";
-            direction = "right";
-          };
-
-          # The toggle-fullscreen action toggles the current window between
-          # windowed and fullscreen.
-          "${modifier}-f" = "toggle-fullscreen";
-          # The toggle-floating action changes the currently focused window between
-          # floating and tiled.
-          "${modifier}-space" = "toggle-floating";
-
-          # The toggle-mono action changes whether the current container shows
-          # a single window or all windows next to each other.
-          "${modifier}-n" = "toggle-mono";
-          # The toggle-split action changes the split direction of the current
-          # container.
-          "${modifier}-v" = "toggle-split";
-
-          # Split the currently focused window horizontally/vertically.
-          "${modifier}-u" = "split-horizontal";
-          "${modifier}-i" = "split-vertical";
-
-          # Disable the currently active pointer constraint, allowing you to move the pointer outside the window.
-          # The constraint will be re-enabled when the pointer re-enters the window.
-          "${modifier}-Escape" = "disable-pointer-constraint";
-
-          # Hide/show window titles.
-          "${modifier}-t" = "show-titles";
-          "${modifier}-shift-t" = "hide-titles";
-
-          ## workspace controls
-          # The show-workspace action switches to a workspace. If the workspace is not
-          # currently being used, it is created on the output that contains the pointer.
-          "${modifier}-0" = {
-            type = "show-workspace";
-            name = "0";
-          };
-          "${modifier}-1" = {
-            type = "show-workspace";
-            name = "1";
-          };
-          "${modifier}-2" = {
-            type = "show-workspace";
-            name = "2";
-          };
-          "${modifier}-3" = {
-            type = "show-workspace";
-            name = "3";
-          };
-          "${modifier}-4" = {
-            type = "show-workspace";
-            name = "4";
-          };
-          "${modifier}-5" = {
-            type = "show-workspace";
-            name = "5";
-          };
-          "${modifier}-6" = {
-            type = "show-workspace";
-            name = "6";
-          };
-          "${modifier}-7" = {
-            type = "show-workspace";
-            name = "7";
-          };
-          "${modifier}-8" = {
-            type = "show-workspace";
-            name = "8";
-          };
-          "${modifier}-9" = {
-            type = "show-workspace";
-            name = "9";
-          };
-
-          # The move-to-workspace action moves the currently focused window to a workspace.
-          "${modifier}-shift-0" = {
-            type = "move-to-workspace";
-            name = "0";
-          };
-          "${modifier}-shift-1" = {
-            type = "move-to-workspace";
-            name = "1";
-          };
-          "${modifier}-shift-2" = {
-            type = "move-to-workspace";
-            name = "2";
-          };
-          "${modifier}-shift-3" = {
-            type = "move-to-workspace";
-            name = "3";
-          };
-          "${modifier}-shift-4" = {
-            type = "move-to-workspace";
-            name = "4";
-          };
-          "${modifier}-shift-5" = {
-            type = "move-to-workspace";
-            name = "5";
-          };
-          "${modifier}-shift-6" = {
-            type = "move-to-workspace";
-            name = "6";
-          };
-          "${modifier}-shift-7" = {
-            type = "move-to-workspace";
-            name = "7";
-          };
-          "${modifier}-shift-8" = {
-            type = "move-to-workspace";
-            name = "8";
-          };
-          "${modifier}-shift-9" = {
-            type = "move-to-workspace";
-            name = "9";
-          };
-
-          ## modes
-          "${modifier}-m" = push-mode "mirror";
-          "${modifier}-p" = push-mode "system";
-          "${modifier}-r" = push-mode "resize";
-
-          ## media keys
-          # audio control (wireplumber)
-          XF86AudioRaiseVolume = {
-            type = "exec";
-            exec = [
-              "wpctl"
-              "set-volume"
-              "@DEFAULT_AUDIO_SINK@"
-              "5%+"
-              "--limit"
-              "1.5"
-            ];
-          };
-          XF86AudioLowerVolume = {
-            type = "exec";
-            exec = [
-              "wpctl"
-              "set-volume"
-              "@DEFAULT_AUDIO_SINK@"
-              "5%-"
-              "--limit"
-              "0.0"
-            ];
-          };
-          XF86AudioMute = {
-            type = "exec";
-            exec = [
-              "wpctl"
-              "set-mute"
-              "@DEFAULT_AUDIO_SINK@"
-              "toggle"
-            ];
-          };
-          XF86AudioMicMute = {
-            type = "exec";
-            exec = [
-              "wpctl"
-              "set-mute"
-              "@DEFAULT_AUDIO_SOURCE@"
-              "toggle"
-            ];
-          };
-
-          # player control
-          XF86AudioPlay = {
-            type = "exec";
-            exec = [
-              "${lib.getExe pkgs.playerctl}"
-              "play-pause"
-            ];
-          };
-          XF86AudioPause = {
-            type = "exec";
-            exec = [
-              "${lib.getExe pkgs.playerctl}"
-              "play-pause"
-            ];
-          };
-          XF86AudioNext = {
-            type = "exec";
-            exec = [
-              "${lib.getExe pkgs.playerctl}"
-              "next"
-            ];
-          };
-          XF86AudioPrev = {
-            type = "exec";
-            exec = [
-              "${lib.getExe pkgs.playerctl}"
-              "previous"
-            ];
-          };
-          XF86AudioStop = {
-            type = "exec";
-            exec = [
-              "${lib.getExe pkgs.playerctl}"
-              "stop"
-            ];
-          };
-
-          ## screenshot
-          # interactively select workspace and create screenshot
-          "${modifier}-s" = {
-            type = "exec";
-            exec = [
-              "${jay-screenshot}"
-              "workspace"
-            ];
-          };
-          # interactively select window and create screenshot
-          "${modifier}-shift-s" = {
-            type = "exec";
-            exec = [
-              "${jay-screenshot}"
-              "window"
-            ];
-          };
-          # interactively select region and create screenshot
-          "${modifier}-ctrl-s" = {
-            type = "exec";
-            exec = [
-              "${jay-screenshot}"
-              "region"
-            ];
-          };
-
-          ## launch applications
-          "${modifier}-Return" = {
-            type = "exec";
-            exec = [
-              "${lib.getExe pkgs.app2unit}"
-              "footclient"
-            ];
-          };
-          "${modifier}-d" = {
-            type = "exec";
-            exec = "fuzzel";
-          };
-          "${modifier}-a" = {
-            type = "exec";
-            exec = [
-              "swaync-client"
-              "-t"
-            ];
-          };
-        };
-
-        modes = {
-          mirror.shortcuts =
-            let
-              wl-present = "${pkgs.wl-mirror}/bin/wl-present";
-              present-action = action: [
-                pop-mode
-                {
-                  type = "exec";
-                  exec = [
-                    wl-present
-                    action
-                  ];
-                }
-              ];
-            in
-            {
-              "${modifier}-m" = pop-mode;
-              "Escape" = pop-mode;
-
-              "m" = present-action "mirror";
-
-              "c" = present-action "custom";
-              "f" = present-action "toggle-freeze";
-              "z" = present-action "freeze";
-              "shift-z" = present-action "unfreeze";
-              "o" = present-action "set-output";
-              "r" = present-action "set-region";
-              "shift-r" = present-action "unset-region";
-              "s" = present-action "set-scaling";
-            };
-
-          resize.shortcuts =
-            let
-              resize = key: val: {
-                type = "resize";
-                ${key} = val;
-              };
-              amount = 10;
-            in
-            {
-              "${modifier}-r" = pop-mode;
-              "Escape" = pop-mode;
-
-              # Grow the currently focused window by 10 pixels.
-              "h" = resize "dx1" (-amount);
-              "k" = resize "dy1" (-amount);
-              "l" = resize "dx2" amount;
-              "j" = resize "dy2" amount;
-              "Left" = resize "dx1" (-amount);
-              "Up" = resize "dy1" (-amount);
-              "Right" = resize "dx2" amount;
-              "Down" = resize "dy2" amount;
-
-              # Shrink the currently focused window by 10 pixels.
-              "shift-h" = resize "dx1" amount;
-              "shift-k" = resize "dy1" amount;
-              "shift-l" = resize "dx2" (-amount);
-              "shift-j" = resize "dy2" (-amount);
-              "shift-Left" = resize "dx1" amount;
-              "shift-Up" = resize "dy1" amount;
-              "shift-Right" = resize "dx2" (-amount);
-              "shift-Down" = resize "dy2" (-amount);
-            };
-
-          system.shortcuts = {
-            "${modifier}-p" = pop-mode;
-            "Escape" = pop-mode;
-            "l" = [
-              pop-mode
-              "$lock"
-            ];
-            "s" = [
-              pop-mode
-              "$poweroff"
-            ];
-            "r" = [
-              pop-mode
-              "$reboot"
-            ];
-            "h" = [
-              pop-mode
-              "$suspend"
-            ];
-          };
-        };
+        # --- hardware ---
 
         # see https://wiki.archlinux.org/title/X_keyboard_extension for xkb keymap settings
         keymaps = [
@@ -830,67 +418,258 @@ in
           }
         ];
 
+        # --- key bindings ---
+
+        window-management-key = "Super_L"; # logo uses different symbol names
+
+        actions = {
+          lock = mkExec {
+            prog = lib.getExe pkgs.swaylock;
+            privileged = true;
+          };
+          poweroff = mkExec [
+            "systemctl"
+            "poweroff"
+          ];
+          reboot = mkExec [
+            "systemctl"
+            "reboot"
+          ];
+          suspend = mkExec [
+            "systemctl"
+            "suspend"
+          ];
+        };
+
+        shortcuts =
+          vtBindings
+          // workspaceBindings
+          // dirBindings "${modifier}-" (dir: "focus-${dir}")
+          // dirBindings "${modifier}-shift-" (dir: "move-${dir}")
+          // dirBindings "${modifier}-shift-ctrl-" (dir: {
+            type = "move-to-output";
+            direction = dir;
+          })
+          // {
+            # compositor
+            "${modifier}-shift-q" = "quit";
+            "${modifier}-shift-r" = "reload-config-toml";
+
+            # windows
+            "${modifier}-q" = "close";
+            "${modifier}-f" = "toggle-fullscreen";
+            "${modifier}-space" = "toggle-floating";
+            "${modifier}-n" = "toggle-mono";
+            "${modifier}-v" = "toggle-split";
+            "${modifier}-u" = "split-horizontal";
+            "${modifier}-i" = "split-vertical";
+            "${modifier}-Escape" = "disable-pointer-constraint";
+            "${modifier}-t" = "show-titles";
+            "${modifier}-shift-t" = "hide-titles";
+
+            # focus
+            "${modifier}-Tab" = "focus-next";
+            "${modifier}-shift-Tab" = "focus-prev";
+            "${modifier}-Delete" = "focus-tiles";
+            "${modifier}-Prior" = "focus-above"; # layer above
+            "${modifier}-Next" = "focus-below"; # layer below
+            "${modifier}-g" = "focus-parent";
+            "${modifier}-c" = "warp-mouse-to-focus";
+
+            # marks — next key identifies the mark
+            "${modifier}-y" = {
+              type = "jump-to-mark";
+            };
+            "${modifier}-shift-y" = {
+              type = "create-mark";
+            };
+
+            # modes
+            "${modifier}-m" = mkPushMode "mirror";
+            "${modifier}-p" = mkPushMode "system";
+            "${modifier}-r" = mkPushMode "resize";
+
+            # audio (wireplumber)
+            XF86AudioRaiseVolume = mkExec [
+              "wpctl"
+              "set-volume"
+              "@DEFAULT_AUDIO_SINK@"
+              "5%+"
+              "--limit"
+              "1.5"
+            ];
+            XF86AudioLowerVolume = mkExec [
+              "wpctl"
+              "set-volume"
+              "@DEFAULT_AUDIO_SINK@"
+              "5%-"
+              "--limit"
+              "0.0"
+            ];
+            XF86AudioMute = mkExec [
+              "wpctl"
+              "set-mute"
+              "@DEFAULT_AUDIO_SINK@"
+              "toggle"
+            ];
+            XF86AudioMicMute = mkExec [
+              "wpctl"
+              "set-mute"
+              "@DEFAULT_AUDIO_SOURCE@"
+              "toggle"
+            ];
+
+            # player
+            XF86AudioPlay = mkExec [
+              (lib.getExe pkgs.playerctl)
+              "play-pause"
+            ];
+            XF86AudioPause = mkExec [
+              (lib.getExe pkgs.playerctl)
+              "play-pause"
+            ];
+            XF86AudioNext = mkExec [
+              (lib.getExe pkgs.playerctl)
+              "next"
+            ];
+            XF86AudioPrev = mkExec [
+              (lib.getExe pkgs.playerctl)
+              "previous"
+            ];
+            XF86AudioStop = mkExec [
+              (lib.getExe pkgs.playerctl)
+              "stop"
+            ];
+
+            # screenshot
+            "${modifier}-s" = mkExec [
+              "${jay-screenshot}"
+              "workspace"
+            ];
+            "${modifier}-shift-s" = mkExec [
+              "${jay-screenshot}"
+              "window"
+            ];
+            "${modifier}-ctrl-s" = mkExec [
+              "${jay-screenshot}"
+              "region"
+            ];
+
+            # launch
+            "${modifier}-Return" = mkExec [
+              (lib.getExe pkgs.app2unit)
+              "footclient"
+            ];
+            "${modifier}-d" = mkExec "fuzzel";
+            "${modifier}-a" = mkExec [
+              "swaync-client"
+              "-t"
+            ];
+          };
+
+        modes = {
+          mirror.shortcuts =
+            let
+              wl-present = lib.getExe' pkgs.wl-mirror "wl-present";
+              present-action = action: [
+                popMode
+                (mkExec [
+                  wl-present
+                  action
+                ])
+              ];
+            in
+            {
+              "${modifier}-m" = popMode;
+              "Escape" = popMode;
+
+              "m" = present-action "mirror";
+              "c" = present-action "custom";
+              "f" = present-action "toggle-freeze";
+              "z" = present-action "freeze";
+              "shift-z" = present-action "unfreeze";
+              "o" = present-action "set-output";
+              "r" = present-action "set-region";
+              "shift-r" = present-action "unset-region";
+              "s" = present-action "set-scaling";
+            };
+
+          resize.shortcuts =
+            let
+              amount = 10;
+              mkResize = field: val: {
+                type = "resize";
+                ${field} = val;
+              };
+            in
+            lib.listToAttrs (
+              lib.concatMap (
+                {
+                  key,
+                  arrow,
+                  field,
+                  sign,
+                  ...
+                }:
+                [
+                  (lib.nameValuePair key (mkResize field (sign * amount)))
+                  (lib.nameValuePair arrow (mkResize field (sign * amount)))
+                  (lib.nameValuePair "shift-${key}" (mkResize field (-(sign * amount))))
+                  (lib.nameValuePair "shift-${arrow}" (mkResize field (-(sign * amount))))
+                ]
+              ) dirKeys
+            )
+            // {
+              "${modifier}-r" = popMode;
+              "Escape" = popMode;
+            };
+
+          system.shortcuts = {
+            "${modifier}-p" = popMode;
+            "Escape" = popMode;
+            "l" = [
+              popMode
+              "$lock"
+            ];
+            "s" = [
+              popMode
+              "$poweroff"
+            ];
+            "r" = [
+              popMode
+              "$reboot"
+            ];
+            "h" = [
+              popMode
+              "$suspend"
+            ];
+          };
+        };
+
+        # --- window rules ---
+
         windows = [
           {
             name = "spotify";
             match.app-id = "spotify";
-            action = [
-              {
-                type = "move-to-workspace";
-                name = "5";
-              }
-              {
-                type = "move-to-output";
-                workspace = "5";
-                output.name = "vertical";
-              }
-            ];
+            action = mkMoveToOutput "5" "vertical";
           }
           {
             name = "vesktop";
             match.app-id = "vesktop";
-            action = [
-              {
-                type = "move-to-workspace";
-                name = "5";
-              }
-              {
-                type = "move-to-output";
-                workspace = "5";
-                output.name = "vertical";
-              }
-            ];
+            action = mkMoveToOutput "5" "vertical";
           }
           {
             name = "firefox";
             match.app-id = "firefox";
-            action = [
-              {
-                type = "move-to-workspace";
-                name = "1";
-              }
-              {
-                type = "move-to-output";
-                workspace = "1";
-                output.name = "horizontal";
-              }
-            ];
+            action = mkMoveToOutput "1" "horizontal";
           }
           {
             name = "wl-mirror";
             match.app-id = "at.yrlf.wl_mirror";
             match.just-mapped = true;
             auto-focus = false;
-            action = [
-              {
-                type = "move-to-workspace";
-                name = "0";
-              }
-              {
-                type = "move-to-output";
-                workspace = "0";
-                output.name = "beamer";
-              }
+            action = mkMoveToOutput "0" "beamer" ++ [
               {
                 type = "simple";
                 cmd = "enter-fullscreen";
@@ -902,15 +681,13 @@ in
         clients = [
           {
             match.exe-regex = "^${pkgs.swaynotificationcenter}/.*";
-            capabilities = [
-              "layer-shell"
-            ];
+            capabilities = [ "layer-shell" ];
           }
           {
             match.exe-regex = "^${pkgs.waybar}/.*";
             capabilities = [
-              # TODO: it should be possible to display the active window title using zwlr_foreign_toplevel_manager_v1
-              # by combing parts of the waybar modules wlr/taskbar and sway/window
+              # TODO: display the active window title via zwlr_foreign_toplevel_manager_v1
+              # by combining parts of the waybar modules wlr/taskbar and sway/window
               "foreign-toplevel-manager"
               "layer-shell"
               "workspace-manager"
@@ -918,40 +695,36 @@ in
           }
           {
             match.exe-regex = "^${pkgs.wl-mirror}/.*";
-            capabilities = [
-              "screencopy"
-            ];
+            capabilities = [ "screencopy" ];
           }
           {
             match.exe-regex = "^${pkgs.wayland-pipewire-idle-inhibit}/.*";
-            capabilities = [
-              "layer-shell"
-            ];
+            capabilities = [ "layer-shell" ];
           }
           {
-            # warning: this allows unrestricted access to the clipboard with wl-copy and wl-paste
-            # without these capabilities wl-copy just freezes and programs like neovim which require wl-copy/wl-paste for yanking/pasting to the global clipboard become unusable
+            # warning: this allows unrestricted clipboard access via wl-copy/wl-paste
+            # without it wl-copy freezes and neovim clipboard yanking breaks
             match.exe-regex = "^${pkgs.wl-clipboard}/.*";
-            capabilities = [
-              "data-control"
-            ];
+            capabilities = [ "data-control" ];
           }
         ];
+
+        # --- behavior ---
+
+        focus-follows-mouse = true;
+        unstable-mouse-follows-focus = true;
+        fallback-output-mode = "focus"; # more useful with mouse-follows-focus
+        workspace-display-order = "sorted";
 
         # lock after 10 minutes idle
         idle = {
           minutes = 10;
-          # During the grace period, the screen goes black but the outputs are not yet disabled and the on-idle action does not yet run.
-          # This is a visual indicator that the system will soon get idle.
+          # screen goes black during grace period before idle action and output disable
           grace-period.seconds = 5;
         };
         on-idle = "$lock";
 
-        fallback-output-mode = "focus"; # more useful with mouse-follows-focus
-        focus-follows-mouse = true;
-        unstable-mouse-follows-focus = true;
-
-        workspace-display-order = "sorted";
+        # --- appearance ---
 
         show-bar = false;
         show-titles = true;

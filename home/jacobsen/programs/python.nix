@@ -20,6 +20,7 @@
           pandas
           gurobipy
           jupyter
+          huggingface-hub
 
           # matplotlib, enable additional backends and load respective platform packages
           (matplotlib.override {

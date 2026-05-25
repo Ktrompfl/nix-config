@@ -8,7 +8,7 @@
     ./filesystem
     ./network
     ./home.nix
-    ./rocm.nix
+    # ./rocm.nix
     ./webdav.nix
   ];
 

@@ -1370,6 +1370,7 @@
         '';
       }
       {
+        # warning: all grammars are built from source
         plugin = nvim-treesitter.withAllGrammars;
         type = "lua";
         config = /* lua */ ''

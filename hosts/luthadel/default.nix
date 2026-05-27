@@ -59,7 +59,17 @@
     fwupd.enable = true;
 
     # power saving
-    tlp.enable = true;
+    tlp = {
+      enable = true;
+      settings = {
+        USB_AUTOSUSPEND = 1;
+        USB_DENYLIST = lib.concatStringsSep " " [
+          "046d:c539" # Logitech, Inc. Lightspeed Receiver
+          "4d4b:304e" # SmartCloud AL68 Keyboard
+          "056d:c077" # EIZO Corp. YUNZII AL68 2.4G
+        ];
+      };
+    };
     upower.enable = true;
 
     # brightness controls

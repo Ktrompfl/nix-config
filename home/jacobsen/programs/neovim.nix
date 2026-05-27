@@ -1370,8 +1370,46 @@
         '';
       }
       {
-        # warning: all grammars are built from source
-        plugin = nvim-treesitter.withAllGrammars;
+        # only install selected grammars to avoid building all grammars from source
+        plugin = nvim-treesitter.withPlugins (
+          p: with p; [
+            bash
+            c
+            cmake
+            comment
+            cpp
+            css
+            diff
+            dockerfile
+            gitcommit
+            gitignore
+            haskell
+            html
+            javascript
+            json
+            julia
+            latex
+            lua
+            make
+            markdown
+            markdown_inline
+            nginx
+            nix
+            python
+            query
+            regex
+            rst
+            rust
+            sql
+            toml
+            typescript
+            typst
+            vim
+            vimdoc
+            xml
+            yaml
+          ]
+        );
         type = "lua";
         config = /* lua */ ''
           vim.api.nvim_create_autocmd('FileType', {

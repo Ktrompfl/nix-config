@@ -3,10 +3,8 @@
   pkgs,
   lib,
   stdenv,
-  libGL,
   libinput,
   pkgconf,
-  xkeyboard_config,
   libgbm,
   pango,
   udev,
@@ -42,19 +40,27 @@ craneLib.buildPackage {
   ];
 
   buildInputs = [
-    libGL
-    xkeyboard_config
-    libgbm
     pango
     fontconfig
     udev
+    libgbm
     libinput
   ];
 
   runtimeDependencies = [
     libglvnd
+    sqlite.out
     vulkan-loader
-    sqlite
+  ];
+
+  # Jay uses https://docs.rs/dlopen-note/latest/dlopen_note/ to declare its optional runtime
+  # dependencies in ELF metadata (https://uapi-group.org/specifications/specs/elf_dlopen_metadata/).
+  # However, auto-patchelf fails if these dependencies are not present at compile time.
+  autoPatchelfIgnoreMissingDeps = [
+    "libGLESv2.so.2"
+    "libEGL.so.1"
+    "libsqlite3.so.0"
+    "libvulkan.so.1"
   ];
 
   cargoTestExtraArgs =

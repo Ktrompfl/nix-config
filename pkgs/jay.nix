@@ -15,6 +15,7 @@
   installShellFiles,
   allowRealtimeConfigSO ? false,
   sqlite,
+  xkeyboard-config,
   ...
 }:
 let
@@ -45,6 +46,8 @@ craneLib.buildPackage {
     udev
     libgbm
     libinput
+
+    xkeyboard-config # dependency for kbvm crate
   ];
 
   runtimeDependencies = [

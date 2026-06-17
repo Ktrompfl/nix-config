@@ -493,5 +493,8 @@
 
   # firefox persistent storage, maybe check if really everything in there is needed
   # note for preservation: if a subdirectory of .mozilla is persisted instead, correct file permissions for .mozilla must be set anyways with systemd-tmpfiles
-  preservation.preserveAt.state-dir.directories = [ ".mozilla" ];
+  preservation.preserveAt.state-dir.directories = [
+    ".mozilla"
+    ".config/mozilla/firefox"
+  ];
 }

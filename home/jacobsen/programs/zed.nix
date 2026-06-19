@@ -53,6 +53,7 @@
 
       # control ui elements
       agent.dock = "right";
+      agent.sidebar_side = "right";
       project_panel.dock = "left";
       outline_panel.dock = "left";
       git_panel.dock = "left";
@@ -63,6 +64,10 @@
         show_sign_in = false;
         show_user_menu = false;
         show_user_picture = false;
+      };
+
+      agent_servers = {
+        claude-acp.type = "registry";
       };
 
       languages = {

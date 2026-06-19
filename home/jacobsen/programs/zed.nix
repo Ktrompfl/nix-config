@@ -33,6 +33,8 @@
         metrics = false;
       };
 
+      cli_default_open_behavior = "new_window";
+
       autosave = "on_focus_change";
 
       auto_signature_help = true;

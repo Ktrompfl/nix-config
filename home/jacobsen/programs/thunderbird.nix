@@ -5,6 +5,7 @@
     settings = {
       "browser.display.use_system_colors" = true;
       "browser.display.document_color_use" = 2; # always use system colors, ignore contrast
+      "mailnews.mark_message_read.auto" = false;
     };
   };
 

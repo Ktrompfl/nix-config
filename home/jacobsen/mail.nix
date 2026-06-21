@@ -46,5 +46,20 @@
         realName = "Nicolaus Jacobsen";
         userName = mkEmail "rptu.de" "jacobsen";
       };
+      StuPa = {
+        address = mkEmail "stupa.uni-kl.de" "praesidium";
+        imap = {
+          host = "mail.rptu.de";
+          port = 993;
+        };
+        smtp = {
+          host = "smtp.rptu.de";
+          port = 587;
+          tls.useStartTls = true;
+        };
+        thunderbird.enable = true;
+        realName = "Präsidium des 56. StuPas";
+        userName = mkEmail "stupa.uni-kl.de" "praesidium";
+      };
     };
 }

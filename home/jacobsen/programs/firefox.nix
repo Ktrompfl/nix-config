@@ -20,6 +20,7 @@
   programs = {
     firefox = {
       enable = true;
+      # TODO: configPath = "${config.xdg.configHome}/mozilla/firefox";
       nativeMessagingHosts = [ pkgs.tridactyl-native ];
       policies = {
         # debloat
@@ -75,7 +76,6 @@
           "http://127.0.0.1"
         ];
       };
-      # package = pkgs.wrapFirefox pkgs.firefox-unwrapped { extraPolicies = { }; };
       profiles = {
         jacobsen = {
           isDefault = true;

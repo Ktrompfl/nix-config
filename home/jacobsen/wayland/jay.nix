@@ -600,6 +600,7 @@ in
               mkResize = field: val: {
                 type = "resize";
                 ${field} = val;
+                repeat = true;
               };
             in
             lib.listToAttrs (

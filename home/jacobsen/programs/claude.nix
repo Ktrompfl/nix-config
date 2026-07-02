@@ -17,6 +17,7 @@ in
   # TODO: maybe install https://mcp-nixos.io/
   programs.claude-code = {
     enable = true;
+    package = pkgs.llm-agents.claude-code;
     settings = {
       permissions = {
         allow = [

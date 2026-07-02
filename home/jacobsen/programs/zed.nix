@@ -76,8 +76,8 @@
       agent_servers = {
         claude-acp = {
           # type = "registry"; # latest, standalone acp adapter
-          type = "custom"; # set type = "registry" to use upstream claude-agent-acp
-          command = lib.getExe pkgs.claude-agent-acp;
+          type = "custom";
+          command = lib.getExe pkgs.llm-agents.claude-agent-acp;
           env = {
             # use wrapped claude code package to make configured plugins (e.g. language servers) available
             CLAUDE_CODE_EXECUTABLE = lib.getExe config.programs.claude-code.finalPackage;

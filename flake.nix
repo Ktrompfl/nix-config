@@ -40,6 +40,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # omitting follows costs a second nixpkgs evaluation but guarantees binary cache hits
+    llm-agents.url = "github:numtide/llm-agents.nix";
+
     nixcraft = {
       url = "github:loystonpais/nixcraft";
       inputs = {

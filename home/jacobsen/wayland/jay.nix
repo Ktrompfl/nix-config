@@ -6,82 +6,6 @@
 }:
 let
   # --- scripts ---
-
-  # workaround for:
-  # - jay has no proper screenshot selections yet, see https://github.com/mahkoh/jay/issues/564
-  # - grim fails for multi-monitor setups with transforms, see https://todo.sr.ht/~emersion/grim/100
-  jay-screenshot = pkgs.writeShellScript "jay-screenshot" /* sh */ ''
-    # --- require type argument ---
-    if [ $# -lt 1 ]; then
-      echo "Usage: $0 <window|region|workspace>" >&2
-      exit 1
-    fi
-
-    type="$1"
-
-    # --- determine region ---
-    case "$type" in
-      workspace)
-        region=$(jay tree query select-workspace | awk '
-          /pos:/ {
-            gsub(" ", "");        # remove spaces
-            sub("pos:", "");      # remove "pos:" prefix
-            split($0, a, "\\+");  # split on "+"
-            split(a[1], xy, "x"); # first part = XxY
-            split(a[2], wh, "x"); # second part = WxH
-            print wh[1] "x" wh[2] "+" xy[1] "+" xy[2]
-          }
-        ')
-        ;;
-      window)
-        region=$(jay tree query select-window | awk '
-          /pos:/ {
-            gsub(" ", "");        # remove spaces
-            sub("pos:", "");      # remove "pos:" prefix
-            split($0, a, "\\+");  # split on "+"
-            split(a[1], xy, "x"); # first part = XxY
-            split(a[2], wh, "x"); # second part = WxH
-            print wh[1] "x" wh[2] "+" xy[1] "+" xy[2]
-          }
-        ')
-        ;;
-      region)
-        region=$(${lib.getExe pkgs.slurp} | awk '{split($1,a,","); split($2,b,"x"); printf "%sx%s+%s+%s\n", b[1], b[2], a[1], a[2]}');
-        ;;
-      *)
-        echo "Error: unknown type '$type'. Must be one of: window, region, workspace" >&2
-        exit 1
-        ;;
-    esac
-
-    # --- validate region ---
-    if ! [[ $region =~ ^-?[0-9]+x-?[0-9]+\+-?[0-9]+\+-?[0-9]+$ ]]; then
-      echo "Error: invalid region: '$region'" >&2
-      exit 1
-    fi
-
-    # --- setup output file ---
-    if [ -n "$XDG_SCREENSHOTS_DIR" ]; then
-      SCREENSHOTS_DIR="$XDG_SCREENSHOTS_DIR"
-    else
-      SCREENSHOTS_DIR="$HOME/Pictures/screenshots"
-    fi
-    output="$SCREENSHOTS_DIR/$(date +'%Y-%m-%d-%H%M%S.png')";
-
-    # --- take global screenshot ---
-    TMPFILE=$(mktemp --suffix=.png)
-    jay screenshot "$TMPFILE"
-
-    # --- crop screenshot to region ---
-    ${lib.getExe' pkgs.imagemagick "magick"} "$TMPFILE" -crop "$region" +repage "$output"
-
-    # --- copy to clipboard ---
-    wl-copy --type "image/png" < "$output"
-
-    # --- notify ---
-    ${lib.getExe' pkgs.libnotify "notify-send"} --app-name="Screenshot" --urgency=normal --expire-time=3000 --icon="$output" "Screenshot Saved" "Screenshot saved to $output and copied to clipboard"
-  '';
-
   # track the mode stack in a tmpfile and signal waybar on changes to update a
   # mode indicator until jay / waybar support this natively via ipc
   jay-mode =
@@ -543,16 +467,26 @@ in
 
             # screenshot
             "${modifier}-s" = mkExec [
-              "${jay-screenshot}"
+              "screenshot"
               "workspace"
+              "--copy"
+              "--notify"
+              "--output"
             ];
             "${modifier}-shift-s" = mkExec [
-              "${jay-screenshot}"
+              "screenshot"
               "window"
+              "--copy"
+              "--notify"
+              "--output"
+              ""
             ];
             "${modifier}-ctrl-s" = mkExec [
-              "${jay-screenshot}"
+              "screenshot"
               "region"
+              "--copy"
+              "--notify"
+              "--output"
             ];
 
             # launch
@@ -692,6 +626,12 @@ in
               "foreign-toplevel-manager"
               "layer-shell"
               "workspace-manager"
+            ];
+          }
+          {
+            match.exe-regex = "^${pkgs.grim}/.*";
+            capabilities = [
+              "screencopy"
             ];
           }
           {

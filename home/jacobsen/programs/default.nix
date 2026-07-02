@@ -26,6 +26,7 @@
     ./moonlight.nix
     ./neovim.nix
     ./python.nix
+    ./satty.nix
     ./seafile.nix
     ./signal.nix
     ./spotify.nix

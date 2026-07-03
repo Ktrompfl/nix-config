@@ -14,6 +14,7 @@
     nwg-look # for debug: wayland native gtk3 settings editor, like lxappearance
 
     # audio tools
+    alsa-scarlett-gui
     # coppwr # Low level control GUI for the PipeWire multimedia server
     # easyeffects # Audio effects for PipeWire applications
     # helvum # GTK patchbay for pipewire

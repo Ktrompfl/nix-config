@@ -61,4 +61,16 @@
     #     popups = opacity;
     #   };
   };
+
+  # specialisation for light theme
+  specialisation.light = {
+    inheritParentConfig = true;
+    configuration = {
+      stylix = {
+        polarity = lib.mkForce "light";
+        base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/rose-pine-dawn.yaml";
+        cursor.name = lib.mkForce "BreezeX-RosePineDawn-Linux";
+      };
+    };
+  };
 }

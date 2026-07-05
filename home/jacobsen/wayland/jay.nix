@@ -16,8 +16,6 @@
       inherit inputs;
 
       extraEnv = {
-        JAY_MODE_SCRIPT = "${jay-mode}";
-
         CURSOR_THEME = config.home.pointerCursor.name;
         CURSOR_SIZE = config.home.pointerCursor.size;
         GTK_THEME = config.gtk.theme.name;

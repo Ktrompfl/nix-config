@@ -22,10 +22,6 @@ pub fn setup() {
 
     bind("waybar", CC_FOREIGN_TOPLEVEL_MANAGER | CC_LAYER_SHELL | CC_WORKSPACE_MANAGER);
 
-    // i3status-rust's "focused_window" block needs this to track the title
-    // of the focused window (see ../../programs/i3status-rust.nix)
-    bind("i3status-rs", CC_FOREIGN_TOPLEVEL_MANAGER);
-
     bind("grim", CC_SCREENCOPY);
 
     bind("wl-mirror", CC_SCREENCOPY);

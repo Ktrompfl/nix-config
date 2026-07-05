@@ -175,11 +175,11 @@
         "sway/mode" = {
           tooltip = false;
         };
-        "sway/window" = {
-          format = "{}";
-          max-length = 64;
-          tooltip = false;
-        };
+        # "sway/window" = {
+        #   format = "{}";
+        #   max-length = 64;
+        #   tooltip = false;
+        # };
         idle_inhibitor = {
           format = "{icon}";
           format-icons = {

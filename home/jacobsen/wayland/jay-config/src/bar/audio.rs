@@ -1,17 +1,19 @@
+use std::{rc::Rc, time::Duration};
+
 use jay_config::exec::Command;
 
-use super::exec::capture;
+use super::{exec::capture, schedule::repeat};
 
 const VOLUME_ICONS: [&str; 3] = ["\u{f026}", "\u{f027}", "\u{f057e}"];
 const MUTED_ICON: &str = "\u{f466}";
 
-pub fn poll(on_result: impl FnOnce(String) + 'static) {
+fn poll(on_result: impl FnOnce(String) + 'static) {
     capture(Command::new("wpctl").arg("get-volume").arg("@DEFAULT_AUDIO_SINK@"), move |output| {
-        on_result(format_volume(&output));
+        on_result(format(&output));
     });
 }
 
-fn format_volume(output: &str) -> String {
+fn format(output: &str) -> String {
     let Some(line) = output.lines().next() else {
         return String::new();
     };
@@ -28,4 +30,12 @@ fn format_volume(output: &str) -> String {
         _ => VOLUME_ICONS[2],
     };
     format!("{icon} {percent}%")
+}
+
+pub fn run(on_update: impl Fn(String) + 'static) {
+    let on_update = Rc::new(on_update);
+    repeat("bar-volume", Duration::from_secs(2), move || {
+        let on_update = on_update.clone();
+        poll(move |text| on_update(text));
+    });
 }

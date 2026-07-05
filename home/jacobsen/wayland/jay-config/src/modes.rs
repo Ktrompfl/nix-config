@@ -11,10 +11,12 @@ use crate::{generated::JAY_MODE_SCRIPT, shortcuts};
 
 fn notify_push(name: &str) {
     Command::new(JAY_MODE_SCRIPT).arg(name).spawn();
+    crate::bar::set_mode(Some(name));
 }
 
 fn notify_pop() {
     Command::new(JAY_MODE_SCRIPT).spawn();
+    crate::bar::set_mode(None);
 }
 
 // --- mirror mode ---

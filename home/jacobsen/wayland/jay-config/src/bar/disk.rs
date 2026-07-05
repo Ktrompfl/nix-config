@@ -1,6 +1,10 @@
-use std::{ffi::CString, mem::MaybeUninit};
+use std::{ffi::CString, mem::MaybeUninit, time::Duration};
 
-pub fn disk_usage(path: &str) -> String {
+use super::schedule::repeat;
+
+const PATH: &str = "/persist/";
+
+fn usage(path: &str) -> String {
     let Ok(cpath) = CString::new(path) else {
         return String::new();
     };
@@ -20,4 +24,8 @@ pub fn disk_usage(path: &str) -> String {
     }
     let used_percent = (total - free) as f64 / total as f64 * 100.0;
     format!("\u{f02ca} {used_percent:.0}%")
+}
+
+pub fn run(on_update: impl Fn(String) + 'static) {
+    repeat("bar-disk", Duration::from_secs(30), move || on_update(usage(PATH)));
 }

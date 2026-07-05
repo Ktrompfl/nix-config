@@ -5,8 +5,9 @@
   ...
 }:
 let
-  # track the mode stack in a tmpfile and signal waybar/i3status-rs on
-  # changes to update a mode indicator until jay supports this natively
+  # track the mode stack in a tmpfile and signal waybar on changes to update a
+  # mode indicator until jay / waybar support this natively via ipc. jay's
+  # own bar gets the mode reactively via jay-config/src/bar.rs instead.
   jay-mode =
     let
       signal = 1;
@@ -22,7 +23,6 @@ let
       fi
 
       pkill -RTMIN+${toString signal} waybar
-      pkill -RTMIN+${toString signal} i3status-rs
     '';
 in
 {

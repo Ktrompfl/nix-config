@@ -499,6 +499,10 @@ in
               "swaync-client"
               "-t"
             ];
+            "${modifier}-shift-v" = {
+              type = "exec";
+              exec.shell = "cliphist list | fuzzel --dmenu --with-nth 2 | cliphist decode | wl-copy";
+            };
           };
 
         modes = {

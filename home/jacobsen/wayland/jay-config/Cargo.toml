@@ -1,0 +1,13 @@
+[package]
+name = "jay-config-jacobsen"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+name = "jay_config_jacobsen"
+crate-type = ["cdylib"]
+
+[dependencies]
+jay-config = { path = "vendor/jay-config" }
+regex = "1"

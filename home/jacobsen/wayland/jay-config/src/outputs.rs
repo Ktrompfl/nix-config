@@ -36,14 +36,17 @@ pub fn vertical() -> Connector {
 pub fn setup() {
     on_connector_connected(|con| match (con.name().as_str(), con.model().as_str()) {
         ("eDP-1", _) => {
+            // laptop integrated display
             con.set_position(0, 0);
             con.set_mode(1920, 1080, Some(hz(60.049)));
         }
         (_, "EPSON PJ") => {
+            // external beamer
             con.set_position(0, 1080);
             con.set_mode(1920, 1080, Some(hz(60.0)));
         }
         (_, "VG270U P") => {
+            // horizontal display
             con.set_position(0, 240);
             con.set_scale(1.0);
             con.set_mode(2560, 1440, Some(hz(143.995)));
@@ -51,6 +54,7 @@ pub fn setup() {
             con.set_vrr_mode(VrrMode::VARIANT_3);
         }
         (_, "BenQ GL2480") => {
+            // vertical display
             con.set_position(2560, 0);
             con.set_scale(1.0);
             con.set_mode(1920, 1080, Some(hz(60.0)));

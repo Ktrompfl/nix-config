@@ -26,7 +26,7 @@ pub fn setup() {
     // screen goes black during grace period before idle action and output disable
     set_idle_grace_period(Duration::from_secs(5));
     on_idle(|| {
-        Command::new("swaylock").privileged().spawn();
+        Command::new("swaylock").spawn();
     });
 
     set_show_bar(false);

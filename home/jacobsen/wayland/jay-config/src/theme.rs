@@ -16,8 +16,8 @@ pub fn setup() {
     set_title_font(MONOSPACE_FONT);
     set_bar_font(MONOSPACE_FONT);
 
-    colors::BACKGROUND_COLOR.set_color(hex(BASE00));
     sized::BORDER_WIDTH.set(1);
+    colors::BACKGROUND_COLOR.set_color(hex(BASE00));
     colors::BORDER_COLOR.set_color(hex(BASE03));
 
     colors::ATTENTION_REQUESTED_BACKGROUND_COLOR.set_color(hex(BASE09));

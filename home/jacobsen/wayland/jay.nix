@@ -23,22 +23,6 @@ let
 
       pkill -RTMIN+${toString signal} waybar
     '';
-
-  # Tools the jay-config crate spawns or matches clients by name against.
-  # jay-config itself only ever sees these by name (see ./jay-config/src),
-  # so nothing else forces them into the user's environment.
-  runtimeTools = with pkgs; [
-    swaylock
-    playerctl
-    app2unit
-    wl-mirror
-    swaynotificationcenter
-    waybar
-    grim
-    wayland-pipewire-idle-inhibit
-    wl-clipboard
-    wl-clip-persist
-  ];
 in
 {
   wayland.windowManager.jay = {
@@ -81,7 +65,19 @@ in
     };
   };
 
-  home.packages = runtimeTools;
+  # packages used in the jay config
+  home.packages = with pkgs; [
+    app2unit
+    grim
+    playerctl
+    swaylock
+    swaynotificationcenter
+    waybar
+    wayland-pipewire-idle-inhibit
+    wl-clipboard
+    wl-clip-persist
+    wl-mirror
+  ];
 
   # persist logs and session management
   preservation.preserveAt.state-dir.directories = [ ".local/share/jay" ];

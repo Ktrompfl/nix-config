@@ -162,7 +162,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "jay-config-jacobsen"
+name = "jay-config-lib"
 version = "0.1.0"
 dependencies = [
  "jay-config",

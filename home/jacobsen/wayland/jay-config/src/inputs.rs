@@ -53,7 +53,7 @@ pub fn setup() {
                 let laptop_screen = outputs::laptop_integrated();
                 match event {
                     SwitchEvent::LidClosed => {
-                        Command::new("swaylock").privileged().spawn();
+                        Command::new("swaylock").spawn();
                         laptop_screen.set_enabled(false);
                     }
                     SwitchEvent::LidOpened => {

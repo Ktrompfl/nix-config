@@ -5,7 +5,7 @@
   extraEnv ? { },
 }:
 rustPlatform.buildRustPackage {
-  pname = "jay-config-jacobsen";
+  pname = "jay-config-lib";
   version = "0.1.0";
 
   src = lib.fileset.toSource {
@@ -41,12 +41,12 @@ rustPlatform.buildRustPackage {
   # executable, so there is nothing for `cargo install` to place in $out/bin.
   installPhase = ''
     runHook preInstall
-    install -Dm755 "$(find target -name libjay_config_jacobsen.so -not -path '*/deps/*')" $out/lib/config.so
+    install -Dm755 "$(find target -name libjay_config_lib.so -not -path '*/deps/*')" $out/lib/config.so
     runHook postInstall
   '';
 
   meta = {
-    description = "jacobsen's Jay compositor configuration, compiled to a config.so shared library";
+    description = "jay shared library configuration";
     platforms = lib.platforms.linux;
   };
 }

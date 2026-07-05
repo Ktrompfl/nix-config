@@ -1,9 +1,13 @@
 use jay_config::client::{
-    CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_LAYER_SHELL, CC_SCREENCOPY, CC_WORKSPACE_MANAGER,
+    CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_LAYER_SHELL, CC_SCREENCOPY, CC_SESSION_LOCK, CC_WORKSPACE_MANAGER,
     ClientCriterion,
 };
 
 pub fn setup() {
+    ClientCriterion::ExeRegex("/swaylock$")
+        .to_matcher()
+        .set_capabilities(CC_LAYER_SHELL | CC_SESSION_LOCK);
+
     ClientCriterion::ExeRegex("/swaync$")
         .to_matcher()
         .set_capabilities(CC_LAYER_SHELL);

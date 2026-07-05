@@ -1,11 +1,11 @@
 [package]
-name = "jay-config-jacobsen"
+name = "jay-config-lib"
 version = "0.1.0"
 edition = "2024"
 publish = false
 
 [lib]
-name = "jay_config_jacobsen"
+name = "jay_config_lib"
 crate-type = ["cdylib"]
 
 [dependencies]

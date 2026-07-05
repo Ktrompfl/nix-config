@@ -643,9 +643,11 @@ in
             capabilities = [ "layer-shell" ];
           }
           {
-            # warning: this allows unrestricted clipboard access via wl-copy/wl-paste
-            # without it wl-copy freezes and neovim clipboard yanking breaks
             match.exe-regex = "^${pkgs.wl-clipboard}/.*";
+            capabilities = [ "data-control" ];
+          }
+          {
+            match.exe-regex = "^${pkgs.wl-clip-persist}/.*";
             capabilities = [ "data-control" ];
           }
         ];

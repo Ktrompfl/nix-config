@@ -7,7 +7,7 @@ use jay_config::{
     },
 };
 
-use crate::{generated::JAY_MODE_SCRIPT, shortcuts};
+use crate::shortcuts;
 
 fn notify_push(name: &str) {
     crate::bar::set_mode(Some(name));

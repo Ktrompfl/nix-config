@@ -90,7 +90,7 @@ pub fn set_mode(mode: Option<&str>) {
 
 pub fn setup() {
     set_show_bar(true);
-    set_bar_position(BarPosition::Top);
+    set_bar_position(BarPosition::Bottom);
 
     set_mode(None);
 

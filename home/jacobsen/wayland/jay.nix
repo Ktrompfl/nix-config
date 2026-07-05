@@ -4,27 +4,6 @@
   pkgs,
   ...
 }:
-let
-  # track the mode stack in a tmpfile and signal waybar on changes to update a
-  # mode indicator until jay / waybar support this natively via ipc. jay's
-  # own bar gets the mode reactively via jay-config/src/bar.rs instead.
-  jay-mode =
-    let
-      signal = 1;
-      socket = "$XDG_RUNTIME_DIR/waybar/custom/mode";
-    in
-    pkgs.writeShellScript "jay-mode" /* sh */ ''
-      mkdir -p "$(dirname "${socket}")"
-
-      if [[ $1 ]]; then
-        echo "$1" >> "${socket}"
-      else
-        sed -i '$ d' "${socket}" 2>/dev/null
-      fi
-
-      pkill -RTMIN+${toString signal} waybar
-    '';
-in
 {
   wayland.windowManager.jay = {
     enable = true;

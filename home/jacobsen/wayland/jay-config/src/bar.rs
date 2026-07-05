@@ -84,12 +84,15 @@ fn update(f: impl FnOnce(&mut Segments)) {
 /// reactively from keybindings rather than polled, so it has no `run`
 /// function of its own.
 pub fn set_mode(mode: Option<&str>) {
-    update(|s| s.mode = mode.map(str::to_uppercase).unwrap_or_default());
+    let mode = mode.unwrap_or("normal");
+    update(|s| s.mode = mode.to_uppercase());
 }
 
 pub fn setup() {
     set_show_bar(true);
     set_bar_position(BarPosition::Top);
+
+    set_mode(None);
 
     cpu::run(|text| update(|s| s.cpu = text));
     memory::run(|text| update(|s| s.memory = text));

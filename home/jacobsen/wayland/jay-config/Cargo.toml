@@ -13,6 +13,7 @@ jay-config = { path = "vendor/jay-config" }
 regex = "1"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 futures-util = { version = "0.3", features = ["io"] }
+inotify = "0.11"
 libc = "0.2"
 serde_json = "1"
 uapi = "0.2"

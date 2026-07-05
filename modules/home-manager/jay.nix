@@ -43,11 +43,20 @@ in
       };
     };
 
-    extraConfig = mkOption {
-      type = types.lines;
-      default = "";
+    libraryConfig = mkOption {
+      type = types.nullOr types.package;
+      default = null;
+      example = literalExpression "pkgs.callPackage ./jay-config { inherit inputs; }";
       description = ''
-        Extra configuration lines to append to ~/.config/jay/config.toml.
+        A compiled shared library used to configure jay via the jay-config
+        Rust crate, installed at ~/.config/jay/config.so.
+
+        Jay loads config.so in preference to config.toml, so when this is
+        set, `settings` is ignored by jay even though this module still
+        writes it to disk if non-empty.
+
+        The package is expected to place the shared library at
+        `$out/lib/config.so`.
       '';
     };
 
@@ -158,24 +167,14 @@ in
   config = mkIf cfg.enable {
     home.packages = [ cfg.package ];
 
-    xdg.configFile =
-      let
-        hasSettings = cfg.settings != { };
-        hasExtraConfig = cfg.extraConfig != "";
-      in
-      {
-        "jay/config.toml" = mkIf (hasSettings || hasExtraConfig) {
-          source =
-            let
-              configFile = tomlFormat.generate "config.toml" cfg.settings;
-              extraConfigFile = pkgs.writeText "extra-config.toml" (
-                lib.optionalString hasSettings "\n" + cfg.extraConfig
-              );
-            in
-            pkgs.runCommand "jay-config.toml" { } ''
-              cat ${configFile} ${extraConfigFile} >> $out
-            '';
-        };
+    xdg.configFile = {
+      "jay/config.toml" = mkIf (cfg.settings != { }) {
+        source = tomlFormat.generate "config.toml" cfg.settings;
       };
+
+      "jay/config.so" = mkIf (cfg.libraryConfig != null) {
+        source = "${cfg.libraryConfig}/lib/config.so";
+      };
+    };
   };
 }

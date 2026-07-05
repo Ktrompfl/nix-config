@@ -1,38 +1,36 @@
 use jay_config::client::{
-    CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_LAYER_SHELL, CC_SCREENCOPY, CC_SESSION_LOCK, CC_WORKSPACE_MANAGER,
-    ClientCriterion,
+    CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_LAYER_SHELL, CC_SCREENCOPY, CC_SESSION_LOCK,
+    CC_WORKSPACE_MANAGER, ClientCapabilities, ClientCriterion,
 };
 
+// Matched by executable basename rather than by full (Nix store) path, so
+// this keeps working across rebuilds without needing store paths generated
+// from Nix. The jay home-manager module makes sure these are all installed.
+//
+// Nix wraps some packages (e.g. via `wrapProgram`): the wrapper script
+// `exec`s into the real binary renamed to `.<name>-wrapped`, and that's what
+// ends up as the client's exe, not the plain `<name>`. Match both forms.
+fn bind(name_pattern: &str, capabilities: ClientCapabilities) {
+    let pattern = format!(r"/\.?({name_pattern})(-wrapped)?$");
+    ClientCriterion::ExeRegex(&pattern).to_matcher().set_capabilities(capabilities);
+}
+
 pub fn setup() {
-    ClientCriterion::ExeRegex("/swaylock$")
-        .to_matcher()
-        .set_capabilities(CC_LAYER_SHELL | CC_SESSION_LOCK);
+    bind("swaylock", CC_LAYER_SHELL | CC_SESSION_LOCK);
 
-    ClientCriterion::ExeRegex("/swaync$")
-        .to_matcher()
-        .set_capabilities(CC_LAYER_SHELL);
+    bind("swaync", CC_LAYER_SHELL);
 
-    ClientCriterion::ExeRegex("/waybar$")
-        .to_matcher()
-        .set_capabilities(CC_FOREIGN_TOPLEVEL_MANAGER | CC_LAYER_SHELL | CC_WORKSPACE_MANAGER);
+    // TODO: display the active window title via zwlr_foreign_toplevel_manager_v1
+    // by combining parts of the waybar modules wlr/taskbar and sway/window
+    bind("waybar", CC_FOREIGN_TOPLEVEL_MANAGER | CC_LAYER_SHELL | CC_WORKSPACE_MANAGER);
 
-    ClientCriterion::ExeRegex("/grim$")
-        .to_matcher()
-        .set_capabilities(CC_SCREENCOPY);
+    bind("grim", CC_SCREENCOPY);
 
-    ClientCriterion::ExeRegex("/wl-mirror$")
-        .to_matcher()
-        .set_capabilities(CC_SCREENCOPY);
+    bind("wl-mirror", CC_SCREENCOPY);
 
-    ClientCriterion::ExeRegex("/wayland-pipewire-idle-inhibit$")
-        .to_matcher()
-        .set_capabilities(CC_LAYER_SHELL);
+    bind("wayland-pipewire-idle-inhibit", CC_LAYER_SHELL);
 
-    ClientCriterion::ExeRegex("/(wl-copy|wl-paste)$")
-        .to_matcher()
-        .set_capabilities(CC_DATA_CONTROL);
+    bind("wl-copy|wl-paste", CC_DATA_CONTROL);
 
-    ClientCriterion::ExeRegex("/wl-clip-persist$")
-        .to_matcher()
-        .set_capabilities(CC_DATA_CONTROL);
+    bind("wl-clip-persist", CC_DATA_CONTROL);
 }

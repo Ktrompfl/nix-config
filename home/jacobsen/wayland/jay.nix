@@ -70,6 +70,7 @@ in
     app2unit
     grim
     playerctl
+    satty
     swaylock
     swaynotificationcenter
     waybar

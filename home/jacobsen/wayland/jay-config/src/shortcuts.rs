@@ -7,6 +7,7 @@ use jay_config::{
         syms::*,
     },
     quit, reload, set_show_titles,
+    video::Connector,
 };
 
 use crate::modes;
@@ -42,6 +43,30 @@ fn move_output_direction(seat: Seat, direction: Direction) {
 
 fn shell(script: &'static str) {
     Command::new("sh").arg("-c").arg(script).spawn();
+}
+
+// FIXME: right now there is no way to get the region of the focused window / workspace
+fn screenshot(connector: Connector) {
+    if !connector.exists() {
+        return;
+    }
+    let name = connector.name();
+    Command::new("sh")
+        .arg("-c")
+        .arg(&format!("grim -o '{name}' - | satty --filename -"))
+        .spawn();
+}
+
+fn screenshot_output(seat: Seat) {
+    screenshot(seat.get_keyboard_connector());
+}
+
+fn screenshot_window(seat: Seat) {
+    screenshot(seat.window().workspace().connector());
+}
+
+fn screenshot_workspace(seat: Seat) {
+    screenshot(seat.get_workspace().connector());
 }
 
 pub fn setup() {
@@ -160,21 +185,9 @@ pub fn setup() {
     });
 
     // --- screenshot ---
-    seat.bind(LOGO | SYM_s, || {
-        Command::new("screenshot").arg("workspace").arg("--copy").arg("--notify").arg("--output").spawn();
-    });
-    seat.bind(LOGO | SHIFT | SYM_s, || {
-        Command::new("screenshot")
-            .arg("window")
-            .arg("--copy")
-            .arg("--notify")
-            .arg("--output")
-            .arg("")
-            .spawn();
-    });
-    seat.bind(LOGO | CTRL | SYM_s, || {
-        Command::new("screenshot").arg("region").arg("--copy").arg("--notify").arg("--output").spawn();
-    });
+    seat.bind(LOGO | SYM_s, move || screenshot_output(seat));
+    seat.bind(LOGO | SHIFT | SYM_s, move || screenshot_window(seat));
+    seat.bind(LOGO | CTRL | SYM_s, move || screenshot_workspace(seat));
 
     // --- launch ---
     seat.bind(LOGO | SYM_Return, || {

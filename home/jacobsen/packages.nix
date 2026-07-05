@@ -2,11 +2,7 @@
 {
   home.packages = with pkgs; [
     # wayland tools
-    grim
-    slurp
     wev
-    wl-clipboard
-    wl-mirror
 
     # graphical tools
     baobab

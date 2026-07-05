@@ -1,10 +1,17 @@
-{ config, ... }: {
+{ config, pkgs, ... }: {
+
+  # tools required to use satty
+  home.packages = with pkgs; [
+    grim
+    slurp
+    wl-clipboard
+  ];
+
   programs.satty = {
     enable = true;
     settings = {
       general = {
         fullscreen = true;
-        auto-copy = true;
         copy-command = "wl-copy";
         output-filename = "~/Pictures/screenshots/%Y-%m-%d-%H%M%S.png";
         initial-tool = "crop";

@@ -65,18 +65,9 @@ in
     };
   };
 
-  # packages used in the jay config
+  # extra packages used in the jay config
   home.packages = with pkgs; [
-    app2unit
-    grim
     playerctl
-    satty
-    swaylock
-    swaynotificationcenter
-    waybar
-    wayland-pipewire-idle-inhibit
-    wl-clipboard
-    wl-clip-persist
     wl-mirror
   ];
 

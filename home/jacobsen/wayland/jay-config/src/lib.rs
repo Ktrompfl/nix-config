@@ -1,5 +1,6 @@
 use jay_config::config;
 
+mod bar;
 mod behavior;
 mod clients;
 mod env;
@@ -22,6 +23,7 @@ fn configure() {
     windows::setup();
     clients::setup();
     behavior::setup();
+    bar::setup();
 }
 
 config!(configure);

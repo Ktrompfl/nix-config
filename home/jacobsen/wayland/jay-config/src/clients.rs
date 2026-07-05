@@ -20,9 +20,11 @@ pub fn setup() {
 
     bind("swaync", CC_LAYER_SHELL);
 
-    // TODO: display the active window title via zwlr_foreign_toplevel_manager_v1
-    // by combining parts of the waybar modules wlr/taskbar and sway/window
     bind("waybar", CC_FOREIGN_TOPLEVEL_MANAGER | CC_LAYER_SHELL | CC_WORKSPACE_MANAGER);
+
+    // i3status-rust's "focused_window" block needs this to track the title
+    // of the focused window (see ../../programs/i3status-rust.nix)
+    bind("i3status-rs", CC_FOREIGN_TOPLEVEL_MANAGER);
 
     bind("grim", CC_SCREENCOPY);
 

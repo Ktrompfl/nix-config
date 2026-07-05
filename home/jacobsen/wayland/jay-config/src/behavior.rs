@@ -4,7 +4,7 @@ use jay_config::{
     exec::Command,
     input::{FallbackOutputMode, FocusFollowsMouseMode, get_default_seat},
     keyboard::syms::SYM_Super_L,
-    on_idle, set_idle, set_idle_grace_period, set_middle_click_paste_enabled, set_show_bar, set_show_titles,
+    on_idle, set_idle, set_idle_grace_period, set_middle_click_paste_enabled, set_show_titles,
     workspace::{WorkspaceDisplayOrder, set_workspace_display_order},
 };
 
@@ -29,7 +29,6 @@ pub fn setup() {
         Command::new("swaylock").spawn();
     });
 
-    set_show_bar(false);
     set_show_titles(true);
     set_middle_click_paste_enabled(false);
 }

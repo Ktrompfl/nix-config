@@ -1,6 +1,4 @@
-use jay_config::theme::{
-    BarPosition, Color, colors, set_bar_font, set_bar_position, set_font, set_title_font, sized,
-};
+use jay_config::theme::{Color, colors, set_bar_font, set_font, set_title_font, sized};
 
 use crate::generated::{BASE00, BASE01, BASE03, BASE05, BASE08, BASE09, BASE0A, BASE0B, BASE0D, MONOSPACE_FONT};
 
@@ -32,7 +30,6 @@ pub fn setup() {
     colors::UNFOCUSED_TITLE_TEXT_COLOR.set_color(hex(BASE05));
     colors::HIGHLIGHT_COLOR.set_color(hex(BASE0B));
 
-    set_bar_position(BarPosition::Top);
     sized::BAR_HEIGHT.set(16);
     sized::BAR_SEPARATOR_WIDTH.set(1);
     colors::BAR_BACKGROUND_COLOR.set_color(hex(BASE01));

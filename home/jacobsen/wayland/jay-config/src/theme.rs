@@ -15,6 +15,10 @@ pub fn setup() {
     set_bar_font(MONOSPACE_FONT);
 
     sized::BORDER_WIDTH.set(1);
+    sized::TITLE_HEIGHT.set(16);
+    sized::BAR_HEIGHT.set(16);
+    sized::BAR_SEPARATOR_WIDTH.set(1);
+
     colors::BACKGROUND_COLOR.set_color(hex(BASE00));
     colors::BORDER_COLOR.set_color(hex(BASE03));
 
@@ -30,8 +34,6 @@ pub fn setup() {
     colors::UNFOCUSED_TITLE_TEXT_COLOR.set_color(hex(BASE05));
     colors::HIGHLIGHT_COLOR.set_color(hex(BASE0B));
 
-    sized::BAR_HEIGHT.set(16);
-    sized::BAR_SEPARATOR_WIDTH.set(1);
     colors::BAR_BACKGROUND_COLOR.set_color(hex(BASE01));
     colors::BAR_STATUS_TEXT_COLOR.set_color(hex(BASE05));
 }

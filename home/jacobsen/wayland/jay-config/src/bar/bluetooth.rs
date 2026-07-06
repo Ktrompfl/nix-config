@@ -1,34 +1,25 @@
-use std::{rc::Rc, time::Duration};
+use serde_json::Value;
 
-use jay_config::exec::Command;
+use super::i3status;
 
-use super::{exec::capture, schedule::repeat};
+const CONNECTED_ICON: &str = "\u{f00b1}";
+const UNAVAILABLE_ICON: &str = "\u{f00b3}";
 
-fn poll(on_result: impl FnOnce(String) + 'static) {
-    capture(
-        Command::new("sh").arg("-c").arg("bluetoothctl show; echo ---; bluetoothctl devices Connected"),
-        move |output| on_result(format(&output)),
-    );
-}
-
-fn format(output: &str) -> String {
-    let mut parts = output.splitn(2, "---");
-    let show = parts.next().unwrap_or_default();
-    let devices = parts.next().unwrap_or_default();
-
-    let powered = show.lines().any(|line| line.trim() == "Powered: yes");
-    if !powered {
-        return "\u{f00b3}".to_string();
+/// `status` is a literal tag (`config-jay.toml` picks it per which of
+/// `format`/`disconnected_format` i3status-rs rendered); `available`
+/// further distinguishes "known to bluez but off" (nothing shown, like the
+/// old adapter-powered-but-nothing-connected case) from truly unavailable.
+fn format(data: &Value) -> String {
+    match i3status::text(data, "status") {
+        Some("connected") => match i3status::number(data, "percentage") {
+            Some(percent) => format!("{CONNECTED_ICON} {percent:.0}%"),
+            None => CONNECTED_ICON.to_string(),
+        },
+        Some("disconnected") if i3status::text(data, "available") == Some("true") => String::new(),
+        _ => UNAVAILABLE_ICON.to_string(),
     }
-
-    let connected = devices.lines().filter(|line| line.trim_start().starts_with("Device")).count();
-    if connected > 0 { format!("\u{f00b1} {connected}") } else { String::new() }
 }
 
 pub fn run(on_update: impl Fn(String) + 'static) {
-    let on_update = Rc::new(on_update);
-    repeat("bar-bluetooth", Duration::from_secs(15), move || {
-        let on_update = on_update.clone();
-        poll(move |text| on_update(text));
-    });
+    i3status::subscribe(8, move |data| on_update(format(data)));
 }

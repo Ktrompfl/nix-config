@@ -14,6 +14,7 @@ mod clock;
 mod cpu;
 mod disk;
 mod exec;
+mod i3status;
 mod memory;
 mod network;
 mod notifications;
@@ -93,6 +94,9 @@ pub fn setup() {
     set_bar_position(BarPosition::Bottom);
 
     set_mode(None);
+
+    // Feeds every segment below except mode/clock; see bar/i3status.rs.
+    i3status::run();
 
     cpu::run(|text| update(|s| s.cpu = text));
     memory::run(|text| update(|s| s.memory = text));

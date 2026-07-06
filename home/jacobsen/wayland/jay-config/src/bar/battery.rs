@@ -1,9 +1,6 @@
-use std::{fs, path::PathBuf, time::Duration};
+use serde_json::Value;
 
-use super::{
-    schedule::repeat,
-    sysfs::{icon_index, read_trim},
-};
+use super::{i3status, sysfs::icon_index};
 use crate::generated::{BASE08, BASE09};
 
 const ICONS: [&str; 11] = [
@@ -11,35 +8,47 @@ const ICONS: [&str; 11] = [
     "\u{f0081}", "\u{f0082}", "\u{f0079}",
 ];
 
-fn find_dir() -> Option<PathBuf> {
-    let entries = fs::read_dir("/sys/class/power_supply").ok()?;
-    entries.flatten().map(|e| e.path()).find(|path| read_trim(path.join("type")).as_deref() == Some("Battery"))
+const WARNING: f64 = 30.0;
+const CRITICAL: f64 = 15.0;
+
+fn severity(capacity: f64) -> Option<&'static str> {
+    if capacity <= CRITICAL {
+        Some(BASE08)
+    } else if capacity <= WARNING {
+        Some(BASE09)
+    } else {
+        None
+    }
 }
 
-fn status() -> String {
-    let Some(dir) = find_dir() else {
+/// `status` is a literal tag (`config-jay.toml` picks it per which of
+/// `format`/`charging_format`/`full_format`/`empty_format`/
+/// `not_charging_format`/`missing_format` i3status-rs rendered), since
+/// there's no separate placeholder for battery state.
+fn format(data: &Value) -> String {
+    let status = i3status::text(data, "status").unwrap_or("missing");
+    if status == "missing" {
+        return String::new();
+    }
+    let Some(capacity) = i3status::number(data, "percentage") else {
         return String::new();
     };
-    let Some(capacity) = read_trim(dir.join("capacity")).and_then(|s| s.parse::<u32>().ok()) else {
-        return String::new();
-    };
-    let status = read_trim(dir.join("status")).unwrap_or_default();
 
-    let body = match status.as_str() {
-        "Charging" => format!("\u{f0e7} {capacity}%"),
-        "Full" | "Not charging" => format!("\u{f1616} {capacity}%"),
-        _ => format!("{} {capacity}%", ICONS[icon_index(capacity, ICONS.len())]),
+    let body = match status {
+        "charging" => format!("\u{f0e7} {capacity:.0}%"),
+        "full" | "not_charging" => format!("\u{f1616} {capacity:.0}%"),
+        _ => {
+            let icon = ICONS[icon_index(capacity.clamp(0.0, 100.0) as u32, ICONS.len())];
+            format!("{icon} {capacity:.0}%")
+        }
     };
 
-    if capacity <= 15 {
-        format!("<span foreground=\"#{BASE08}\">{body}</span>")
-    } else if capacity <= 30 {
-        format!("<span foreground=\"#{BASE09}\">{body}</span>")
-    } else {
-        body
+    match severity(capacity) {
+        Some(color) => format!("<span foreground=\"#{color}\">{body}</span>"),
+        None => body,
     }
 }
 
 pub fn run(on_update: impl Fn(String) + 'static) {
-    repeat("bar-battery", Duration::from_secs(30), move || on_update(status()));
+    i3status::subscribe(5, move |data| on_update(format(data)));
 }

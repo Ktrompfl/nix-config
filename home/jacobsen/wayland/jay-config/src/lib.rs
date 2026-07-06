@@ -6,7 +6,6 @@ mod clients;
 mod env;
 mod generated;
 mod inputs;
-mod modes;
 mod outputs;
 mod shortcuts;
 mod theme;

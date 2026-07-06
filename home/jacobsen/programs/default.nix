@@ -17,6 +17,7 @@
     ./gh.nix
     ./git.nix
     # ./hytale.nix
+    ./i3status-rust.nix
     ./jujutsu.nix
     ./julia.nix
     ./kitty.nix

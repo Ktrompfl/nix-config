@@ -1,31 +1,34 @@
-use std::{ffi::CString, mem::MaybeUninit, time::Duration};
+use serde_json::Value;
 
-use super::schedule::repeat;
+use super::i3status;
+use crate::generated::{BASE08, BASE09};
 
-const PATH: &str = "/persist/";
+const ICON: &str = "\u{f02ca}";
 
-fn usage(path: &str) -> String {
-    let Ok(cpath) = CString::new(path) else {
+const WARNING: f64 = 80.0;
+const CRITICAL: f64 = 90.0;
+
+fn severity(percent: f64) -> Option<&'static str> {
+    if percent >= CRITICAL {
+        Some(BASE08)
+    } else if percent >= WARNING {
+        Some(BASE09)
+    } else {
+        None
+    }
+}
+
+fn format(data: &Value) -> String {
+    let Some(percent) = i3status::number(data, "percentage") else {
         return String::new();
     };
-    let mut stat = MaybeUninit::uninit();
-    // SAFETY: `cpath` is a valid, NUL-terminated string and `stat` is a
-    // valid, appropriately sized and aligned out-pointer for statvfs to fill in.
-    let ret = unsafe { libc::statvfs(cpath.as_ptr(), stat.as_mut_ptr()) };
-    if ret != 0 {
-        return String::new();
+    let body = format!("{ICON} {percent:.0}%");
+    match severity(percent) {
+        Some(color) => format!("<span foreground=\"#{color}\">{body}</span>"),
+        None => body,
     }
-    // SAFETY: statvfs returned success, so `stat` was fully initialized.
-    let stat = unsafe { stat.assume_init() };
-    let total = stat.f_blocks as u64 * stat.f_frsize as u64;
-    let free = stat.f_bavail as u64 * stat.f_frsize as u64;
-    if total == 0 {
-        return String::new();
-    }
-    let used_percent = (total - free) as f64 / total as f64 * 100.0;
-    format!("\u{f02ca} {used_percent:.0}%")
 }
 
 pub fn run(on_update: impl Fn(String) + 'static) {
-    repeat("bar-disk", Duration::from_secs(30), move || on_update(usage(PATH)));
+    i3status::subscribe(2, move |data| on_update(format(data)));
 }

@@ -1,22 +1,26 @@
-use jay_config::exec::Command;
+use serde_json::Value;
 
-use super::exec::capture_lines;
+use super::i3status;
 use crate::generated::BASE08;
 
-fn format(line: &str) -> String {
-    let Ok(value) = serde_json::from_str::<serde_json::Value>(line) else {
-        return String::new();
-    };
-    let text = value.get("text").and_then(|v| v.as_str()).unwrap_or("");
-    if text.is_empty() || text == "0" {
-        return String::new();
+const BELL_ICON: &str = "\u{f0a2}";
+const DND_ICON: &str = "\u{f1f7}";
+const BADGE_ICON: &str = "\u{f444}";
+
+/// `notification_count` is only present (never `0`) when there are
+/// pending notifications, independent of `paused` (do-not-disturb), so the
+/// two combine into the same four states the old swaync-client-based
+/// version showed.
+fn format(data: &Value) -> String {
+    let icon = if i3status::text(data, "paused") == Some("true") { DND_ICON } else { BELL_ICON };
+    match i3status::number(data, "notification_count") {
+        Some(count) => {
+            format!("{icon}<span foreground=\"#{BASE08}\"><sup>{BADGE_ICON}</sup></span> {count:.0}")
+        }
+        None => icon.to_string(),
     }
-    format!("<span foreground=\"#{BASE08}\">\u{f0a2}<sup>\u{f444}</sup></span>")
 }
 
-/// `swaync-client -swb` subscribes and stays running, printing a fresh JSON
-/// line whenever notification state changes (including its current state
-/// right away), so this reacts to that stream instead of polling.
 pub fn run(on_update: impl Fn(String) + 'static) {
-    capture_lines(Command::new("swaync-client").arg("-swb"), move |line| on_update(format(&line)));
+    i3status::subscribe(7, move |data| on_update(format(data)));
 }

@@ -4,7 +4,6 @@ mod bar;
 mod behavior;
 mod clients;
 mod env;
-mod generated;
 mod inputs;
 mod outputs;
 mod shortcuts;

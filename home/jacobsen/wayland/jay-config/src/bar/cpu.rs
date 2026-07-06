@@ -1,7 +1,7 @@
 use serde_json::Value;
 
 use super::i3status;
-use crate::generated::{BASE08, BASE09, BASE0A};
+use crate::theme;
 
 const ICON: &str = "\u{f0f86}";
 
@@ -11,11 +11,11 @@ const CRITICAL: f64 = 90.0;
 
 fn severity(usage: f64) -> Option<&'static str> {
     if usage >= CRITICAL {
-        Some(BASE08)
+        Some(theme::base08())
     } else if usage >= WARNING {
-        Some(BASE09)
+        Some(theme::base09())
     } else if usage >= INFO {
-        Some(BASE0A)
+        Some(theme::base0a())
     } else {
         None
     }

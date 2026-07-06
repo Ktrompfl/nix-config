@@ -2,7 +2,6 @@
   lib,
   pkgs,
   inputs,
-  extraEnv ? { },
 }:
 let
   craneLib = inputs.crane.mkLib pkgs;
@@ -10,10 +9,9 @@ let
   # `jay-config` is not fetched from crates.io: we compile against the exact
   # version vendored in the `jay` flake input so that the config.so is always
   # ABI-compatible with the jay binary it will be loaded into. Vendoring it
-  # and writing the generated Rust source both have to happen before crane
-  # ever sees the source, since crane's dependency-only build derives its
-  # (cached) dummy source straight from Cargo.toml/Cargo.lock on disk rather
-  # than through a build-time postPatch.
+  # has to happen before crane ever sees the source, since crane's
+  # dependency-only build derives its (cached) dummy source straight from
+  # Cargo.toml/Cargo.lock on disk rather than through a build-time postPatch.
   src = pkgs.runCommand "jay-config-lib-src" { } ''
     mkdir -p $out
     cp -r ${
@@ -31,15 +29,6 @@ let
     mkdir -p $out/vendor
     cp -r ${inputs.jay}/jay-config $out/vendor/jay-config
     chmod -R u+w $out/vendor/jay-config
-
-    cat > $out/src/generated.rs <<EOF
-    #![allow(dead_code)]
-    ${lib.concatStrings (
-      lib.mapAttrsToList (name: value: ''
-        pub const ${name}: &str = ${builtins.toJSON (toString value)};
-      '') extraEnv
-    )}
-    EOF
   '';
 
   commonArgs = {

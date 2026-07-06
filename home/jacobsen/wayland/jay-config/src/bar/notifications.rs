@@ -1,7 +1,7 @@
 use serde_json::Value;
 
 use super::i3status;
-use crate::generated::BASE08;
+use crate::theme;
 
 const BELL_ICON: &str = "\u{f0a2}";
 const DND_ICON: &str = "\u{f1f7}";
@@ -15,7 +15,8 @@ fn format(data: &Value) -> String {
     let icon = if i3status::text(data, "paused") == Some("true") { DND_ICON } else { BELL_ICON };
     match i3status::number(data, "notification_count") {
         Some(count) => {
-            format!("{icon}<span foreground=\"#{BASE08}\"><sup>{BADGE_ICON}</sup></span> {count:.0}")
+            let base08 = theme::base08();
+            format!("{icon}<span foreground=\"#{base08}\"><sup>{BADGE_ICON}</sup></span> {count:.0}")
         }
         None => icon.to_string(),
     }

@@ -1,7 +1,7 @@
 use serde_json::Value;
 
 use super::{i3status, sysfs::icon_index};
-use crate::generated::{BASE08, BASE09};
+use crate::theme;
 
 const ICONS: [&str; 11] = [
     "\u{f008e}", "\u{f007a}", "\u{f007b}", "\u{f007c}", "\u{f007d}", "\u{f007e}", "\u{f007f}", "\u{f0080}",
@@ -13,9 +13,9 @@ const CRITICAL: f64 = 15.0;
 
 fn severity(capacity: f64) -> Option<&'static str> {
     if capacity <= CRITICAL {
-        Some(BASE08)
+        Some(theme::base08())
     } else if capacity <= WARNING {
-        Some(BASE09)
+        Some(theme::base09())
     } else {
         None
     }

@@ -1,6 +1,6 @@
 use jay_config::exec::set_env;
 
-use crate::generated::{CURSOR_SIZE, CURSOR_THEME, GTK_THEME, QT_PLATFORM_THEME, QT_STYLE};
+use crate::theme;
 
 pub fn setup() {
     // wayland backends
@@ -21,13 +21,13 @@ pub fn setup() {
     set_env("NIXOS_OZONE_WL", "1");
 
     // cursor
-    set_env("XCURSOR_THEME", CURSOR_THEME);
-    set_env("XCURSOR_SIZE", CURSOR_SIZE);
+    set_env("XCURSOR_THEME", theme::cursor_theme());
+    set_env("XCURSOR_SIZE", theme::cursor_size());
 
     // gtk theme
-    set_env("GTK_THEME", GTK_THEME);
+    set_env("GTK_THEME", theme::gtk_theme());
 
     // qt theme
-    set_env("QT_QPA_PLATFORMTHEME", QT_PLATFORM_THEME);
-    set_env("QT_STYLE_OVERRIDE", QT_STYLE);
+    set_env("QT_QPA_PLATFORMTHEME", theme::qt_platform_theme());
+    set_env("QT_STYLE_OVERRIDE", theme::qt_style());
 }

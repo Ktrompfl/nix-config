@@ -1,17 +1,14 @@
 {
   config,
-  lib,
   inputs,
+  lib,
   pkgs,
   ...
 }:
 {
   wayland.windowManager.jay = {
     enable = true;
-
-    # Configured via the jay-config Rust crate (compiled to config.so). See
-    # ./jay-config for the configuration logic.
-    libraryConfig = pkgs.callPackage ./jay-config { inherit inputs; };
+    library = pkgs.callPackage ./jay-config { inherit inputs; };
   };
 
   # Theme/styling values only, read by jay-config at reload time (see

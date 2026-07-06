@@ -4,7 +4,6 @@
   pkgs,
   ...
 }:
-
 let
   inherit (lib)
     literalExpression
@@ -18,11 +17,12 @@ let
 in
 {
   options.wayland.windowManager.jay = {
-    enable = lib.mkEnableOption "jay window manager";
+    enable = lib.mkEnableOption "Jay, a tiling wayland compositor";
 
     package = lib.mkPackageOption pkgs "jay" { };
 
-    # This is currently not used, but the home-manager module tests for way-displays expect this to be present for all entries of wayland.windowManager.
+    # This option is currently not used but the home-manager module tests for way-displays
+    # expect this to be present for all entries of wayland.windowManager.
     systemd = {
       enable = lib.mkEnableOption null // {
         default = false;
@@ -43,20 +43,29 @@ in
       };
     };
 
-    libraryConfig = mkOption {
+    library = mkOption {
       type = types.nullOr types.package;
       default = null;
-      example = literalExpression "pkgs.callPackage ./jay-config { inherit inputs; }";
+      example = literalExpression ''
+        craneLib.buildPackage {
+          pname = "my-jay-config";
+          src = ./my-jay-config;
+          # Reuse jay-config's own build artifacts instead of recompiling it from scratch.
+          cargoArtifacts = jay.packages.''${pkgs.system}.jay-config;
+        }
+      '';
       description = ''
-        A compiled shared library used to configure jay via the jay-config
-        Rust crate, installed at ~/.config/jay/config.so.
+        For users who need programmatic configuration beyond what TOML offers, Jay also supports
+        configuration via a compiled Rust shared library using the jay-config crate. This is an
+        advanced option -- the TOML config in `settings` is sufficient for the vast majority of
+        use cases.
 
-        Jay loads config.so in preference to config.toml, so when this is
-        set, `settings` is ignored by jay even though this module still
-        writes it to disk if non-empty.
+        This option expects a package that builds such a shared library (a crate with
+        `crate-type = ["cdylib"]` and jay-config as a dependency) and places it at
+        `$out/lib/config.so`. It is installed at ~/.config/jay/config.so.
 
-        The package is expected to place the shared library at
-        `$out/lib/config.so`.
+        Jay loads config.so in preference to config.toml, so when this is set, `settings` is
+        ignored by jay even though this module still writes it to disk if non-empty.
       '';
     };
 
@@ -106,6 +115,7 @@ in
 
             # Parent/focus/close/floating
             "alt-f" = "focus-parent";
+            "alt-c" = "open-control-center";
             "alt-shift-c" = "close";
             "alt-shift-f" = "toggle-floating";
 
@@ -172,8 +182,8 @@ in
         source = tomlFormat.generate "config.toml" cfg.settings;
       };
 
-      "jay/config.so" = mkIf (cfg.libraryConfig != null) {
-        source = "${cfg.libraryConfig}/lib/config.so";
+      "jay/config.so" = mkIf (cfg.library != null) {
+        source = "${cfg.library}/lib/config.so";
       };
     };
   };

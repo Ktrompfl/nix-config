@@ -39,7 +39,10 @@
 
     jay = {
       url = "github:mahkoh/jay";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        rust-overlay.follows = "rust-overlay";
+      };
     };
 
     # omitting follows costs a second nixpkgs evaluation but guarantees binary cache hits

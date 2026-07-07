@@ -1,6 +1,7 @@
 use jay_config::client::{
-    CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_LAYER_SHELL, CC_SCREENCOPY, CC_SESSION_LOCK,
-    CC_WORKSPACE_MANAGER, ClientCapabilities, ClientCriterion,
+    CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_IDLE_NOTIFIER, CC_LAYER_SHELL,
+    CC_SCREENCOPY, CC_SESSION_LOCK, CC_WORKSPACE_MANAGER,
+    ClientCapabilities, ClientCriterion,
 };
 
 // Matched by executable basename rather than by full (Nix store) path, so

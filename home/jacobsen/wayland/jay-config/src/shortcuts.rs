@@ -1,3 +1,5 @@
+use std::cell::Cell;
+
 use jay_config::{
     Axis, Direction, get_workspace,
     exec::Command,
@@ -6,7 +8,7 @@ use jay_config::{
         mods::{ALT, CTRL, LOGO, SHIFT},
         syms::*,
     },
-    quit, reload, set_show_titles,
+    quit, reload, set_idle, set_show_titles,
 };
 
 struct DirKey {
@@ -204,6 +206,26 @@ fn pop_resize(seat: Seat) {
     notify_pop();
 }
 
+thread_local! {
+    static IDLE_INHIBITED: Cell<bool> = const { Cell::new(false) };
+}
+
+fn toggle_idle_inhibitor() {
+    let inhibited = IDLE_INHIBITED.with(|c| {
+        let inhibited = !c.get();
+        c.set(inhibited);
+        inhibited
+    });
+    if inhibited {
+        log::info!("idle inhibitor activated");
+        set_idle(None);
+    } else {
+        log::info!("idle inhibitor deactivated");
+        set_idle(Some(crate::behavior::IDLE_TIMEOUT));
+    }
+    crate::bar::set_idle_inhibitor(inhibited);
+}
+
 fn push_system(seat: Seat) {
     seat.bind(LOGO | SYM_p, move || pop_system(seat));
     seat.bind(SYM_Escape, move || pop_system(seat));
@@ -223,6 +245,10 @@ fn push_system(seat: Seat) {
         pop_system(seat);
         Command::new("systemctl").arg("suspend").spawn();
     });
+    seat.bind(SYM_i, move || {
+        pop_system(seat);
+        toggle_idle_inhibitor();
+    });
 
     notify_push("system");
 }
@@ -233,6 +259,7 @@ fn pop_system(seat: Seat) {
     seat.unbind(SYM_s);
     seat.unbind(SYM_r);
     seat.unbind(SYM_h);
+    seat.unbind(SYM_i);
     seat.bind(LOGO | SYM_p, move || push_system(seat));
     notify_pop();
 }

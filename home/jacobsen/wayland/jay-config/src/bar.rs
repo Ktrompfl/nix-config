@@ -30,6 +30,10 @@ mod sysfs;
 // is only responsible for aggregating their output into the final status
 // text and handing it to jay.
 
+// TODO: placeholder codepoints, replace with the real icons.
+const IDLE_INHIBITOR_ON_ICON: &str = "\u{f06e}";
+const IDLE_INHIBITOR_OFF_ICON: &str = "\u{f070}";
+
 #[derive(Default)]
 struct Segments {
     mode: String,
@@ -42,6 +46,7 @@ struct Segments {
     battery: String,
     volume: String,
     notifications: String,
+    idle_inhibitor: String,
     clock: String,
 }
 
@@ -58,6 +63,7 @@ impl Segments {
             &self.battery,
             &self.volume,
             &self.notifications,
+            &self.idle_inhibitor,
             &self.clock,
         ]
         .into_iter()
@@ -89,11 +95,19 @@ pub fn set_mode(mode: Option<&str>) {
     update(|s| s.mode = mode.to_uppercase());
 }
 
+/// Called from `crate::shortcuts` when the idle inhibitor is toggled;
+/// reactively pushed for the same reason as `set_mode` above.
+pub fn set_idle_inhibitor(active: bool) {
+    let icon = if active { IDLE_INHIBITOR_ON_ICON } else { IDLE_INHIBITOR_OFF_ICON };
+    update(|s| s.idle_inhibitor = icon.to_string());
+}
+
 pub fn setup() {
     set_show_bar(true);
     set_bar_position(BarPosition::Bottom);
 
     set_mode(None);
+    set_idle_inhibitor(false);
 
     // Feeds every segment below except mode/clock; see bar/i3status.rs.
     i3status::run();

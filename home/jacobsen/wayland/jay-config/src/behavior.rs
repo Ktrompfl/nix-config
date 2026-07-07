@@ -8,6 +8,10 @@ use jay_config::{
     workspace::{WorkspaceDisplayOrder, set_workspace_display_order},
 };
 
+/// Shared with `crate::shortcuts`, which toggles the idle inhibitor by
+/// switching `set_idle` between `None` and this value.
+pub const IDLE_TIMEOUT: Duration = Duration::from_secs(10 * 60);
+
 pub fn setup() {
     let seat = get_default_seat();
 
@@ -21,7 +25,7 @@ pub fn setup() {
     seat.set_fallback_output_mode(FallbackOutputMode::Focus);
     set_workspace_display_order(WorkspaceDisplayOrder::Sorted);
 
-    set_idle(Some(Duration::from_secs(10 * 60)));
+    set_idle(Some(IDLE_TIMEOUT));
     // screen goes black during grace period before idle action and output disable
     set_idle_grace_period(Duration::from_secs(15));
     on_idle(|| {

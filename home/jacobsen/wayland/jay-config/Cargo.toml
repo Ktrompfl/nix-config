@@ -9,7 +9,7 @@ name = "jay_config_lib"
 crate-type = ["cdylib"]
 
 [dependencies]
-jay-config = { git = "https://github.com/mahkoh/jay" }
+jay-config = { git = "https://github.com/Ktrompfl/jay", branch = "size-and-position" }
 regex = "1"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 futures-util = { version = "0.3", features = ["io"] }

@@ -360,15 +360,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1782988571,
-        "narHash": "sha256-bdvcGO1E9fkmKiXQxc3nvISwjIAegY8g37HmxXolsmU=",
-        "owner": "mahkoh",
+        "lastModified": 1783355257,
+        "narHash": "sha256-KZy0xnKcH6XyFcTWKXfT7X6KfAJGRCZshYlMqDTj/Ls=",
+        "owner": "Ktrompfl",
         "repo": "jay",
-        "rev": "1430d6bc8dc4e4c04f1c923a9e2906bc7f3418b1",
+        "rev": "6d5359fa8c6852d480e19bd83635af93739dd8e7",
         "type": "github"
       },
       "original": {
-        "owner": "mahkoh",
+        "owner": "Ktrompfl",
+        "ref": "size-and-position",
         "repo": "jay",
         "type": "github"
       }

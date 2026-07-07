@@ -7,7 +7,6 @@ use jay_config::{
         syms::*,
     },
     quit, reload, set_show_titles,
-    video::Connector,
 };
 
 struct DirKey {
@@ -43,28 +42,45 @@ fn shell(script: &'static str) {
     Command::new("sh").arg("-c").arg(script).spawn();
 }
 
-// FIXME: right now there is no way to get the region of the focused window / workspace
-fn screenshot(connector: Connector) {
-    if !connector.exists() {
+fn screenshot_region(x: i32, y: i32, w: i32, h: i32) {
+    if w <= 0 || h <= 0 {
         return;
     }
-    let name = connector.name();
+    let geometry = format!("{x},{y} {w}x{h}");
     Command::new("sh")
         .arg("-c")
-        .arg(&format!("grim -o '{name}' - | satty --filename -"))
+        .arg(&format!("grim -g '{geometry}' - | satty --filename -"))
         .spawn();
 }
 
 fn screenshot_output(seat: Seat) {
-    screenshot(seat.get_keyboard_connector());
+    let connector = seat.get_keyboard_connector();
+    if !connector.exists() {
+        return;
+    }
+    let (x, y) = connector.position();
+    let (w, h) = connector.size();
+    screenshot_region(x, y, w, h);
 }
 
 fn screenshot_window(seat: Seat) {
-    screenshot(seat.window().workspace().connector());
+    let window = seat.window();
+    if !window.exists() {
+        return;
+    }
+    let (x, y) = window.position();
+    let (w, h) = window.size();
+    screenshot_region(x, y, w, h);
 }
 
 fn screenshot_workspace(seat: Seat) {
-    screenshot(seat.get_workspace().connector());
+    let ws = seat.get_workspace();
+    if !ws.exists() {
+        return;
+    }
+    let (x, y) = ws.position();
+    let (w, h) = ws.size();
+    screenshot_region(x, y, w, h);
 }
 
 // --- modes ---

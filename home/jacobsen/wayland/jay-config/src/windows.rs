@@ -38,9 +38,4 @@ pub fn setup() {
         move_to_output(window, "0", outputs::beamer());
         window.set_fullscreen(true);
     });
-
-    let pwvucontrol = WindowCriterion::AppId("com.saivert.pwvucontrol").to_matcher();
-    pwvucontrol.set_initial_tile_state(TileState::Floating);
-    pwvucontrol.set_initial_floating_size(400, 400);
-    pwvucontrol.set_initial_floating_position(50, 50);
 }

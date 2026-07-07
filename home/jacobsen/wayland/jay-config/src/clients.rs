@@ -16,6 +16,8 @@ fn bind(name_pattern: &str, capabilities: ClientCapabilities) {
 }
 
 pub fn setup() {
+    bind("swayidle", CC_IDLE_NOTIFIER);
+
     bind("swaylock", CC_LAYER_SHELL | CC_SESSION_LOCK);
 
     bind("swaync", CC_LAYER_SHELL);

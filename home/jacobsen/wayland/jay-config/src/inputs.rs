@@ -53,10 +53,11 @@ pub fn setup() {
                 let laptop_screen = outputs::laptop_integrated();
                 match event {
                     SwitchEvent::LidClosed => {
-                        Command::new("swaylock").spawn();
+                        log::info!("lid closed: disabling internal display");
                         laptop_screen.set_enabled(false);
                     }
                     SwitchEvent::LidOpened => {
+                        log::info!("lid opened: re-enabling internal display");
                         laptop_screen.set_enabled(true);
                     }
                     _ => {}

@@ -209,7 +209,7 @@ fn push_system(seat: Seat) {
     seat.bind(SYM_Escape, move || pop_system(seat));
     seat.bind(SYM_l, move || {
         pop_system(seat);
-        Command::new("swaylock").spawn();
+        Command::new("swaylock").arg("--daemonize").spawn();
     });
     seat.bind(SYM_s, move || {
         pop_system(seat);

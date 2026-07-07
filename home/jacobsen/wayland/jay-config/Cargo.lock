@@ -231,6 +231,7 @@ dependencies = [
  "chrono",
  "futures-util",
  "jay-config",
+ "log",
  "regex",
  "serde_json",
  "uapi",

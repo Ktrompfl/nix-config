@@ -21,12 +21,12 @@ pub fn setup() {
     seat.set_fallback_output_mode(FallbackOutputMode::Focus);
     set_workspace_display_order(WorkspaceDisplayOrder::Sorted);
 
-    // lock after 10 minutes idle
     set_idle(Some(Duration::from_secs(10 * 60)));
     // screen goes black during grace period before idle action and output disable
-    set_idle_grace_period(Duration::from_secs(5));
+    set_idle_grace_period(Duration::from_secs(15));
     on_idle(|| {
-        Command::new("swaylock").spawn();
+        log::info!("idle timeout reached: suspending");
+        Command::new("systemctl").arg("suspend").spawn();
     });
 
     set_show_titles(true);

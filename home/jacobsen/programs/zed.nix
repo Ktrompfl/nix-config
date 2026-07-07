@@ -17,7 +17,6 @@
       "julia"
       "latex"
       "log"
-      "ltex"
       "lua"
       "make"
       "nix"

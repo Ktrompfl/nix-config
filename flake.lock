@@ -70,22 +70,10 @@
     },
     "bun2nix": {
       "inputs": {
-        "flake-parts": [
-          "llm-agents",
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "llm-agents",
-          "nixpkgs"
-        ],
-        "systems": [
-          "llm-agents",
-          "systems"
-        ],
-        "treefmt-nix": [
-          "llm-agents",
-          "treefmt-nix"
-        ]
+        "flake-parts": ["llm-agents", "flake-parts"],
+        "nixpkgs": ["llm-agents", "nixpkgs"],
+        "systems": ["llm-agents", "systems"],
+        "treefmt-nix": ["llm-agents", "treefmt-nix"]
       },
       "locked": {
         "lastModified": 1782772816,
@@ -118,9 +106,7 @@
     },
     "disko": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": ["nixpkgs"]
       },
       "locked": {
         "lastModified": 1781152676,
@@ -188,10 +174,7 @@
     },
     "flake-parts_2": {
       "inputs": {
-        "nixpkgs-lib": [
-          "llm-agents",
-          "nixpkgs"
-        ]
+        "nixpkgs-lib": ["llm-agents", "nixpkgs"]
       },
       "locked": {
         "lastModified": 1782949081,
@@ -225,12 +208,8 @@
     },
     "git-hooks": {
       "inputs": {
-        "flake-compat": [
-          "flake-compat"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "flake-compat": ["flake-compat"],
+        "nixpkgs": ["nixpkgs"]
       },
       "locked": {
         "lastModified": 1783008725,
@@ -265,9 +244,7 @@
     },
     "home-manager": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": ["nixpkgs"]
       },
       "locked": {
         "lastModified": 1783823409,
@@ -283,34 +260,10 @@
         "type": "github"
       }
     },
-    "hytale-launcher": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1783566079,
-        "narHash": "sha256-Nn1aLNP6Ccneqy+u4260xEpDez2iiy4dSjFrraGZh18=",
-        "owner": "JPyke3",
-        "repo": "hytale-launcher-nix",
-        "rev": "2fd9cbd042c6d01b71821c290f626df9a6877802",
-        "type": "github"
-      },
-      "original": {
-        "owner": "JPyke3",
-        "repo": "hytale-launcher-nix",
-        "type": "github"
-      }
-    },
     "jay": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "rust-overlay": [
-          "rust-overlay"
-        ]
+        "nixpkgs": ["nixpkgs"],
+        "rust-overlay": ["rust-overlay"]
       },
       "locked": {
         "lastModified": 1783674541,
@@ -349,43 +302,11 @@
         "type": "github"
       }
     },
-    "nix-minecraft": {
-      "inputs": {
-        "flake-compat": [
-          "flake-compat"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "systems": [
-          "systems"
-        ]
-      },
-      "locked": {
-        "lastModified": 1783827446,
-        "narHash": "sha256-F4ezAeh0W20dHTrXekOvJ/S2gRXGVZrFwKjAp3vwQu8=",
-        "owner": "Infinidoge",
-        "repo": "nix-minecraft",
-        "rev": "68f0b46d34625e4a745dc400e9ea30aaeec910c3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Infinidoge",
-        "repo": "nix-minecraft",
-        "type": "github"
-      }
-    },
     "nix-mineral": {
       "inputs": {
-        "flake-compat": [
-          "flake-compat"
-        ],
-        "flake-parts": [
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "flake-compat": ["flake-compat"],
+        "flake-parts": ["flake-parts"],
+        "nixpkgs": ["nixpkgs"]
       },
       "locked": {
         "lastModified": 1783831317,
@@ -403,12 +324,8 @@
     },
     "nixcraft": {
       "inputs": {
-        "flake-parts": [
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "flake-parts": ["flake-parts"],
+        "nixpkgs": ["nixpkgs"]
       },
       "locked": {
         "lastModified": 1783648977,
@@ -473,12 +390,8 @@
     },
     "nur": {
       "inputs": {
-        "flake-parts": [
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "flake-parts": ["flake-parts"],
+        "nixpkgs": ["nixpkgs"]
       },
       "locked": {
         "lastModified": 1783853557,
@@ -517,10 +430,8 @@
         "flake-parts": "flake-parts",
         "git-hooks": "git-hooks",
         "home-manager": "home-manager",
-        "hytale-launcher": "hytale-launcher",
         "jay": "jay",
         "llm-agents": "llm-agents",
-        "nix-minecraft": "nix-minecraft",
         "nix-mineral": "nix-mineral",
         "nixcraft": "nixcraft",
         "nixpkgs": "nixpkgs_2",
@@ -536,9 +447,7 @@
     },
     "rust-overlay": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": ["nixpkgs"]
       },
       "locked": {
         "lastModified": 1783834461,
@@ -556,9 +465,7 @@
     },
     "sops-nix": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": ["nixpkgs"]
       },
       "locked": {
         "lastModified": 1783174389,
@@ -576,12 +483,8 @@
     },
     "spicetify-nix": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "systems": [
-          "systems"
-        ]
+        "nixpkgs": ["nixpkgs"],
+        "systems": ["systems"]
       },
       "locked": {
         "lastModified": 1783838433,
@@ -604,19 +507,11 @@
         "base16-helix": "base16-helix",
         "base16-vim": "base16-vim",
         "firefox-gnome-theme": "firefox-gnome-theme",
-        "flake-parts": [
-          "flake-parts"
-        ],
+        "flake-parts": ["flake-parts"],
         "gnome-shell": "gnome-shell",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "nur": [
-          "nur"
-        ],
-        "systems": [
-          "systems"
-        ],
+        "nixpkgs": ["nixpkgs"],
+        "nur": ["nur"],
+        "systems": ["systems"],
         "tinted-kitty": "tinted-kitty",
         "tinted-schemes": "tinted-schemes",
         "tinted-tmux": "tinted-tmux",
@@ -732,10 +627,7 @@
     },
     "treefmt-nix": {
       "inputs": {
-        "nixpkgs": [
-          "llm-agents",
-          "nixpkgs"
-        ]
+        "nixpkgs": ["llm-agents", "nixpkgs"]
       },
       "locked": {
         "lastModified": 1780220602,
@@ -753,10 +645,7 @@
     },
     "treefmt-nix_2": {
       "inputs": {
-        "nixpkgs": [
-          "wayland-pipewire-idle-inhibit",
-          "nixpkgs"
-        ]
+        "nixpkgs": ["wayland-pipewire-idle-inhibit", "nixpkgs"]
       },
       "locked": {
         "lastModified": 1773297127,
@@ -774,15 +663,9 @@
     },
     "wayland-pipewire-idle-inhibit": {
       "inputs": {
-        "flake-parts": [
-          "flake-parts"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "systems": [
-          "systems"
-        ],
+        "flake-parts": ["flake-parts"],
+        "nixpkgs": ["nixpkgs"],
+        "systems": ["systems"],
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {

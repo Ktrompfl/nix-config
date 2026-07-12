@@ -14,8 +14,6 @@
       "haskell"
       "html"
       "ini"
-      # if the julia lsp fails, update the zed environment via 'julia --project=@zed-julia'
-      "julia"
       "latex"
       "log"
       "lua"
@@ -212,6 +210,38 @@
         clangd = {
           binary.path = lib.getExe' pkgs.clang-tools "clangd";
         };
+        julia =
+          let
+            julia = lib.getExe pkgs.julia-bin;
+            julia-apps = "${config.home.homeDirectory}/.julia/bin";
+            # Note: The julia executables must be installed manually with:
+            # - julia -e 'using Pkg; Pkg.Apps.add(; url="https://github.com/aviatesk/JETLS.jl", rev="release")'
+            # - julia -e 'using Pkg; Pkg.Apps.add("JuliaFormatter")'
+            # - julia -e 'using Pkg; Pkg.Apps.add(; url="https://github.com/aviatesk/TestRunner.jl", rev="release")'
+            jetls = "${julia-apps}/jetls";
+            jlfmt = "${julia-apps}/jlfmt";
+            testrunner = "${julia-apps}/testrunner";
+          in
+          {
+            binary = {
+              path = jetls;
+              # arguments must be declared or zed shortcuts to []
+              arguments = [
+                "--threads=auto"
+                "--"
+                "serve"
+              ];
+              env.JULIA_APPS_JULIA_CMD = julia;
+            };
+            settings = {
+              code_lens.references = true;
+              formatter.custom = {
+                executable = jlfmt;
+                executable_range = jlfmt;
+              };
+              testrunner.executable = testrunner;
+            };
+          };
         nixd = {
           binary.path = lib.getExe pkgs.nixd;
           nixpkgs.expr = "import <nixpkgs> {}";
@@ -274,6 +304,9 @@
       which_key.enabled = true;
     };
   };
+
+  # manually installed extensions
+  home.file.".local/share/zed/extensions/installed/julia".source = pkgs.zed-julia;
 
   preservation.preserveAt.state-dir.directories = [ ".local/share/zed" ];
 }

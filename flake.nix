@@ -106,6 +106,11 @@
         systems.follows = "systems";
       };
     };
+
+    zed-julia = {
+      url = "github:aviatesk/zed-julia/avi/JETLS";
+      flake = false;
+    };
   };
 
   outputs =

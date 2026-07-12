@@ -56,15 +56,6 @@
       };
     };
 
-    nix-minecraft = {
-      url = "github:Infinidoge/nix-minecraft";
-      inputs = {
-        flake-compat.follows = "flake-compat";
-        nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-      };
-    };
-
     nix-mineral = {
       url = "github:cynicsketch/nix-mineral";
       inputs = {

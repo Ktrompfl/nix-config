@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   # does not work reliably for components like mini terminal
   # stylix.targets.neovim.transparentBackground = {
@@ -1450,28 +1450,15 @@
           vim.lsp.enable('hls')
 
           -- Julia
-          -- NOTE: this requires manual setup for now
-          --- LanguageServer.jl, SymbolServer.jl and StaticLint.jl can be installed with `julia` and `Pkg`:
-          --- ```sh
-          --- julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.add("LanguageServer"); Pkg.add("SymbolServer"); Pkg.add("StaticLint")'
-          --- ```
-          --- where `~/.julia/environments/nvim-lspconfig` is the location where
-          --- the default configuration expects LanguageServer.jl, SymbolServer.jl and StaticLint.jl to be installed.
-          ---
-          --- To update an existing install, use the following command:
-          --- ```sh
-          --- julia --project=~/.julia/environments/nvim-lspconfig -e 'using Pkg; Pkg.update()'
-          --- ```
-          ---
-          --- Note: In order to have LanguageServer.jl pick up installed packages or dependencies in a
-          --- Julia project, you must make sure that the project is instantiated:
-          --- ```sh
-          --- julia --project=/path/to/my/project -e 'using Pkg; Pkg.instantiate()'
-          --- ```
-          ---
-          --- Note: The julia programming language searches for global environments within the `environments/`
-          --- folder of `$JULIA_DEPOT_PATH` entries. By default this simply `~/.julia/environments`
-          vim.lsp.enable('julials')
+          vim.lsp.config("jetls", {
+            cmd = {
+              "${config.home.homeDirectory}/.julia/bin/jetls",
+              "serve",
+            },
+            filetypes = { "julia" },
+            root_markers = { "Project.toml" }
+          })
+          vim.lsp.enable("jetls")
 
           -- Lua
           vim.lsp.enable('lua_ls')

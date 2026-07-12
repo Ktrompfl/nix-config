@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -17,7 +18,7 @@ in
   # TODO: maybe install https://mcp-nixos.io/
   programs.claude-code = {
     enable = true;
-    package = pkgs.llm-agents.claude-code;
+    package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
     settings = {
       permissions = {
         allow = [

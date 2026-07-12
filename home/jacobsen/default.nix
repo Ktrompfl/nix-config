@@ -12,4 +12,6 @@
     ./services
     ./wayland
   ];
+
+  home.pointerCursor.enable = true;
 }

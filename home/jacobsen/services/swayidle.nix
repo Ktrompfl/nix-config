@@ -10,15 +10,9 @@
     in
     {
       enable = true;
-      events = [
-        {
-          event = "before-sleep";
-          command = lock;
-        }
-        {
-          event = "lock";
-          command = lock;
-        }
-      ];
+      events = {
+        lock = lock;
+        before-sleep = lock;
+      };
     };
 }

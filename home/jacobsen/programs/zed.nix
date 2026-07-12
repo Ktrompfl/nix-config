@@ -29,50 +29,11 @@
     ];
 
     userSettings = {
-      auto_update = false;
-      auto_install_extensions = false;
-
-      # disable telemetry
-      telemetry = {
-        diagnostics = false;
-        metrics = false;
+      agent = {
+        dock = "right";
+        show_turn_stats = true;
+        sidebar_side = "right";
       };
-
-      cli_default_open_behavior = "new_window";
-
-      autosave = "on_focus_change";
-
-      auto_signature_help = true;
-      inlay_hints.enable = true;
-      diagnostics.inline.enable = true;
-
-      load_direnv = "shell_hook"; # load direnv configuration through the shell hook, works for POSIX shells and fish
-
-      terminal = {
-        shell.program = lib.getExe pkgs.fish;
-      };
-
-      journal.hour_format = "hour24";
-
-      base_keymap = "VSCode";
-      vim_mode = true;
-      which_key.enable = true;
-
-      # control ui elements
-      agent.dock = "right";
-      agent.sidebar_side = "right";
-      project_panel.dock = "left";
-      outline_panel.dock = "left";
-      git_panel.dock = "left";
-      collaboration_panel.button = false;
-      collaboration_panel.dock = "right";
-      tabs.file_icons = true;
-      title_bar = {
-        show_sign_in = false;
-        show_user_menu = false;
-        show_user_picture = false;
-      };
-
       agent_servers = {
         claude-acp = {
           # type = "registry"; # latest, standalone acp adapter
@@ -84,18 +45,46 @@
           };
         };
       };
-
+      auto_signature_help = true;
+      auto_update = false;
+      autosave = "on_focus_change";
+      base_keymap = "VSCode";
+      cli_default_open_behavior = "new_window";
+      code_lens = "on";
+      collaboration_panel = {
+        button = false;
+        dock = "right";
+      };
+      colorize_brackets = true;
+      completion_menu_item_kind = "symbol";
+      debugger.button = false;
+      diagnostics.inline.enabled = true;
+      document_folding_ranges = "off";
+      focus_follows_mouse.enabled = true;
+      git_panel.dock = "left";
+      indent_guides = {
+        active_line_width = 1;
+        background_coloring = "disabled";
+        coloring = "fixed";
+        line_width = 1;
+      };
+      inlay_hints.enabled = true;
+      journal.hour_format = "hour24";
       languages = {
         Nix = {
-          tab_size = 2;
-          formatter.external.command = lib.getExe pkgs.nixfmt;
+          formatter = {
+            external = {
+              command = lib.getExe pkgs.nixfmt;
+            };
+          };
           language_servers = [
-            "nixd"
             "!nil"
+            "nixd"
           ];
+          tab_size = 2;
         };
       };
-
+      load_direnv = "shell_hook";
       lsp = {
         basedpyright = {
           binary.path = lib.getExe pkgs.basedpyright;
@@ -118,11 +107,51 @@
           binary.path = lib.getExe pkgs.rust-analyzer;
         };
       };
-
       node = {
         path = lib.getExe pkgs.nodejs;
         npm_path = lib.getExe' pkgs.nodejs "npm";
       };
+      outline_panel.dock = "left";
+      project_panel = {
+        dock = "left";
+        git_status_indicator = false;
+        hide_gitignore = false;
+      };
+      semantic_tokens = "combined";
+      show_signature_help_after_edits = true;
+      show_whitespaces = "selection";
+      soft_wrap = "bounded";
+      status_bar = {
+        line_endings_button = false;
+        show_active_file = true;
+      };
+      sticky_scroll.enabled = true;
+      tabs = {
+        file_icons = true;
+        git_status = true;
+      };
+      telemetry = {
+        diagnostics = false;
+        metrics = false;
+      };
+      terminal = {
+        copy_on_select = true;
+        dock = "bottom";
+        shell.program = lib.getExe pkgs.fish;
+        show_count_badge = false;
+      };
+      title_bar = {
+        show_branch_status_icon = false;
+        show_menus = false;
+        show_sign_in = false;
+        show_user_menu = false;
+        show_user_picture = false;
+      };
+      toolbar.code_actions = true;
+      unnecessary_code_fade = 0.4;
+      vim.use_smartcase_find = true;
+      vim_mode = true;
+      which_key.enabled = true;
     };
   };
 

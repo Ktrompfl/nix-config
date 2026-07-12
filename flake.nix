@@ -127,6 +127,7 @@
           src = ./.;
           hooks = {
             nixfmt.enable = true;
+            rustfmt.enable = true;
             stylua.enable = true;
           };
         };
@@ -143,6 +144,24 @@
           pkgs.mkShell {
             inherit shellHook;
             buildInputs = enabledPackages;
+          };
+
+        rust =
+          let
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [ inputs.rust-overlay.overlays.default ];
+            };
+            rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+              extensions = [
+                "rust-src"
+                "rustfmt"
+                "clippy"
+              ];
+            };
+          in
+          pkgs.mkShell {
+            buildInputs = [ rustToolchain ];
           };
       });
 

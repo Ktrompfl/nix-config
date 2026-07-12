@@ -35,7 +35,6 @@
 
       # Add overlays from other flakes
       inputs.jay.overlays.default
-      inputs.llm-agents.overlays.default
       inputs.nix-minecraft.overlay
       inputs.nur.overlays.default
       inputs.rust-overlay.overlays.default

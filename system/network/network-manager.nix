@@ -2,11 +2,15 @@
 let
   cfg = config.networking.networkmanager;
 in
-{
-  users.users.jacobsen.extraGroups = lib.optional cfg.enable "networkmanager";
+lib.mkIf cfg.enable {
+  users.users.jacobsen.extraGroups = "networkmanager";
 
-  preservation.preserveAt.state-dir.directories = lib.optionals cfg.enable [
+  preservation.preserveAt.state-dir.directories = [
     "/etc/NetworkManager/system-connections"
     "/var/lib/NetworkManager"
   ];
+
+  networking.networkmanager = {
+    ethernet.macAddress = "preserve";
+  };
 }

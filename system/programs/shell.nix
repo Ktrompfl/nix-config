@@ -9,14 +9,14 @@
   };
 
   # Using fish as the the login shell can cause compatibility issues. For example, certain recovery environments such as systemd's emergency mode to be completely broken when fish was set as the login shell.
-  # Here is one solution, which keeps bash as login shell and launches fish unless the parent process is already fish:
+  # Note: Lix forks before spawning the shell process so the parent process ends up being nix-shell and not fish.
   programs.bash = {
     enable = true;
     interactiveShellInit = ''
-      if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]
-      then
-        shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
-        exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
+      # "check if parent process is not fish" && "make nested shells work properly"
+      if grep -qv 'fish\|nix-shell' /proc/$PPID/comm && [[ $SHLVL == [12] ]]; then
+          # set $SHELL for better integration with programs like nix shell, tmux, etc.
+          SHELL=${pkgs.fish}/bin/fish exec ${pkgs.fish}/bin/fish
       fi
     '';
   };

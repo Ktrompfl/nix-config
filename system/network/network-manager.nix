@@ -3,7 +3,7 @@ let
   cfg = config.networking.networkmanager;
 in
 lib.mkIf cfg.enable {
-  users.users.jacobsen.extraGroups = "networkmanager";
+  users.users.jacobsen.extraGroups = [ "networkmanager" ];
 
   preservation.preserveAt.state-dir.directories = [
     "/etc/NetworkManager/system-connections"

@@ -15,18 +15,6 @@ fn move_to_output(window: Window, ws_name: &str, output: Connector) {
 }
 
 pub fn setup() {
-    WindowCriterion::AppId("spotify").bind(|matched: MatchedWindow| {
-        move_to_output(matched.window(), "5", outputs::vertical());
-    });
-
-    WindowCriterion::AppId("vesktop").bind(|matched: MatchedWindow| {
-        move_to_output(matched.window(), "5", outputs::vertical());
-    });
-
-    WindowCriterion::AppId("firefox").bind(|matched: MatchedWindow| {
-        move_to_output(matched.window(), "1", outputs::horizontal());
-    });
-
     let wl_mirror = WindowCriterion::All(&[
         WindowCriterion::AppId("at.yrlf.wl_mirror"),
         WindowCriterion::JustMapped,

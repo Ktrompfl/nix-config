@@ -1,10 +1,9 @@
+{ pkgs, ... }:
 {
-  # latex via texlive
-  programs.texlive = {
-    enable = true;
-    # add all required texlive packages here
-    extraPackages = tpkgs: {
-      inherit (tpkgs)
+  # note: the home-manager module uses deprecated options to combine the texlive package
+  home.packages = [
+    (pkgs.texlive.withPackages (
+      tpkgs: with tpkgs; [
         collection-basic
         collection-binextra
         collection-fontsrecommended
@@ -19,7 +18,7 @@
         collection-plaingeneric
         # extra packages
         minitoc
-        ;
-    };
-  };
+      ]
+    ))
+  ];
 }

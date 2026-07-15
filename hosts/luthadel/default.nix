@@ -26,7 +26,7 @@
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
-
+    kernelPackages = pkgs.linuxPackages_latest;
     kernelParams = [
       "amd_pstate=active"
       "amd_prefcore=enable"

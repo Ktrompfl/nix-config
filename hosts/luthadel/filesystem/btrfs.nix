@@ -5,6 +5,7 @@
   };
 
   services.snapper.configs.persist = {
+    FSTYPE = "btrfs";
     SUBVOLUME = "/persist";
     TIMELINE_CREATE = true;
     TIMELINE_CLEANUP = true;

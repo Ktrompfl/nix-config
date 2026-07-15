@@ -20,7 +20,7 @@
       la = "eza -F -a --color=always";
       ll = "eza -F -l -a -g -h --color=always";
       lt = "eza -F -aT --color=always";
-      l = "eza -F -a | grep -e '^\.'"; # show only dotfiles
+      l = "eza -F -a | grep -e '^.'"; # show only dotfiles
 
       ".." = "cd ..";
       "..." = "cd ../..";

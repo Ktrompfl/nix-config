@@ -118,4 +118,23 @@
         };
       };
   };
+
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend-then-hibernate";
+    HandleLidSwitchDocked = "lock";
+    HandleLidSwitchExternalPower = "suspend-then-hibernate";
+    HandlePowerKey = "suspend-then-hibernate";
+    HandlePowerKeyLongPress = "poweroff";
+  };
+
+  systemd.sleep.settings.Sleep = {
+    AllowHibernation = "yes";
+    AllowHybridSleep = "yes";
+    AllowSuspend = "yes";
+    AllowSuspendThenHibernate = "yes";
+    HibernateDelaySec = "30m";
+    HibernateMode = "platform shutdown";
+    HibernateOnACPower = "no";
+    MemorySleepMode = "s2idle"; # no firmware support for s3 sleep :/
+  };
 }

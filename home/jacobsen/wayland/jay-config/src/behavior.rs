@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use jay_config::{
-    exec::Command,
     input::{FallbackOutputMode, FocusFollowsMouseMode, get_default_seat},
     keyboard::syms::SYM_Super_L,
     on_idle, set_idle, set_idle_grace_period, set_middle_click_paste_enabled, set_show_titles,
@@ -30,7 +29,7 @@ pub fn setup() {
     set_idle_grace_period(Duration::from_secs(15));
     on_idle(|| {
         log::info!("idle timeout reached: suspending");
-        Command::new("systemctl").arg("suspend").spawn();
+        crate::power::suspend();
     });
 
     set_show_titles(true);

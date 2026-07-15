@@ -1,14 +1,14 @@
 use std::cell::Cell;
 
 use jay_config::{
-    Axis, Direction, get_workspace,
     exec::Command,
-    input::{Seat, get_default_seat},
+    get_workspace,
+    input::{get_default_seat, Seat},
     keyboard::{
         mods::{ALT, CTRL, LOGO, SHIFT},
         syms::*,
     },
-    quit, reload, set_idle, set_show_titles,
+    quit, reload, set_idle, set_show_titles, Axis, Direction,
 };
 
 struct DirKey {
@@ -18,10 +18,26 @@ struct DirKey {
 }
 
 const DIR_KEYS: [DirKey; 4] = [
-    DirKey { key: SYM_h, arrow: SYM_Left, dir: Direction::Left },
-    DirKey { key: SYM_j, arrow: SYM_Down, dir: Direction::Down },
-    DirKey { key: SYM_k, arrow: SYM_Up, dir: Direction::Up },
-    DirKey { key: SYM_l, arrow: SYM_Right, dir: Direction::Right },
+    DirKey {
+        key: SYM_h,
+        arrow: SYM_Left,
+        dir: Direction::Left,
+    },
+    DirKey {
+        key: SYM_j,
+        arrow: SYM_Down,
+        dir: Direction::Down,
+    },
+    DirKey {
+        key: SYM_k,
+        arrow: SYM_Up,
+        dir: Direction::Up,
+    },
+    DirKey {
+        key: SYM_l,
+        arrow: SYM_Right,
+        dir: Direction::Right,
+    },
 ];
 
 fn move_output_direction(seat: Seat, direction: Direction) {
@@ -154,10 +170,30 @@ struct ResizeKey {
 }
 
 const RESIZE_KEYS: [ResizeKey; 4] = [
-    ResizeKey { key: SYM_h, arrow: SYM_Left, field: ResizeField::Dx1, sign: -1 },
-    ResizeKey { key: SYM_j, arrow: SYM_Down, field: ResizeField::Dy2, sign: 1 },
-    ResizeKey { key: SYM_k, arrow: SYM_Up, field: ResizeField::Dy1, sign: -1 },
-    ResizeKey { key: SYM_l, arrow: SYM_Right, field: ResizeField::Dx2, sign: 1 },
+    ResizeKey {
+        key: SYM_h,
+        arrow: SYM_Left,
+        field: ResizeField::Dx1,
+        sign: -1,
+    },
+    ResizeKey {
+        key: SYM_j,
+        arrow: SYM_Down,
+        field: ResizeField::Dy2,
+        sign: 1,
+    },
+    ResizeKey {
+        key: SYM_k,
+        arrow: SYM_Up,
+        field: ResizeField::Dy1,
+        sign: -1,
+    },
+    ResizeKey {
+        key: SYM_l,
+        arrow: SYM_Right,
+        field: ResizeField::Dx2,
+        sign: 1,
+    },
 ];
 
 const RESIZE_AMOUNT: i32 = 10;
@@ -243,7 +279,7 @@ fn push_system(seat: Seat) {
     });
     seat.bind(SYM_h, move || {
         pop_system(seat);
-        Command::new("systemctl").arg("suspend").spawn();
+        crate::power::suspend();
     });
     seat.bind(SYM_i, move || {
         pop_system(seat);
@@ -276,13 +312,18 @@ pub fn setup() {
         seat.bind(LOGO | SHIFT | dk.key, move || seat.move_(dir));
         seat.bind(LOGO | SHIFT | dk.arrow, move || seat.move_(dir));
 
-        seat.bind(LOGO | SHIFT | CTRL | dk.key, move || move_output_direction(seat, dir));
-        seat.bind(LOGO | SHIFT | CTRL | dk.arrow, move || move_output_direction(seat, dir));
+        seat.bind(LOGO | SHIFT | CTRL | dk.key, move || {
+            move_output_direction(seat, dir)
+        });
+        seat.bind(LOGO | SHIFT | CTRL | dk.arrow, move || {
+            move_output_direction(seat, dir)
+        });
     }
 
     // --- workspace bindings ---
-    const WORKSPACE_SYMS: [jay_config::keyboard::syms::KeySym; 10] =
-        [SYM_0, SYM_1, SYM_2, SYM_3, SYM_4, SYM_5, SYM_6, SYM_7, SYM_8, SYM_9];
+    const WORKSPACE_SYMS: [jay_config::keyboard::syms::KeySym; 10] = [
+        SYM_0, SYM_1, SYM_2, SYM_3, SYM_4, SYM_5, SYM_6, SYM_7, SYM_8, SYM_9,
+    ];
     const WORKSPACE_NAMES: [&str; 10] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
     for (sym, name) in WORKSPACE_SYMS.into_iter().zip(WORKSPACE_NAMES) {
         seat.bind(LOGO | sym, move || {
@@ -295,7 +336,8 @@ pub fn setup() {
 
     // --- switch to VT ---
     const VT_SYMS: [jay_config::keyboard::syms::KeySym; 12] = [
-        SYM_F1, SYM_F2, SYM_F3, SYM_F4, SYM_F5, SYM_F6, SYM_F7, SYM_F8, SYM_F9, SYM_F10, SYM_F11, SYM_F12,
+        SYM_F1, SYM_F2, SYM_F3, SYM_F4, SYM_F5, SYM_F6, SYM_F7, SYM_F8, SYM_F9, SYM_F10, SYM_F11,
+        SYM_F12,
     ];
     for (i, sym) in VT_SYMS.into_iter().enumerate() {
         let n = i as u32 + 1;
@@ -319,11 +361,19 @@ pub fn setup() {
     seat.bind(LOGO | SHIFT | SYM_t, || set_show_titles(false));
 
     // --- focus ---
-    seat.bind(LOGO | SYM_Tab, move || seat.focus_history(jay_config::input::Timeline::Newer));
-    seat.bind(LOGO | SHIFT | SYM_Tab, move || seat.focus_history(jay_config::input::Timeline::Older));
+    seat.bind(LOGO | SYM_Tab, move || {
+        seat.focus_history(jay_config::input::Timeline::Newer)
+    });
+    seat.bind(LOGO | SHIFT | SYM_Tab, move || {
+        seat.focus_history(jay_config::input::Timeline::Older)
+    });
     seat.bind(LOGO | SYM_Delete, move || seat.focus_tiles());
-    seat.bind(LOGO | SYM_Prior, move || seat.focus_layer_rel(jay_config::input::LayerDirection::Above));
-    seat.bind(LOGO | SYM_Next, move || seat.focus_layer_rel(jay_config::input::LayerDirection::Below));
+    seat.bind(LOGO | SYM_Prior, move || {
+        seat.focus_layer_rel(jay_config::input::LayerDirection::Above)
+    });
+    seat.bind(LOGO | SYM_Next, move || {
+        seat.focus_layer_rel(jay_config::input::LayerDirection::Below)
+    });
     seat.bind(LOGO | SYM_g, move || seat.focus_parent());
     seat.bind(LOGO | SYM_c, move || seat.warp_mouse_to_focus());
 
@@ -356,10 +406,18 @@ pub fn setup() {
             .spawn();
     });
     seat.bind(SYM_XF86AudioMute, || {
-        Command::new("wpctl").arg("set-mute").arg("@DEFAULT_AUDIO_SINK@").arg("toggle").spawn();
+        Command::new("wpctl")
+            .arg("set-mute")
+            .arg("@DEFAULT_AUDIO_SINK@")
+            .arg("toggle")
+            .spawn();
     });
     seat.bind(SYM_XF86AudioMicMute, || {
-        Command::new("wpctl").arg("set-mute").arg("@DEFAULT_AUDIO_SOURCE@").arg("toggle").spawn();
+        Command::new("wpctl")
+            .arg("set-mute")
+            .arg("@DEFAULT_AUDIO_SOURCE@")
+            .arg("toggle")
+            .spawn();
     });
 
     // --- player ---

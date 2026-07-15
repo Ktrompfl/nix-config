@@ -67,6 +67,7 @@
           "046d:c539" # Logitech, Inc. Lightspeed Receiver
           "4d4b:304e" # SmartCloud AL68 Keyboard
           "056d:c077" # EIZO Corp. YUNZII AL68 2.4G
+          "0b95:1790" # ASIX AX88179A USB-Ethernet adapter
         ];
       };
     };

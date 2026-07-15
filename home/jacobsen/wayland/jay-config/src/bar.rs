@@ -78,21 +78,28 @@ thread_local! {
     static SEGMENTS: RefCell<Segments> = RefCell::new(Segments::default());
 }
 
+/// Mutates the segment state without rendering. i3status-backed segments
+/// rely on this: a single input line can update several of them (see
+/// `bar/i3status.rs`'s `dispatch`), and they should only render once, after
+/// all of them have been applied - rendering here too would put one
+/// `set_status` call per block back on the hot path.
 fn update(f: impl FnOnce(&mut Segments)) {
-    SEGMENTS.with(|segments| {
-        let mut segments = segments.borrow_mut();
-        f(&mut segments);
-        set_status(&segments.render());
-    });
+    SEGMENTS.with(|segments| f(&mut segments.borrow_mut()));
+}
+
+fn render() {
+    SEGMENTS.with(|segments| set_status(&segments.borrow().render()));
 }
 
 /// Called from `crate::modes` to reflect the active mode, mirroring the
 /// waybar "custom/mode" module. Unlike the other segments this is pushed
 /// reactively from keybindings rather than polled, so it has no `run`
-/// function of its own.
+/// function of its own, and renders immediately since it isn't part of an
+/// i3status batch.
 pub fn set_mode(mode: Option<&str>) {
     let mode = mode.unwrap_or("normal");
     update(|s| s.mode = mode.to_uppercase());
+    render();
 }
 
 /// Called from `crate::shortcuts` when the idle inhibitor is toggled;
@@ -100,6 +107,7 @@ pub fn set_mode(mode: Option<&str>) {
 pub fn set_idle_inhibitor(active: bool) {
     let icon = if active { IDLE_INHIBITOR_ON_ICON } else { IDLE_INHIBITOR_OFF_ICON };
     update(|s| s.idle_inhibitor = icon.to_string());
+    render();
 }
 
 pub fn setup() {
@@ -110,6 +118,9 @@ pub fn setup() {
     set_idle_inhibitor(false);
 
     // Feeds every segment below except mode/clock; see bar/i3status.rs.
+    // `on_settled` collapses however many blocks a single i3status-rs line
+    // touched into the one render it should produce.
+    i3status::on_settled(render);
     i3status::run();
 
     cpu::run(|text| update(|s| s.cpu = text));
@@ -121,5 +132,8 @@ pub fn setup() {
     bluetooth::run(|text| update(|s| s.bluetooth = text));
     audio::run(|text| update(|s| s.volume = text));
     notifications::run(|text| update(|s| s.notifications = text));
-    clock::run(|text| update(|s| s.clock = text));
+    clock::run(|text| {
+        update(|s| s.clock = text);
+        render();
+    });
 }

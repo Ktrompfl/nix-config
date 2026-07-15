@@ -132,7 +132,7 @@
           src = ./.;
           hooks = {
             nixfmt.enable = true;
-            rustfmt.enable = true;
+            # rustfmt.enable = true;
             stylua.enable = true;
           };
         };

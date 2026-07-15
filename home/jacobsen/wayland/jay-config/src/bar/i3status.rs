@@ -19,6 +19,7 @@ thread_local! {
     // just reformat identical data and re-push an identical status string)
     // for those needs comparing against what each block last rendered.
     static LAST_TEXT_HASH: RefCell<HashMap<u32, u64>> = RefCell::new(HashMap::new());
+    static ON_SETTLED: RefCell<Option<Box<dyn Fn()>>> = RefCell::new(None);
 }
 
 fn hash(text: &str) -> u64 {
@@ -42,6 +43,15 @@ pub fn subscribe(id: u32, on_update: impl Fn(&Value) + 'static) {
     SUBSCRIBERS.with(|s| {
         s.borrow_mut().insert(id, Box::new(on_update));
     });
+}
+
+/// Registers `f` to run once after a single `i3status-rs` update line has
+/// been fully dispatched to every changed block's subscriber, so callers
+/// that aggregate multiple blocks into one rendered output (see
+/// `bar::update`/`bar::render`) can flush one combined update per line
+/// instead of one per block.
+pub fn on_settled(f: impl Fn() + 'static) {
+    ON_SETTLED.with(|s| *s.borrow_mut() = Some(Box::new(f)));
 }
 
 fn block_id(instance: &str) -> Option<u32> {
@@ -90,6 +100,7 @@ fn dispatch(line: &str) {
         texts.entry(id).or_default().push_str(fragment);
     }
 
+    let mut settled = false;
     for (id, text) in texts {
         let text_hash = hash(&text);
         let unchanged = LAST_TEXT_HASH.with(|h| {
@@ -111,6 +122,18 @@ fn dispatch(line: &str) {
         SUBSCRIBERS.with(|s| {
             if let Some(on_update) = s.borrow().get(&id) {
                 on_update(&data);
+            }
+        });
+        settled = true;
+    }
+
+    // Only flush once per dispatched line, and only when a block actually
+    // changed - matches the "unchanged" skip above so an all-unchanged tick
+    // doesn't re-push an identical status string either.
+    if settled {
+        ON_SETTLED.with(|s| {
+            if let Some(f) = s.borrow().as_ref() {
+                f();
             }
         });
     }

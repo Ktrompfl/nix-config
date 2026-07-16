@@ -41,5 +41,6 @@
     ./waydroid.nix
     ./zathura.nix
     ./zed.nix
+    ./zotero.nix
   ];
 }

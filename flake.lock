@@ -355,26 +355,30 @@
         "type": "github"
       }
     },
-    "nixcraft": {
+    "nixcord": {
       "inputs": {
+        "flake-compat": [
+          "flake-compat"
+        ],
         "flake-parts": [
           "flake-parts"
         ],
         "nixpkgs": [
           "nixpkgs"
-        ]
+        ],
+        "nixpkgs-nixcord": "nixpkgs-nixcord"
       },
       "locked": {
-        "lastModified": 1783907704,
-        "narHash": "sha256-qbeenZQBQRaVNqirP9oWAScdwYk0i8H5Sl0UJepK9h4=",
-        "owner": "loystonpais",
-        "repo": "nixcraft",
-        "rev": "b5e19536d451bc3b5dc3a0f0fab78d15fa36636b",
+        "lastModified": 1784224239,
+        "narHash": "sha256-MmNIHHB8+k9vMBGxd1QQ6X2nLGmR7FIVmSpWuNRZQK0=",
+        "owner": "4evy",
+        "repo": "nixcord",
+        "rev": "6b26e6ab0285aef853f3dfceba3cb8f733a1681a",
         "type": "github"
       },
       "original": {
-        "owner": "loystonpais",
-        "repo": "nixcraft",
+        "owner": "4evy",
+        "repo": "nixcord",
         "type": "github"
       }
     },
@@ -406,6 +410,22 @@
       "original": {
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
+    "nixpkgs-nixcord": {
+      "locked": {
+        "lastModified": 1782999065,
+        "narHash": "sha256-5Dgj5+pIQYZKrXUGaLCk7CKfN3MmpwIhO94++WVxvng=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "80d591ed473cfc46329932c2aadac9b435342c7c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
         "type": "github"
       }
     },
@@ -474,7 +494,7 @@
         "jay": "jay",
         "llm-agents": "llm-agents",
         "nix-mineral": "nix-mineral",
-        "nixcraft": "nixcraft",
+        "nixcord": "nixcord",
         "nixpkgs": "nixpkgs_2",
         "nur": "nur",
         "preservation": "preservation",

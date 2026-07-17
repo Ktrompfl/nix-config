@@ -43,9 +43,10 @@
     # omitting follows costs a second nixpkgs evaluation but guarantees binary cache hits
     llm-agents.url = "github:numtide/llm-agents.nix";
 
-    nixcraft = {
-      url = "github:loystonpais/nixcraft";
+    nixcord = {
+      url = "github:4evy/nixcord";
       inputs = {
+        flake-compat.follows = "flake-compat";
         flake-parts.follows = "flake-parts";
         nixpkgs.follows = "nixpkgs";
       };

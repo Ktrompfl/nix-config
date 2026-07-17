@@ -13,12 +13,19 @@ let
     ;
 
   toLang = lang: exts: genAttrs exts (_: lang);
+
+  llm-packages = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
+  home.packages = [
+    llm-packages.claude-desktop
+    llm-packages.ccusage
+  ];
+
   # TODO: maybe install https://mcp-nixos.io/
   programs.claude-code = {
     enable = true;
-    package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
+    package = llm-packages.claude-code;
     settings = {
       permissions = {
         allow = [
@@ -498,5 +505,8 @@ in
     };
   };
 
-  preservation.preserveAt.state-dir.directories = [ ".claude" ];
+  preservation.preserveAt.state-dir.directories = [
+    ".claude"
+    ".config/Claude"
+  ];
 }

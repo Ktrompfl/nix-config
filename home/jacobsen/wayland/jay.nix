@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   pkgs,
   ...
@@ -8,7 +7,7 @@
 {
   wayland.windowManager.jay = {
     enable = true;
-    library = pkgs.callPackage ./jay-config { inherit inputs; };
+    library = pkgs.jay-config-lib;
   };
 
   # Theme/styling values only, read by jay-config at reload time (see

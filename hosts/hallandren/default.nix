@@ -30,13 +30,11 @@
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
-
+    kernelPackages = pkgs.linuxPackages_latest;
     kernelParams = [
       "amd_pstate=active"
       "amd_prefcore=enable"
     ];
-
-    # plymouth.enable = true;
   };
 
   console.keyMap = "us";
@@ -94,10 +92,18 @@
   };
 
   services.logind.settings.Login = {
-    HandleLidSwitch = "suspend";
-    HandleLidSwitchDocked = "lock";
-    HandleLidSwitchExternalPower = "suspend";
-    HandlePowerKey = "suspend";
+    HandlePowerKey = "hibernate";
     HandlePowerKeyLongPress = "poweroff";
+  };
+
+  systemd.sleep.settings.Sleep = {
+    AllowHibernation = "yes";
+    AllowHybridSleep = "yes";
+    AllowSuspend = "yes";
+    AllowSuspendThenHibernate = "yes";
+    HibernateDelaySec = "30m";
+    HibernateMode = "platform shutdown";
+    HibernateOnACPower = "yes";
+    MemorySleepMode = "deep";
   };
 }

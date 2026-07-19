@@ -1,10 +1,13 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
 }:
 {
+  imports = [ inputs.jay.homeManagerModules.default ];
+
   wayland.windowManager.jay = {
     enable = true;
     library = pkgs.jay-config-lib;

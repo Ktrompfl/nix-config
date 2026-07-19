@@ -1,5 +1,3 @@
 {
-  imports = [
-    ./jay.nix
-  ];
+  imports = [ ];
 }

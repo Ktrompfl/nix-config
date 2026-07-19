@@ -54,7 +54,6 @@
 
     # wayland session
     jay.enable = true;
-    sway.enable = true;
     uwsm.enable = true;
   };
 

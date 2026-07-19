@@ -7,8 +7,8 @@
 }:
 {
   imports = [
-    # Import all modules this flake exports (from modules/nixos dir):
     inputs.self.nixosModules
+    inputs.jay.nixosModules.default
 
     ./boot
     ./hardware

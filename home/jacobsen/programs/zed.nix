@@ -189,11 +189,8 @@
       };
       inlay_hints.enabled = true;
       journal.hour_format = "hour24";
+
       languages = {
-        HTML = {
-          # avoid Zed's auto-fetched Prettier integration; format via the LSP itself
-          formatter = "language_server";
-        };
         Lua = {
           formatter = {
             external = {
@@ -208,10 +205,8 @@
           };
         };
         Nix = {
-          formatter = {
-            external = {
-              command = lib.getExe pkgs.nixfmt;
-            };
+          formatter.external = {
+            command = lib.getExe pkgs.nixfmt;
           };
           language_servers = [
             "!nil"
@@ -227,19 +222,29 @@
           formatter = {
             language_server.name = "ruff";
           };
+          language_servers = [
+            "ruff"
+            "ty"
+            "!basedpyright"
+            "!pylsp"
+            "!pyright"
+            "..."
+          ];
         };
       };
       load_direnv = "shell_hook";
       lsp = {
-        basedpyright = {
-          binary.path = lib.getExe pkgs.basedpyright;
-        };
         clangd = {
           binary.path = lib.getExe' pkgs.clang-tools "clangd";
         };
         harper-ls = {
-          binary.path = lib.getExe' pkgs.harper "harper-ls";
-          arguments = [ "--stdio" ];
+          binary = {
+            path = lib.getExe' pkgs.harper "harper-ls";
+            arguments = [ "--stdio" ];
+          };
+          settings.harper-ls = {
+            dialect = "British";
+          };
         };
         julia =
           let
@@ -278,8 +283,10 @@
         };
         nixd = {
           binary.path = lib.getExe pkgs.nixd;
-          nixpkgs.expr = "import <nixpkgs> {}";
-          formatting.command = [ (lib.getExe pkgs.nixfmt) ];
+          settings.nixd = {
+            nixpkgs.expr = "import <nixpkgs> {}";
+            formatting.command = [ (lib.getExe pkgs.nixfmt) ];
+          };
         };
         texlab = {
           binary.path = lib.getExe pkgs.texlab;
@@ -287,18 +294,21 @@
         tinymist = {
           binary.path = lib.getExe pkgs.tinymist;
         };
+        ty = {
+          binary = {
+            path = lib.getExe pkgs.ty;
+            arguments = [ "server" ];
+          };
+        };
         ruff = {
-          binary.path = lib.getExe pkgs.ruff;
+          binary = {
+            path = lib.getExe pkgs.ruff;
+            arguments = [ "server" ];
+          };
         };
         rust-analyzer = {
           binary.path = lib.getExe pkgs.rust-analyzer;
           initialization_options.rustfmt.overrideCommand = [ (lib.getExe pkgs.rustfmt) ];
-        };
-        vscode-html-language-server = {
-          binary = {
-            path = lib.getExe' pkgs.vscode-langservers-extracted "vscode-html-language-server";
-            arguments = [ "--stdio" ];
-          };
         };
       };
       node = {

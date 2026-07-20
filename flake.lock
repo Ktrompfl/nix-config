@@ -101,6 +101,37 @@
         "type": "github"
       }
     },
+    "carrot": {
+      "inputs": {
+        "crane": [
+          "crane"
+        ],
+        "fenix": "fenix",
+        "flake-compat": [
+          "flake-compat"
+        ],
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "taproot": "taproot"
+      },
+      "locked": {
+        "lastModified": 1784546651,
+        "narHash": "sha256-8ND2ArtWmnKTuNecfSn0wLj2UK19Jfc/V7kFQ+UcRQ0=",
+        "owner": "carrot-wm",
+        "repo": "carrot",
+        "rev": "42afbfd3f8bb35f8f0a1e447f4b87d364ee8dc91",
+        "type": "github"
+      },
+      "original": {
+        "owner": "carrot-wm",
+        "repo": "carrot",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1784407669,
@@ -133,6 +164,28 @@
       "original": {
         "owner": "nix-community",
         "repo": "disko",
+        "type": "github"
+      }
+    },
+    "fenix": {
+      "inputs": {
+        "nixpkgs": [
+          "carrot",
+          "nixpkgs"
+        ],
+        "rust-analyzer-src": "rust-analyzer-src"
+      },
+      "locked": {
+        "lastModified": 1783643564,
+        "narHash": "sha256-OJItD5aSUdFAGFP3FqazVQoYtJjr8bZazSPVhX7Hl/0=",
+        "owner": "nix-community",
+        "repo": "fenix",
+        "rev": "c90d2b255dab00bdc609561fa85b5dbb2c00f02b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "fenix",
         "type": "github"
       }
     },
@@ -485,6 +538,7 @@
     },
     "root": {
       "inputs": {
+        "carrot": "carrot",
         "crane": "crane",
         "disko": "disko",
         "flake-compat": "flake-compat",
@@ -505,6 +559,23 @@
         "systems": "systems_2",
         "wayland-pipewire-idle-inhibit": "wayland-pipewire-idle-inhibit",
         "zed-julia": "zed-julia"
+      }
+    },
+    "rust-analyzer-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782864348,
+        "narHash": "sha256-NVYhLbaefeIUftPlo3kS6qr0xd8eFJRodEiaHrvFKR4=",
+        "owner": "rust-lang",
+        "repo": "rust-analyzer",
+        "rev": "0d381ca097a8e0375a19387874d952c0a230ac4f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rust-lang",
+        "ref": "nightly",
+        "repo": "rust-analyzer",
+        "type": "github"
       }
     },
     "rust-overlay": {
@@ -636,6 +707,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default-linux",
+        "type": "github"
+      }
+    },
+    "taproot": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784543963,
+        "narHash": "sha256-anRRTpTxysshLY9PA5IV3lFUTOLJa1HwFrb7RQz51YY=",
+        "owner": "carrot-wm",
+        "repo": "taproot",
+        "rev": "355bd876f4df59572ec43e26b63158df60dd5539",
+        "type": "github"
+      },
+      "original": {
+        "owner": "carrot-wm",
+        "repo": "taproot",
         "type": "github"
       }
     },

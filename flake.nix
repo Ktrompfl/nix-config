@@ -32,6 +32,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    carrot = {
+      url = "github:carrot-wm/carrot";
+      inputs = {
+        crane.follows = "crane";
+        flake-compat.follows = "flake-compat";
+        flake-parts.follows = "flake-parts";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
     jay = {
       url = "github:Ktrompfl/jay/size-and-position";
       inputs = {

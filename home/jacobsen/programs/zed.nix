@@ -246,7 +246,7 @@
             dialect = "British";
           };
         };
-        julia =
+        JETLS =
           let
             julia = lib.getExe pkgs.julia-bin;
             julia-apps = "${config.home.homeDirectory}/.julia/bin";
@@ -360,7 +360,9 @@
   };
 
   # manually installed extensions
-  home.file.".local/share/zed/extensions/installed/julia".source = pkgs.zed-julia;
+  # target dir must match the `id` in extension.toml (JETLS), not the package name -
+  # Zed's dev-extension loader derives the install path from the id.
+  home.file.".local/share/zed/extensions/installed/JETLS".source = pkgs.zed-julia;
 
   preservation.preserveAt.state-dir.directories = [ ".local/share/zed" ];
 }

@@ -7,7 +7,7 @@
     pkgs.ninjabrainbot
   ];
 
-  # TODO: create a home-manager module to configure ninjabrainbot
+  # TODO: declare the preferences here
   preservation.preserveAt.state-dir.files = [
     ".java/.userPrefs/ninjabrainbot/prefs.xml"
   ];

@@ -1,453 +1,86 @@
---*********************************************************************************************** CONFIG
--- config based on https://github.com/arjuncgore/waywall_generic_config
--- ==== LOOKS ====
-local bg_col = "#00000000"
-local bg_picture_path = nil
-local primary_col = "#ec6e4e"
-local secondary_col = "#E446C4"
+-- This configuration is built on [waywall_generic_config](https://github.com/arjuncgore/waywall_generic_config/tree/1440).
+-- See the respective README for more information.
 
-local ninbot_anchor = "topright" -- topleft, top, topright, left, right, bottomleft, bottomright
-local ninbot_opacity = 1         -- 0 to 1
+-- ==== WAYWALL GENERIC CONFIG ====
+local main = require("main")
 
-local res_1440 = true
+local cfg = {
+	debug_text = true,
 
--- ==== MIRRORS ====
-local e_count = { enabled = true, x = res_1440 and 1500 or 1340, y = res_1440 and 400 or 300, size = 5, colorkey = true }
-local thin_pie = { enabled = true, x = res_1440 and 1490 or 1250, y = res_1440 and 645 or 500, size = 4, colorkey = true } -- Turning off colorkeying also maintains the original pie chart's dimensions and shows the percentages
-local thin_percent = { enabled = true, x = res_1440 and 1568 or 1300, y = res_1440 and 1050 or 850, size = 6 }
-local tall_pie = { enabled = true, x = res_1440 and 1490 or 1250, y = res_1440 and 645 or 500, size = 4, colorkey = true } -- Leave same as thin for seamlessness
-local tall_percent = { enabled = true, x = res_1440 and 1568 or 1300, y = res_1440 and 1050 or 850, size = 6 }             -- Leave same as thin for seamlessness
+	-- ==== LOOKS ====
+	resolution = { 2560, 1440 },
 
-local stretched_measure = true
+	bg_col = "#000000",
+	toggle_bg_picture = false,
+	text_col = "#FFFFFF",
+	pie_chart_1 = "#EC6E4E",
+	pie_chart_2 = "#46CE66",
+	pie_chart_3 = "#E446C4",
 
--- ==== KEYBINDS ====
--- resolution change actions
-local thin = { key = "*-C", f3_safe = true }
-local wide = { key = "*-V", f3_safe = true }
-local tall = { key = "*-B", f3_safe = true }
+	ninbot_anchor = {
+		position = "topright", -- topleft, top, topright, left, right, bottomleft, bottomright
+		x = 0,
+		y = 130, -- offset
+	},
+	ninbot_opacity = 1, -- 0 to 1
 
--- during game actions
-local toggle_ninbot_key = "*-N"
-local toggle_remaps_key = "Delete"
+	-- ==== ALTERNATIVE RESOLUTIONS ====
+	thin_res = { 400, 1440 },
+	wide_res = { 2560, 400 },
+	tall_res = { 384, 16384 },
 
--- ==== REMAPS ====
-local remaps_text_config = { text = "rebinds off", x = 50, y = 50, size = 2, color = "#FFFFFF" }
-local f3_key = "LEFTALT"
-local keyboard_remaps = {
-    -- remaps when the remap toggle is on
-    enabled = {
-        [f3_key] = "F3"
-    },
-    -- remaps when the remap toggle is off
-    disabled = {}
-}
-local remaps_active = true -- toggle state
-local rebind_text = nil    -- text window for remaps text
+	-- ==== MIRRORS ====
+	e_count = { enabled = true, x = 1500, y = 400, size = 5, colorkey = false, show_c = false },
 
--- ==== MISC ====
--- mouse sensitivity for boat eye via https://github.com/Esensats/mcsr-calcsens
-local sens_change = { enabled = true, normal = 21.822959062311096, tall = 1.4721637642674297 } -- disable raw input and set minecraft mouseSensitivity to 0.02291165
+	thin_pie = { enabled = true, x = 1495, y = 645, size = 4, colorkey = false }, -- Turning off colorkeying also maintains the original pie chart's dimensions and shows the percentages
+	tall_pie = { enabled = true, x = 1495, y = 645, size = 4, colorkey = false }, -- Leave same as thin for seamlessness
 
--- ==== PATHS ====
-local waywall_config_path = os.getenv("HOME") .. "/.config/waywall/"
+	thin_percent = { enabled = false, x = 1568, y = 1050, size = 6 },
+	tall_percent = { enabled = false, x = 1568, y = 1050, size = 6 }, -- Leave same as thin for seamlessness
+	percentages_match_text = false, -- Enabling this makes the percentages match the text color rather than the pie colors
 
--- Use this link with an overlay width of 30 to create your own stretched overlay https://qmaxxen.github.io/overlay-gen/more-options/
-local normal_overlay_path = waywall_config_path .. "overlays/normal-" .. (res_1440 and "1440" or "1080") .. ".png"
-local stretched_overlay_path = waywall_config_path .. "overlays/stretched-" .. (res_1440 and "1440" or "1080") .. ".png"
+	measuring_window = { x = 30, y = 340, size = 14 },
+	stretched_measure = false,
 
---*********************************************************************************************** SETUP
-local waywall = require("waywall")
-local helpers = require("waywall.helpers")
+	-- ==== MACROS ====
+	-- resolution changes
+	thin = { key = "*-Alt_L", f3_safe = false, ingame_only = true },
+	wide = { key = "*-B", f3_safe = true, ingame_only = true },
+	tall = { key = "*-F4", f3_safe = false, ingame_only = false },
 
-local config = {
-    input = {
-        layout = "us",
-        repeat_rate = 40,
-        repeat_delay = 300,
-        remaps = remaps_active and keyboard_remaps.enabled or keyboard_remaps.disabled,
-        sensitivity = (sens_change.enabled and sens_change.normal) or 1.0,
-        confine_pointer = false,
-    },
-    theme = {
-        background = bg_col,
-        background_png = bg_picture_path,
-        ninb_anchor = ninbot_anchor,
-        ninb_opacity = ninbot_opacity,
-    },
-    experimental = {
-        debug = false,
-        jit = true,
-        tearing = false,
-        scene_add_text = true,
-    },
+	-- startup actions
+	toggle_fullscreen_key = "Shift-O",
+	launch_paceman_key = "Shift-P",
+
+	-- during game actions
+	toggle_ninbot_key = "*-apostrophe",
+	toggle_remaps_key = "Insert",
+
+	-- ==== KEYBOARD ====
+	xkb_config = { -- set any setting to nil if unwanted
+		enabled = false,
+		layout = "mc", -- ~/.config/xkb/symbols/mc
+		rules = nil, -- ~/.config/xkb/rules/...
+		variant = "basic",
+		options = "caps:none",
+	},
+	remaps_text_config = { text = "chat mode", x = 100, y = 100, size = 2, color = "#000000" },
+
+	-- ==== MISC ====
+	-- see https://github.com/Esensats/mcsr-calcsens to configure sens
+	sens_change = { enabled = true, normal = 21.822959062311096, tall = 1.4721637642674297, raw_input = false }, -- setting raw_input to true will enable sens changing via maccel
+	enable_resize_animations = false,
 }
 
---*********************************************************************************************** MIRRORS
-local make_mirror = function(options)
-    local this = nil
+local remaps = {
+	remapped_kb = {
+		-- Add any playing remaps here
+		["P"] = "F3", -- example, remaps the P key to act as the F3 key
+	},
 
-    return function(enable)
-        if enable and not this then
-            this = waywall.mirror(options)
-        elseif this and not enable then
-            this:close()
-            this = nil
-        end
-    end
-end
-
-local mirrors = {
-    e_counter = make_mirror({
-        src = { x = 13, y = 37, w = 37, h = 9 },
-        dst = { x = e_count.x, y = e_count.y, w = 37 * e_count.size, h = 9 * e_count.size },
-        color_key = e_count.colorkey and {
-            input = "#dddddd",
-            output = primary_col,
-        } or nil,
-    }),
-
-
-    thin_pie_all = make_mirror({
-        src = res_1440
-            and { x = 10, y = 694, w = 340, h = 221 }
-            or { x = 0, y = 674, w = 340, h = 221 },
-        dst = { x = thin_pie.x, y = thin_pie.y, w = 420 * thin_pie.size / 4, h = 273 * thin_pie.size / 4 },
-    }),
-    thin_pie_entities = make_mirror({
-        src = res_1440
-            and { x = 10, y = 694, w = 340, h = 178 }
-            or { x = 0, y = 674, w = 340, h = 178 },
-        dst = { x = thin_pie.x, y = thin_pie.y, w = 420 * thin_pie.size / 4, h = 423 * thin_pie.size / 4 },
-        color_key = {
-            input = "#E446C4",
-            output = secondary_col,
-        },
-    }),
-    thin_pie_unspecified = make_mirror({
-        src = res_1440
-            and { x = 10, y = 694, w = 340, h = 178 }
-            or { x = 0, y = 674, w = 340, h = 178 },
-        dst = { x = thin_pie.x, y = thin_pie.y, w = 420 * thin_pie.size / 4, h = 423 * thin_pie.size / 4 },
-        color_key = {
-            input = "#46CE66",
-            output = secondary_col,
-        },
-    }),
-    thin_pie_blockentities = make_mirror({
-        src = res_1440
-            and { x = 10, y = 694, w = 340, h = 178 }
-            or { x = 0, y = 674, w = 340, h = 178 },
-        dst = { x = thin_pie.x, y = thin_pie.y, w = 420 * thin_pie.size / 4, h = 423 * thin_pie.size / 4 },
-        color_key = {
-            input = "#ec6e4e",
-            output = primary_col,
-        },
-    }),
-    thin_pie_destroyProgress = make_mirror({
-        src = res_1440
-            and { x = 10, y = 694, w = 340, h = 178 }
-            or { x = 0, y = 674, w = 340, h = 178 },
-        dst = { x = thin_pie.x, y = thin_pie.y, w = 420 * thin_pie.size / 4, h = 423 * thin_pie.size / 4 },
-        color_key = {
-            input = "#CC6C46",
-            output = secondary_col,
-        },
-    }),
-    thin_pie_prepare = make_mirror({
-        src = res_1440
-            and { x = 10, y = 694, w = 340, h = 178 }
-            or { x = 0, y = 674, w = 340, h = 178 },
-        dst = { x = thin_pie.x, y = thin_pie.y, w = 420 * thin_pie.size / 4, h = 423 * thin_pie.size / 4 },
-        color_key = {
-            input = "#464C46",
-            output = secondary_col,
-        },
-    }),
-
-
-    thin_percent_all = make_mirror({
-        src = res_1440
-            and { x = 257, y = 879, w = 33, h = 25 }
-            or { x = 247, y = 859, w = 33, h = 25 },
-        dst = { x = thin_percent.x, y = thin_percent.y, w = 33 * thin_percent.size, h = 25 * thin_percent.size },
-    }),
-    thin_percent_blockentities = make_mirror({
-        src = res_1440
-            and { x = 257, y = 879, w = 33, h = 25 }
-            or { x = 247, y = 859, w = 33, h = 25 },
-        dst = { x = thin_percent.x, y = thin_percent.y, w = 33 * thin_percent.size, h = 25 * thin_percent.size },
-        color_key = {
-            input = "#e96d4d",
-            output = secondary_col,
-        },
-    }),
-    thin_percent_unspecified = make_mirror({
-        src = res_1440
-            and { x = 257, y = 879, w = 33, h = 25 }
-            or { x = 247, y = 859, w = 33, h = 25 },
-        dst = { x = thin_percent.x, y = thin_percent.y, w = 33 * thin_percent.size, h = 25 * thin_percent.size },
-        color_key = {
-            input = "#45cb65",
-            output = secondary_col,
-        },
-    }),
-
-
-    tall_pie_all = make_mirror({
-        src = { x = 44, y = 15978, w = 340, h = 221 },
-        dst = { x = tall_pie.x, y = tall_pie.y, w = 420 * tall_pie.size / 4, h = 273 * tall_pie.size / 4 },
-    }),
-    tall_pie_entities = make_mirror({
-        src = { x = 44, y = 15978, w = 340, h = 178 },
-        dst = { x = tall_pie.x, y = tall_pie.y, w = 420 * tall_pie.size / 4, h = 423 * tall_pie.size / 4 },
-        color_key = {
-            input = "#E446C4",
-            output = secondary_col,
-        },
-    }),
-    tall_pie_unspecified = make_mirror({
-        src = { x = 44, y = 15978, w = 340, h = 178 },
-        dst = { x = tall_pie.x, y = tall_pie.y, w = 420 * tall_pie.size / 4, h = 423 * tall_pie.size / 4 },
-        color_key = {
-            input = "#46CE66",
-            output = secondary_col,
-        },
-    }),
-    tall_pie_blockentities = make_mirror({
-        src = { x = 44, y = 15978, w = 340, h = 178 },
-        dst = { x = tall_pie.x, y = tall_pie.y, w = 420 * tall_pie.size / 4, h = 423 * tall_pie.size / 4 },
-        color_key = {
-            input = "#ec6e4e",
-            output = primary_col,
-        },
-    }),
-    tall_pie_destroyProgress = make_mirror({
-        src = { x = 44, y = 15978, w = 340, h = 178 },
-        dst = { x = tall_pie.x, y = tall_pie.y, w = 420 * tall_pie.size / 4, h = 423 * tall_pie.size / 4 },
-        color_key = {
-            input = "#CC6C46",
-            output = secondary_col,
-        },
-    }),
-    tall_pie_prepare = make_mirror({
-        src = { x = 44, y = 15978, w = 340, h = 178 },
-        dst = { x = tall_pie.x, y = tall_pie.y, w = 420 * tall_pie.size / 4, h = 423 * tall_pie.size / 4 },
-        color_key = {
-            input = "#464C46",
-            output = secondary_col,
-        },
-    }),
-
-
-    tall_percent_all = make_mirror({
-        src = { x = 291, y = 16163, w = 33, h = 25 },
-        dst = { x = tall_percent.x, y = tall_percent.y, w = 33 * tall_percent.size, h = 25 * tall_percent.size },
-    }),
-    tall_percent_blockentities = make_mirror({
-        src = { x = 291, y = 16163, w = 33, h = 25 },
-        dst = { x = tall_percent.x, y = tall_percent.y, w = 33 * tall_percent.size, h = 25 * tall_percent.size },
-        color_key = {
-            input = "#e96d4d",
-            output = secondary_col,
-        },
-    }),
-    tall_percent_unspecified = make_mirror({
-        src = { x = 291, y = 16163, w = 33, h = 25 },
-        dst = { x = tall_percent.x, y = tall_percent.y, w = 33 * tall_percent.size, h = 25 * tall_percent.size },
-        color_key = {
-            input = "#45cb65",
-            output = secondary_col,
-        },
-    }),
-
-
-    eye_measure = make_mirror({
-        src = stretched_measure
-            and { x = 177, y = 7902, w = 30, h = 580 }
-            or { x = 162, y = 7902, w = 60, h = 580 },
-        dst = res_1440
-            and { x = 94, y = 470, w = 900, h = 500 }
-            or { x = 30, y = 340, w = 700, h = 400 },
-        -- TODO: a shader here would be cool
-    }),
+	normal_kb = {
+		-- Add any remaps you want to keep when disabling normal remaps (not necessary)
+	},
 }
 
-
---*********************************************************************************************** BOATEYE
-local make_image = function(path, dst)
-    local this = nil
-
-    return function(enable)
-        if enable and not this then
-            this = waywall.image(path, dst)
-        elseif this and not enable then
-            this:close()
-            this = nil
-        end
-    end
-end
-
-local images = {
-    measuring_overlay = make_image(normal_overlay_path, {
-        dst = res_1440
-            and { x = 94, y = 470, w = 900, h = 500 }
-            or { x = 30, y = 340, w = 700, h = 400 },
-    }),
-    stretched_overlay = make_image(stretched_overlay_path, {
-        dst = res_1440
-            and { x = 94, y = 470, w = 900, h = 500 }
-            or { x = 30, y = 340, w = 700, h = 400 },
-    }),
-}
-
-
---*********************************************************************************************** MANAGING MIRRORS
-local show_mirrors = function(eye, f3, tall, thin, wide)
-    mirrors.eye_measure(eye)
-    if stretched_measure then
-        images.stretched_overlay(eye)
-    else
-        images.measuring_overlay(eye)
-    end
-
-    if e_count.enabled then
-        mirrors.e_counter(f3)
-    end
-
-    if thin_pie.enabled then
-        if thin_pie.colorkey then
-            mirrors.thin_pie_entities(thin)
-            mirrors.thin_pie_unspecified(thin)
-            mirrors.thin_pie_blockentities(thin)
-            mirrors.thin_pie_destroyProgress(thin)
-            mirrors.thin_pie_prepare(thin)
-        else
-            mirrors.thin_pie_all(thin)
-        end
-    end
-
-    if thin_percent.enabled then
-        mirrors.thin_percent_blockentities(thin)
-        mirrors.thin_percent_unspecified(thin)
-    end
-
-    if tall_pie.enabled then
-        if tall_pie.colorkey then
-            mirrors.tall_pie_entities(tall)
-            mirrors.tall_pie_unspecified(tall)
-            mirrors.tall_pie_blockentities(tall)
-            mirrors.tall_pie_destroyProgress(tall)
-            mirrors.tall_pie_prepare(tall)
-        else
-            mirrors.tall_pie_all(tall)
-        end
-    end
-
-    if tall_percent.enabled then
-        mirrors.tall_percent_blockentities(tall)
-        mirrors.tall_percent_unspecified(tall)
-    end
-end
-
-
---*********************************************************************************************** STATES
-local thin_enable = function()
-    show_mirrors(false, true, false, true, false)
-end
-
-local tall_enable = function()
-    show_mirrors(true, true, true, false, false)
-    if sens_change.enabled then
-        waywall.set_sensitivity(sens_change.tall)
-    end
-end
-local wide_enable = function()
-    show_mirrors(false, false, false, false, true)
-end
-
-local res_disable = function()
-    show_mirrors(false, false, false, false, false)
-end
-
-local tall_disable = function()
-    show_mirrors(false, false, false, false, false)
-    if sens_change.enabled then
-        waywall.set_sensitivity(sens_change.normal)
-    end
-end
-
---*********************************************************************************************** RESOLUTIONS
-local make_res = function(width, height, enable, disable)
-    return function()
-        local active_width, active_height = waywall.active_res()
-
-        if active_width == width and active_height == height then
-            waywall.set_resolution(0, 0)
-            disable()
-        else
-            waywall.set_resolution(width, height)
-            enable()
-        end
-    end
-end
-
-
-local resolutions = {
-    thin = make_res(res_1440 and 350 or 340, res_1440 and 1100 or 1080, thin_enable, res_disable),
-    tall = make_res(384, 16384, tall_enable, tall_disable),
-    wide = make_res(res_1440 and 2560 or 1920, res_1440 and 400 or 300, wide_enable, res_disable),
-}
-
---*********************************************************************************************** KEYBINDS
-
-local function resize_helper(mode, run)
-    return function()
-        if not remaps_active then
-            return false
-        end
-        if mode.f3_safe and waywall.get_key("F3") then
-            return false
-        end
-        run()
-    end
-end
-
-config.actions = {
-    [thin.key] = resize_helper(thin, function() resolutions.thin() end),
-    [wide.key] = resize_helper(wide, function() resolutions.wide() end),
-    [tall.key] = resize_helper(tall, function() resolutions.tall() end),
-
-    [toggle_ninbot_key] = function()
-        -- check if ninjabrainbot is already running
-        -- NOTE: this also detects external ninjabrain-bot instances and then wont start an internal instance
-        -- if this becomes an issue whatsoever, just filter for processes spawned inside waywall
-        local handle = io.popen("pgrep -f 'ninjabrain-bot'")
-        local result = handle:read("*l")
-        handle:close()
-        local is_running = result ~= nil
-
-        if is_running then
-            helpers.toggle_floating()
-        else
-            waywall.exec("ninjabrain-bot")
-            -- waywall.exec("java -Dawt.useSystemAAFontSettings=on -jar " .. nb_path)
-            waywall.show_floating(true)
-        end
-    end,
-    [toggle_remaps_key] = function()
-        if rebind_text then
-            rebind_text:close()
-            rebind_text = nil
-        end
-        remaps_active = not remaps_active
-
-        waywall.set_remaps(remaps_active and keyboard_remaps.enabled or keyboard_remaps.disabled)
-        if not remaps_active then
-            rebind_text = waywall.text(remaps_text_config.text, remaps_text_config.x, remaps_text_config.y,
-                remaps_text_config.color,
-                remaps_text_config.size)
-        end
-    end
-}
-
-return config
+return main(cfg, remaps)

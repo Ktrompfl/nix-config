@@ -3,7 +3,6 @@
   ...
 }:
 {
-  # TODO: create a home-manager module to configure waywall
   home.file = {
     ".config/waywall" = {
       enable = true;

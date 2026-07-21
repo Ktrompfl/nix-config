@@ -252,10 +252,8 @@
             julia-apps = "${config.home.homeDirectory}/.julia/bin";
             # Note: The julia executables must be installed manually with:
             # - julia -e 'using Pkg; Pkg.Apps.add(; url="https://github.com/aviatesk/JETLS.jl", rev="release")'
-            # - julia -e 'using Pkg; Pkg.Apps.add("JuliaFormatter")'
             # - julia -e 'using Pkg; Pkg.Apps.add(; url="https://github.com/aviatesk/TestRunner.jl", rev="release")'
             jetls = "${julia-apps}/jetls";
-            jlfmt = "${julia-apps}/jlfmt";
             testrunner = "${julia-apps}/testrunner";
           in
           {
@@ -272,8 +270,8 @@
             settings = {
               code_lens.references = true;
               formatter.custom = {
-                executable = jlfmt;
-                executable_range = jlfmt;
+                executable = lib.getExe pkgs.runic;
+                executable_range = lib.getExe pkgs.runic;
               };
               testrunner.executable = testrunner;
             };

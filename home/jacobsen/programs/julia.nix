@@ -47,4 +47,7 @@ in
         || echo "Julia LSP bootstrap failed — run manually"
     fi
   '';
+
+  # make julia apps available
+  home.sessionPath = [ "$HOME/.julia/bin" ];
 }

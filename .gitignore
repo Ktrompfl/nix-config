@@ -1,4 +1,5 @@
-.claude
-.direnv
+.*
+!.envrc
+!.sops.yaml
+result/
 target/
-/.pre-commit-config.yaml

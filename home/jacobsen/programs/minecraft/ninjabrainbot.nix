@@ -7,7 +7,7 @@
     pkgs.ninjabrainbot
   ];
 
-  home.files.".java/.userPrefs/ninjabrainbot/prefs.xml".text = /* xml */ ''
+  home.file.".java/.userPrefs/ninjabrainbot/prefs.xml".text = /* xml */ ''
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
     <!DOCTYPE map SYSTEM "http://java.sun.com/dtd/preferences.dtd">
     <map MAP_XML_VERSION="1.0">

@@ -14,6 +14,8 @@ in
   home.packages = with pkgs; [
     # nix-ld is installed so binary artifacts must not be patched on installation
     julia-bin
+
+    runic
   ];
 
   preservation.preserveAt.state-dir.directories = [ ".julia" ];

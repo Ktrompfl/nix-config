@@ -9,7 +9,6 @@
     ./network
     ./home.nix
     # ./rocm.nix
-    ./webdav.nix
   ];
 
   host = {

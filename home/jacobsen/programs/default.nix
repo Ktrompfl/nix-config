@@ -36,7 +36,7 @@
     ./thunderbird.nix
     ./viewnior.nix
     ./vlc.nix
-    ./vscode.nix
+    # ./vscode.nix
     ./yatto.nix
     ./waydroid.nix
     ./zathura.nix

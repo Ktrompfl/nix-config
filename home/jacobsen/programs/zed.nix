@@ -291,6 +291,9 @@
         };
         tinymist = {
           binary.path = lib.getExe pkgs.tinymist;
+          initialization_options = {
+            preview.background.enabled = true;
+          };
         };
         ty = {
           binary = {

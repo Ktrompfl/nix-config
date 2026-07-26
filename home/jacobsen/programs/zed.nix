@@ -294,11 +294,17 @@
         };
         tinymist = {
           binary.path = lib.getExe pkgs.tinymist;
-          initialization_options = {
+          initialization_options.tinymist = {
             # run preview server on 127.0.0.1:23635
-            preview.background.enabled = true;
+            preview.background = {
+              enabled = true;
+              args = [
+                "--data-plane-host=127.0.0.1:23635"
+                "--invert-colors=never"
+              ];
+            };
           };
-          settings = {
+          settings.tinymist = {
             exportPdf = "onSave";
             outputPath = "$root/$name";
           };

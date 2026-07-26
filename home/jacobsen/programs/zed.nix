@@ -232,7 +232,7 @@
           ];
         };
         Typst = {
-          soft_wrape = "none";
+          soft_wrap = "none";
         };
       };
       load_direnv = "shell_hook";
@@ -294,19 +294,16 @@
         };
         tinymist = {
           binary.path = lib.getExe pkgs.tinymist;
-          initialization_options.tinymist = {
+          initialization_options = {
             # run preview server on 127.0.0.1:23635
             preview.background = {
               enabled = true;
-              args = [
-                "--data-plane-host=127.0.0.1:23635"
-                "--invert-colors=never"
-              ];
             };
           };
-          settings.tinymist = {
+          settings = {
             exportPdf = "onSave";
             outputPath = "$root/$name";
+            formatterMode = "typstyle";
           };
         };
         ty = {

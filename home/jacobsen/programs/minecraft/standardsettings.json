@@ -1,15 +1,18 @@
 {
-  "fov": 110.0,
-  "realmsNotifications": false,
+  ".apiVersion": "2.2+1.16-1.16.1",
+  ".modVersion": "2.3+1.16-1.16.1",
+  ".dataVersion": 0,
+  "fov": 70.0,
+  "realmsNotifications": true,
   "fullscreenResolution": null,
   "biomeBlendRadius": 2.0,
   "graphicsMode": 1,
-  "renderDistance": 32.0,
+  "renderDistance": 12.0,
   "ao": 2,
-  "maxFps": 150.0,
+  "maxFps": 260.0,
   "enableVsync": true,
-  "bobView": true,
-  "guiScale": 0,
+  "bobView": false,
+  "guiScale": 4,
   "attackIndicator": 1,
   "gamma": 5.0,
   "renderClouds": 0,
@@ -17,7 +20,7 @@
     "enabled": false,
     "value": false
   },
-  "particles": 0,
+  "particles": 2,
   "mipmapLevels": 4.0,
   "entityShadows": true,
   "entityDistanceScaling": 5.0,
@@ -30,7 +33,7 @@
   "modelPart_right_pants_leg": true,
   "modelPart_hat": true,
   "mainHand": 1,
-  "soundCategory_master": 0.3080357,
+  "soundCategory_master": 1.0,
   "soundCategory_music": 0.0,
   "soundCategory_record": 1.0,
   "soundCategory_weather": 1.0,
@@ -38,8 +41,8 @@
   "soundCategory_hostile": 1.0,
   "soundCategory_neutral": 1.0,
   "soundCategory_player": 1.0,
-  "soundCategory_ambient": 0.0,
-  "soundCategory_voice": 1.0,
+  "soundCategory_ambient": 1.0,
+  "soundCategory_voice": 0.0,
   "showSubtitles": true,
   "language": "en_us",
   "forceUnicodeFont": false,
@@ -72,19 +75,20 @@
   "key_key.hotbar.9": "key.keyboard.9",
   "key_key.inventory": "key.keyboard.e",
   "key_key.swapOffhand": "key.keyboard.f",
-  "key_key.loadToolbarActivator": "key.keyboard.unknown",
-  "key_key.saveToolbarActivator": "key.keyboard.unknown",
+  "key_key.loadToolbarActivator": "key.keyboard.x",
+  "key_key.saveToolbarActivator": "key.keyboard.c",
   "key_key.playerlist": "key.keyboard.tab",
   "key_key.chat": "key.keyboard.t",
   "key_key.command": "key.keyboard.slash",
-  "key_key.advancements": "key.keyboard.unknown",
+  "key_key.advancements": "key.keyboard.l",
   "key_key.spectatorOutlines": "key.keyboard.unknown",
   "key_key.screenshot": "key.keyboard.f2",
   "key_key.smoothCamera": "key.keyboard.unknown",
   "key_key.fullscreen": "key.keyboard.unknown",
-  "key_key.togglePerspective": "key.keyboard.f5",
-  "key_speedrunigt.controls.start_timer": "key.keyboard.unknown",
-  "key_speedrunigt.controls.stop_timer": "key.keyboard.unknown",
+  "key_key.togglePerspective": "key.keyboard.z",
+  "key_Create New World": "key.keyboard.unknown",
+  "key_speedrunigt.controls.start_timer": "key.keyboard.u",
+  "key_speedrunigt.controls.stop_timer": "key.keyboard.i",
   "chatVisibility": 0,
   "chatColors": true,
   "chatLinks": true,
@@ -102,12 +106,21 @@
   "backgroundForChatOnly": 1,
   "chatDelay": 0.0,
   "toggleCrouch": 0,
-  "toggleSprint": 1,
-  "pauseOnLostFocus": false,
-  "advancedItemTooltips": true,
-  "hitboxes": true,
-  "chunkborders": true,
-  "pieDirectory": "root.tick.level.entities",
+  "toggleSprint": 0,
+  "pauseOnLostFocus": true,
+  "advancedItemTooltips": false,
+  "hitboxes": {
+    "enabled": true,
+    "value": true
+  },
+  "chunkborders": {
+    "enabled": false,
+    "value": false
+  },
+  "pieDirectory": {
+    "enabled": true,
+    "value": "root.gameRenderer.level.entities"
+  },
   "perspective": {
     "enabled": false,
     "value": 0
@@ -120,11 +133,26 @@
     "enabled": false,
     "value": false
   },
-  "sprinting": true,
-  "fovOnWorldJoin": 70.0,
-  "renderDistanceOnWorldJoin": 8.0,
-  "entityDistanceScalingOnWorldJoin": 5.0,
-  "guiScaleOnWorldJoin": 0,
+  "sprinting": {
+    "enabled": false,
+    "value": false
+  },
+  "fovOnWorldJoin": {
+    "enabled": false,
+    "value": 70.0
+  },
+  "renderDistanceOnWorldJoin": {
+    "enabled": false,
+    "value": 20.0
+  },
+  "entityDistanceScalingOnWorldJoin": {
+    "enabled": false,
+    "value": 1.0
+  },
+  "guiScaleOnWorldJoin": {
+    "enabled": false,
+    "value": 0
+  },
   "toggleStandardSettings": true,
   "toggleAll": true,
   "autoF3Esc": true,

@@ -48,10 +48,6 @@ local cfg = {
 	wide = { key = "*-B", f3_safe = true, ingame_only = true },
 	tall = { key = "*-F4", f3_safe = false, ingame_only = false },
 
-	-- startup actions
-	toggle_fullscreen_key = "Shift-O",
-	launch_paceman_key = "Shift-P",
-
 	-- during game actions
 	toggle_ninbot_key = "*-apostrophe",
 	toggle_remaps_key = "Insert",

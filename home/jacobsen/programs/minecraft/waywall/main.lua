@@ -337,8 +337,6 @@ return function(cfg, remaps)
 		[cfg.wide.key] = resize_helper(cfg.wide, resolutions.wide, cfg.wide.ingame_only),
 		[cfg.tall.key] = resize_helper(cfg.tall, resolutions.tall, cfg.tall.ingame_only),
 
-		[cfg.toggle_fullscreen_key] = waywall.toggle_fullscreen,
-
 		[cfg.toggle_ninbot_key] = function()
 			if not is_ninb_running() then
 				waywall.exec("ninjabrain-bot")
@@ -406,12 +404,6 @@ return function(cfg, remaps)
 					.. "\n"
 					.. "Toggle Ninbot = "
 					.. cfg.toggle_ninbot_key
-					.. "\n"
-					.. "Launch paceman = "
-					.. cfg.launch_paceman_key
-					.. "\n"
-					.. "Fullscreen = "
-					.. cfg.toggle_fullscreen_key
 					.. "\n"
 					.. "Chat Mode = "
 					.. cfg.toggle_remaps_key

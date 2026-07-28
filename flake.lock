@@ -348,11 +348,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785069327,
-        "narHash": "sha256-KZAR4bv2jk5WXzDon7CD8nuxBTSgqpypoTGKUjXZrzE=",
+        "lastModified": 1785237040,
+        "narHash": "sha256-RDy9Z0Fr/IzOPkj+c4fijruaM0CssF9EWkgv+WuzCoQ=",
         "owner": "Ktrompfl",
         "repo": "jay",
-        "rev": "5b43246c7c269bf80a19c0bc333897f141497e75",
+        "rev": "013e5ce59ad3f43908e4ac8b7305a7782f338a30",
         "type": "github"
       },
       "original": {

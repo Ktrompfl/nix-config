@@ -209,7 +209,7 @@ checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 [[package]]
 name = "jay-config"
 version = "1.12.0"
-source = "git+https://github.com/Ktrompfl/jay?branch=size-and-position#5b43246c7c269bf80a19c0bc333897f141497e75"
+source = "git+https://github.com/Ktrompfl/jay?branch=size-and-position#013e5ce59ad3f43908e4ac8b7305a7782f338a30"
 dependencies = [
  "backtrace",
  "bincode",

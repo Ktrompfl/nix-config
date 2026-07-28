@@ -34,6 +34,9 @@
       "amd_pstate=active"
       "amd_prefcore=enable"
     ];
+    kernelModules = [
+      "ntsync"
+    ];
   };
 
   console.keyMap = "us";

@@ -26,6 +26,7 @@
     ./moonlight.nix
     ./neovim
     ./python.nix
+    ./ripgrep.nix
     ./satty.nix
     ./seafile.nix
     ./signal.nix

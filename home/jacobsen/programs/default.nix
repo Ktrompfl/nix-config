@@ -24,7 +24,7 @@
     ./mangohud.nix
     ./minecraft
     ./moonlight.nix
-    ./neovim.nix
+    ./neovim
     ./python.nix
     ./satty.nix
     ./seafile.nix

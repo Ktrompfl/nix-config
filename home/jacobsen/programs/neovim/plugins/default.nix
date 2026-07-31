@@ -1,0 +1,10 @@
+{ pkgs, ... }:
+(import ./mini-core.nix { inherit pkgs; })
+++ (import ./mini-ui.nix { inherit pkgs; })
+++ (import ./mini-edit.nix { inherit pkgs; })
+++ (import ./mini-workflow.nix { inherit pkgs; })
+++ (import ./treesitter.nix { inherit pkgs; })
+++ (import ./lsp.nix { inherit pkgs; })
+++ (import ./formatting.nix { inherit pkgs; })
+++ (import ./docs.nix { inherit pkgs; })
+++ (import ./claude.nix { inherit pkgs; })

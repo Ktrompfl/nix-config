@@ -25,4 +25,6 @@
       generateKey = true; # generate key if it does not exist
     };
   };
+
+  sops.secrets."api-keys/context7" = { };
 }

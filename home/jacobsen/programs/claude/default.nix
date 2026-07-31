@@ -12,6 +12,7 @@ in
     ./mcp.nix
     ./permissions.nix
     ./skills.nix
+    ./status.nix
   ];
 
   home.packages = [

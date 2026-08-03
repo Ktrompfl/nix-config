@@ -474,7 +474,7 @@ in
   programs = {
     firefox = {
       enable = true;
-      configPath = "${config.xdg.configHome}/mozilla/firefox";
+      # configPath = "${config.xdg.configHome}/mozilla/firefox";
       nativeMessagingHosts = [ pkgs.tridactyl-native ];
       policies = {
         # debloat
@@ -586,6 +586,6 @@ in
   # firefox persistent storage
   preservation.preserveAt.state-dir.directories = [
     ".config/mozilla/firefox"
-    ".mozilla/native-messaging-hosts"
+    ".mozilla"
   ];
 }

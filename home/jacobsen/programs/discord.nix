@@ -57,43 +57,14 @@
       vencord.enable = true;
     };
 
-    # settings = {
-    #   transparencyOption = "none";
-    #   tray = false;
-    #   minimizeToTray = false;
-    #   openLinksWithElectron = false;
-    #   staticTitle = true;
-    #   enableMenu = true;
-    #   disableSmoothScroll = false;
-    #   hardwareAcceleration = true;
-    #   arRPC = true;
-    #   appBadge = true;
-    #   disableMinSize = true;
-    #   clickTrayToShowHide = false;
-    #   customTitleBar = false;
-    #   enableSplashScreen = true;
-    #   splashTheming = true;
-    #   splashColor = config.lib.stylix.colors.withHashtag.base05;
-    #   splashBackground = config.lib.stylix.colors.withHashtag.base00;
-    #   spellCheckLanguages = true;
-    # };
-    # vencord = {
-    #   settings = {
-    #     autoUpdate = true;
-    #     autoUpdateNotification = true;
-    #     useQuickCss = true;
-    #     themeLinks = [
-
-    #     ];
-    #     eagerPatches = false;
-    #     enableReactDevtools = false;
-    #     frameless = false;
-    #     transparent = false;
-    #     winCtrlQ = false;
-    #     disableMinSize = false;
-    #     winNativeTitleBar = false;
-    #   };
-    # };
+    vesktop = {
+      enable = true;
+      settings = {
+        hardwareAcceleration = true;
+        tray = false;
+        minimizeToTray = false;
+      };
+    };
   };
 
   # electron apps store their state inseparably in .config/

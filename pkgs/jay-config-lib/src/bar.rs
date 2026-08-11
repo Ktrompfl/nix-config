@@ -1,139 +1,88 @@
-use std::cell::RefCell;
-
 use jay_config::{
+    exec::Command,
     set_show_bar,
-    status::set_status,
+    status::{MessageFormat, set_i3bar_separator, set_status_command},
     theme::{BarPosition, set_bar_position},
 };
 
-mod audio;
-mod backlight;
-mod battery;
-mod bluetooth;
-mod clock;
-mod cpu;
-mod disk;
-mod exec;
-mod i3status;
-mod memory;
-mod network;
-mod notifications;
-mod schedule;
-mod sysfs;
-
-// The rest of the bar (workspaces and the tray, via wl-tray-bridge) is
-// handled natively by jay; this module renders the status text itself, in
-// pango markup, instead of delegating to an external status command.
+// Everything that is shown in the bar is rendered by `i3status-rs`, which
+// decides icons, thresholds, severity colors, and which blocks to hide (see
+// home/jacobsen/programs/i3status-rust.nix). Jay only concatenates the
+// blocks it prints, which is why the separator is empty: every block brings
+// its own padding.
 //
-// Each segment module below owns its full lifecycle (scheduling, data
-// capture, and formatting) behind a `run(on_update)` entry point; this file
-// is only responsible for aggregating their output into the final status
-// text and handing it to jay.
+// The two segments that reflect compositor state - the active input mode and
+// the idle inhibitor - cannot be observed from the outside, so they are
+// `custom_dbus` blocks that this module pushes into whenever the state
+// changes, exactly like the toml configuration does.
 
-// TODO: placeholder codepoints, replace with the real icons.
-const IDLE_INHIBITOR_ON_ICON: &str = "\u{f06e}";
-const IDLE_INHIBITOR_OFF_ICON: &str = "\u{f070}";
+/// The object paths of the two `custom_dbus` blocks.
+const MODE_PATH: &str = "/mode";
+const IDLE_INHIBITOR_PATH: &str = "/idle_inhibitor";
 
-#[derive(Default)]
-struct Segments {
-    mode: String,
-    cpu: String,
-    memory: String,
-    disk: String,
-    network: String,
-    bluetooth: String,
-    backlight: String,
-    battery: String,
-    volume: String,
-    notifications: String,
-    idle_inhibitor: String,
-    clock: String,
+const IDLE_INHIBITOR_ON_ICON: &str = "";
+const IDLE_INHIBITOR_OFF_ICON: &str = "";
+
+fn set_block_text(path: &str, text: &str) {
+    Command::new("busctl")
+        .arg("--user")
+        .arg("call")
+        .arg("rs.i3status")
+        .arg(path)
+        .arg("rs.i3status.custom")
+        .arg("SetText")
+        .arg("ss")
+        .arg(text)
+        .arg("")
+        .spawn();
 }
 
-impl Segments {
-    fn render(&self) -> String {
-        [
-            &self.mode,
-            &self.cpu,
-            &self.memory,
-            &self.disk,
-            &self.network,
-            &self.bluetooth,
-            &self.backlight,
-            &self.battery,
-            &self.volume,
-            &self.notifications,
-            &self.idle_inhibitor,
-            &self.clock,
-        ]
-        .into_iter()
-        .filter(|segment| !segment.is_empty())
-        .map(String::as_str)
-        .collect::<Vec<_>>()
-        .join("  ")
-    }
-}
-
-thread_local! {
-    static SEGMENTS: RefCell<Segments> = RefCell::new(Segments::default());
-}
-
-/// Mutates the segment state without rendering. i3status-backed segments
-/// rely on this: a single input line can update several of them (see
-/// `bar/i3status.rs`'s `dispatch`), and they should only render once, after
-/// all of them have been applied - rendering here too would put one
-/// `set_status` call per block back on the hot path.
-fn update(f: impl FnOnce(&mut Segments)) {
-    SEGMENTS.with(|segments| f(&mut segments.borrow_mut()));
-}
-
-fn render() {
-    SEGMENTS.with(|segments| set_status(&segments.borrow().render()));
-}
-
-/// Called from `crate::modes` to reflect the active mode, mirroring the
-/// waybar "custom/mode" module. Unlike the other segments this is pushed
-/// reactively from keybindings rather than polled, so it has no `run`
-/// function of its own, and renders immediately since it isn't part of an
-/// i3status batch.
+/// Called from `crate::shortcuts` to reflect the active mode. Only the mode
+/// that was entered last is ever shown, which is all the shortcuts push.
 pub fn set_mode(mode: Option<&str>) {
-    let mode = mode.unwrap_or("normal");
-    update(|s| s.mode = mode.to_uppercase());
-    render();
+    set_block_text(MODE_PATH, &mode.unwrap_or("normal").to_uppercase());
 }
 
-/// Called from `crate::shortcuts` when the idle inhibitor is toggled;
-/// reactively pushed for the same reason as `set_mode` above.
+/// Called from `crate::shortcuts` when the idle inhibitor is toggled.
 pub fn set_idle_inhibitor(active: bool) {
-    let icon = if active { IDLE_INHIBITOR_ON_ICON } else { IDLE_INHIBITOR_OFF_ICON };
-    update(|s| s.idle_inhibitor = icon.to_string());
-    render();
+    let icon = if active {
+        IDLE_INHIBITOR_ON_ICON
+    } else {
+        IDLE_INHIBITOR_OFF_ICON
+    };
+    set_block_text(IDLE_INHIBITOR_PATH, icon);
+}
+
+/// A `custom_dbus` block stays invisible until something has pushed a value
+/// into it, so both of them are seeded once the bar is up. `i3status-rs` only
+/// claims the bus name a moment after it has been spawned, hence the retry.
+fn seed() {
+    let set_text = |path: &str, text: &str| {
+        format!(
+            r#"busctl --user call rs.i3status {path} rs.i3status.custom SetText ss "{text}" "" >/dev/null 2>&1"#
+        )
+    };
+    let script = format!(
+        "for _ in $(seq 100); do
+             if {mode} && {idle_inhibitor}; then exit 0; fi
+             sleep 0.1
+         done",
+        mode = set_text(MODE_PATH, "NORMAL"),
+        idle_inhibitor = set_text(IDLE_INHIBITOR_PATH, IDLE_INHIBITOR_OFF_ICON),
+    );
+    Command::new("sh").arg("-c").arg(&script).spawn();
 }
 
 pub fn setup() {
     set_show_bar(true);
     set_bar_position(BarPosition::Bottom);
 
-    set_mode(None);
-    set_idle_inhibitor(false);
+    // every block brings its own padding
+    set_i3bar_separator("");
+    set_status_command(
+        MessageFormat::I3Bar,
+        Command::new("i3status-rs").arg("config-jay.toml"),
+    );
 
-    // Feeds every segment below except mode/clock; see bar/i3status.rs.
-    // `on_settled` collapses however many blocks a single i3status-rs line
-    // touched into the one render it should produce.
-    i3status::on_settled(render);
-    i3status::run();
-
-    cpu::run(|text| update(|s| s.cpu = text));
-    memory::run(|text| update(|s| s.memory = text));
-    disk::run(|text| update(|s| s.disk = text));
-    network::run(|text| update(|s| s.network = text));
-    backlight::run(|text| update(|s| s.backlight = text));
-    battery::run(|text| update(|s| s.battery = text));
-    bluetooth::run(|text| update(|s| s.bluetooth = text));
-    audio::run(|text| update(|s| s.volume = text));
-    notifications::run(|text| update(|s| s.notifications = text));
-    clock::run(|text| {
-        update(|s| s.clock = text);
-        render();
-    });
+    seed();
 }

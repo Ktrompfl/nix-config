@@ -1,6 +1,5 @@
 // Not every base16 slot has a consumer yet, but all 16 are kept available
-// here so bar/window modules can reach for any of them without adding a new
-// field.
+// here so future rules can reach for any of them without adding a new field.
 #![allow(dead_code)]
 
 use std::{env, fs, path::PathBuf, sync::OnceLock};
@@ -169,70 +168,6 @@ pub fn setup() {
 
     colors::BAR_BACKGROUND_COLOR.set_color(hex(&theme.base01));
     colors::BAR_STATUS_TEXT_COLOR.set_color(hex(&theme.base05));
-}
-
-pub fn base00() -> &'static str {
-    &get().base00
-}
-
-pub fn base01() -> &'static str {
-    &get().base01
-}
-
-pub fn base02() -> &'static str {
-    &get().base02
-}
-
-pub fn base03() -> &'static str {
-    &get().base03
-}
-
-pub fn base04() -> &'static str {
-    &get().base04
-}
-
-pub fn base05() -> &'static str {
-    &get().base05
-}
-
-pub fn base06() -> &'static str {
-    &get().base06
-}
-
-pub fn base07() -> &'static str {
-    &get().base07
-}
-
-pub fn base08() -> &'static str {
-    &get().base08
-}
-
-pub fn base09() -> &'static str {
-    &get().base09
-}
-
-pub fn base0a() -> &'static str {
-    &get().base0a
-}
-
-pub fn base0b() -> &'static str {
-    &get().base0b
-}
-
-pub fn base0c() -> &'static str {
-    &get().base0c
-}
-
-pub fn base0d() -> &'static str {
-    &get().base0d
-}
-
-pub fn base0e() -> &'static str {
-    &get().base0e
-}
-
-pub fn base0f() -> &'static str {
-    &get().base0f
 }
 
 pub fn cursor_theme() -> &'static str {

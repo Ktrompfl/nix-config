@@ -1,7 +1,7 @@
 {
   imports = [
     ./carrot.nix
-    ./jay.nix
+    ./jay
     ./uwsm.nix
   ];
 }

@@ -43,7 +43,7 @@
     };
 
     jay = {
-      url = "github:Ktrompfl/jay/size-and-position";
+      url = "github:mahkoh/jay";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         rust-overlay.follows = "rust-overlay";

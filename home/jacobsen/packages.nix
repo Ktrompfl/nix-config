@@ -1,6 +1,9 @@
 { pkgs, ... }:
 {
   home.packages = with pkgs; [
+    # nix tools
+    manix
+
     # wayland tools
     wev
 

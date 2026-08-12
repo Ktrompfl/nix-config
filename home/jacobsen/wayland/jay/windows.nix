@@ -1,6 +1,10 @@
+{ jayLib, ... }:
+let
+  inherit (jayLib) moveToOutput moveToWorkspace;
+in
 {
   # What happens to a window when it is mapped.
-  wayland.windowManager.jay.settings.windows = [
+  windows = [
     {
       name = "wl-mirror";
       match = {
@@ -9,33 +13,12 @@
       };
       auto-focus = false;
       action = [
-        {
-          type = "move-to-workspace";
-          name = "0";
-        }
-        {
-          type = "move-to-output";
+        (moveToWorkspace "0")
+        (moveToOutput {
           workspace = "0";
           output.name = "beamer";
-        }
+        })
         "enter-fullscreen"
-      ];
-    }
-    # {
-    #   match = {
-    #     types = "client-window";
-    #     just-mapped = true;
-    #     workspace = "0";
-    #   };
-    # }
-    {
-      # dwindle / spiral layout
-      match = {
-        types = "client-window";
-        just-mapped = true;
-      };
-      action = [
-        "split-major"
       ];
     }
   ];

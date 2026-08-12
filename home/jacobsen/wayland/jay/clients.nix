@@ -26,7 +26,7 @@ let
 in
 {
   # The wayland protocols each client is allowed to use.
-  wayland.windowManager.jay.settings.clients = lib.mapAttrsToList (pattern: capabilities: {
+  clients = lib.mapAttrsToList (pattern: capabilities: {
     match.exe-regex = "/\\.?(${pattern})(-wrapped)?$";
     inherit capabilities;
   }) clientCapabilities;

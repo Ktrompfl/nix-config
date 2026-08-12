@@ -1,18 +1,11 @@
+//! What happens to a window when it is mapped.
+
 use jay_config::{
-    Workspace, get_workspace,
-    video::Connector,
-    window::{MatchedWindow, TileState, Window, WindowCriterion},
+    get_workspace,
+    window::{MatchedWindow, WindowCriterion},
 };
 
 use crate::outputs;
-
-fn move_to_output(window: Window, ws_name: &str, output: Connector) {
-    let ws: Workspace = get_workspace(ws_name);
-    window.set_workspace(ws);
-    if output.exists() {
-        ws.move_to_output(output);
-    }
-}
 
 pub fn setup() {
     let wl_mirror = WindowCriterion::All(&[
@@ -20,10 +13,18 @@ pub fn setup() {
         WindowCriterion::JustMapped,
     ])
     .to_matcher();
+
     wl_mirror.set_auto_focus(false);
     wl_mirror.bind(|matched: MatchedWindow| {
         let window = matched.window();
-        move_to_output(window, "0", outputs::beamer());
+        let workspace = get_workspace("0");
+        window.set_workspace(workspace);
+
+        let beamer = outputs::connector("beamer");
+        if beamer.exists() {
+            workspace.move_to_output(beamer);
+        }
+
         window.set_fullscreen(true);
     });
 }

@@ -1,4 +1,5 @@
-use std::time::Duration;
+//! Compositor-wide behaviour that belongs to no particular device, window, or
+//! key.
 
 use jay_config::{
     input::{FallbackOutputMode, FocusFollowsMouseMode, get_default_seat},
@@ -7,14 +8,12 @@ use jay_config::{
     workspace::{WorkspaceDisplayOrder, set_workspace_display_order},
 };
 
-/// Shared with `crate::shortcuts`, which toggles the idle inhibitor by
-/// switching `set_idle` between `None` and this value.
-pub const IDLE_TIMEOUT: Duration = Duration::from_secs(10 * 60);
+use crate::{IDLE_GRACE_PERIOD, IDLE_TIMEOUT, actions};
 
 pub fn setup() {
     let seat = get_default_seat();
 
-    // logo uses a different symbol name than the other modifier keys
+    // logo uses different symbol names
     seat.set_window_management_key(SYM_Super_L);
 
     seat.set_focus_follows_mouse_mode(FocusFollowsMouseMode::True);
@@ -23,15 +22,16 @@ pub fn setup() {
     // more useful with mouse-follows-focus
     seat.set_fallback_output_mode(FallbackOutputMode::Focus);
     set_workspace_display_order(WorkspaceDisplayOrder::Sorted);
+    set_middle_click_paste_enabled(false);
+    set_show_titles(true);
+
+    // The toml side additionally sets `split-reuses-container`, which this
+    // version of the jay-config crate does not know about.
 
     set_idle(Some(IDLE_TIMEOUT));
-    // screen goes black during grace period before idle action and output disable
-    set_idle_grace_period(Duration::from_secs(15));
+    set_idle_grace_period(IDLE_GRACE_PERIOD);
     on_idle(|| {
         log::info!("idle timeout reached: suspending");
-        crate::power::suspend();
+        actions::suspend();
     });
-
-    set_show_titles(true);
-    set_middle_click_paste_enabled(false);
 }

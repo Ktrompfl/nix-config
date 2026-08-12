@@ -1,351 +1,303 @@
-use std::cell::Cell;
+//! Everything that is bound to a key, including the input modes.
+
+use std::rc::Rc;
 
 use jay_config::{
-    exec::Command,
-    get_workspace,
-    input::{get_default_seat, Seat},
+    Axis, Direction, get_workspace,
+    input::{LayerDirection, Seat, Timeline, get_default_seat},
     keyboard::{
+        ModifiedKeySym,
         mods::{ALT, CTRL, LOGO, SHIFT},
         syms::*,
     },
-    quit, reload, set_idle, set_show_titles, Axis, Direction,
+    quit, reload, set_show_titles, switch_to_vt,
 };
 
-struct DirKey {
-    key: jay_config::keyboard::syms::KeySym,
-    arrow: jay_config::keyboard::syms::KeySym,
+use crate::{actions, bar, exec};
+
+/// Binds a shortcut that fires again while the key is held. The toml side
+/// needs a `complex-shortcut` with `repeat = true` for this.
+fn bind_repeating<F: FnMut() + 'static>(seat: Seat, sym: impl Into<ModifiedKeySym>, f: F) {
+    let sym = sym.into();
+    seat.bind(sym, f);
+    seat.set_repeat_bind(sym, true);
+}
+
+// --- keys ---
+
+/// Indices into a `resize` delta, in the order the compositor takes them.
+const DX1: usize = 0;
+const DY1: usize = 1;
+const DX2: usize = 2;
+const DY2: usize = 3;
+
+/// `field`/`sign` describe which edge of a window the direction resizes and
+/// in which direction that edge grows, see the resize mode below.
+struct Dir {
+    key: KeySym,
+    arrow: KeySym,
     dir: Direction,
-}
-
-const DIR_KEYS: [DirKey; 4] = [
-    DirKey {
-        key: SYM_h,
-        arrow: SYM_Left,
-        dir: Direction::Left,
-    },
-    DirKey {
-        key: SYM_j,
-        arrow: SYM_Down,
-        dir: Direction::Down,
-    },
-    DirKey {
-        key: SYM_k,
-        arrow: SYM_Up,
-        dir: Direction::Up,
-    },
-    DirKey {
-        key: SYM_l,
-        arrow: SYM_Right,
-        dir: Direction::Right,
-    },
-];
-
-fn move_output_direction(seat: Seat, direction: Direction) {
-    let ws = seat.get_workspace();
-    if !ws.exists() {
-        return;
-    }
-    let source = ws.connector();
-    if !source.exists() {
-        return;
-    }
-    let target = source.connector_in_direction(direction);
-    if !target.exists() {
-        return;
-    }
-    seat.move_to_output(target);
-}
-
-fn shell(script: &'static str) {
-    Command::new("sh").arg("-c").arg(script).spawn();
-}
-
-fn screenshot_region(x: i32, y: i32, w: i32, h: i32) {
-    if w <= 0 || h <= 0 {
-        return;
-    }
-    let geometry = format!("{x},{y} {w}x{h}");
-    Command::new("sh")
-        .arg("-c")
-        .arg(&format!("grim -g '{geometry}' - | satty --filename -"))
-        .spawn();
-}
-
-fn screenshot_output(seat: Seat) {
-    let connector = seat.get_keyboard_connector();
-    if !connector.exists() {
-        return;
-    }
-    let (x, y) = connector.position();
-    let (w, h) = connector.size();
-    screenshot_region(x, y, w, h);
-}
-
-fn screenshot_window(seat: Seat) {
-    let window = seat.window();
-    if !window.exists() {
-        return;
-    }
-    let (x, y) = window.position();
-    let (w, h) = window.size();
-    screenshot_region(x, y, w, h);
-}
-
-fn screenshot_workspace(seat: Seat) {
-    let ws = seat.get_workspace();
-    if !ws.exists() {
-        return;
-    }
-    let (x, y) = ws.position();
-    let (w, h) = ws.size();
-    screenshot_region(x, y, w, h);
-}
-
-// --- modes ---
-//
-// Only one mode is ever active on top of normal mode: entering a mode
-// rebinds its toggle key (e.g. LOGO+m) to pop it instead of pushing it, and
-// popping restores just that one binding. Normal mode's own bindings are
-// never torn down, so there's no "empty" state to rebuild from.
-
-fn notify_push(name: &str) {
-    crate::bar::set_mode(Some(name));
-}
-
-fn notify_pop() {
-    crate::bar::set_mode(None);
-}
-
-fn push_mirror(seat: Seat) {
-    seat.bind(LOGO | SYM_m, move || pop_mirror(seat));
-    seat.bind(SYM_Escape, move || pop_mirror(seat));
-
-    seat.bind(SYM_m, move || present(seat, "mirror"));
-    seat.bind(SYM_c, move || present(seat, "custom"));
-    seat.bind(SYM_f, move || present(seat, "toggle-freeze"));
-    seat.bind(SYM_z, move || present(seat, "freeze"));
-    seat.bind(SHIFT | SYM_z, move || present(seat, "unfreeze"));
-    seat.bind(SYM_o, move || present(seat, "set-output"));
-    seat.bind(SYM_r, move || present(seat, "set-region"));
-    seat.bind(SHIFT | SYM_r, move || present(seat, "unset-region"));
-    seat.bind(SYM_s, move || present(seat, "set-scaling"));
-
-    notify_push("mirror");
-}
-
-fn present(seat: Seat, action: &'static str) {
-    pop_mirror(seat);
-    Command::new("wl-present").arg(action).spawn();
-}
-
-fn pop_mirror(seat: Seat) {
-    seat.unbind(SYM_Escape);
-    seat.unbind(SYM_m);
-    seat.unbind(SYM_c);
-    seat.unbind(SYM_f);
-    seat.unbind(SYM_z);
-    seat.unbind(SHIFT | SYM_z);
-    seat.unbind(SYM_o);
-    seat.unbind(SYM_r);
-    seat.unbind(SHIFT | SYM_r);
-    seat.unbind(SYM_s);
-    seat.bind(LOGO | SYM_m, move || push_mirror(seat));
-    notify_pop();
-}
-
-#[derive(Clone, Copy)]
-enum ResizeField {
-    Dx1,
-    Dy1,
-    Dx2,
-    Dy2,
-}
-
-#[derive(Clone, Copy)]
-struct ResizeKey {
-    key: jay_config::keyboard::syms::KeySym,
-    arrow: jay_config::keyboard::syms::KeySym,
-    field: ResizeField,
+    field: usize,
     sign: i32,
 }
 
-const RESIZE_KEYS: [ResizeKey; 4] = [
-    ResizeKey {
+impl Dir {
+    /// The delta that moves this direction's edge outwards by `amount`, or
+    /// inwards for a negative one.
+    fn resize(&self, amount: i32) -> [i32; 4] {
+        let mut delta = [0; 4];
+        delta[self.field] = self.sign * amount;
+        delta
+    }
+}
+
+const DIRS: [Dir; 4] = [
+    Dir {
         key: SYM_h,
         arrow: SYM_Left,
-        field: ResizeField::Dx1,
+        dir: Direction::Left,
+        field: DX1,
         sign: -1,
     },
-    ResizeKey {
+    Dir {
         key: SYM_j,
         arrow: SYM_Down,
-        field: ResizeField::Dy2,
+        dir: Direction::Down,
+        field: DY2,
         sign: 1,
     },
-    ResizeKey {
+    Dir {
         key: SYM_k,
         arrow: SYM_Up,
-        field: ResizeField::Dy1,
+        dir: Direction::Up,
+        field: DY1,
         sign: -1,
     },
-    ResizeKey {
+    Dir {
         key: SYM_l,
         arrow: SYM_Right,
-        field: ResizeField::Dx2,
+        dir: Direction::Right,
+        field: DX2,
         sign: 1,
     },
+];
+
+const WORKSPACES: [(KeySym, &str); 10] = [
+    (SYM_0, "0"),
+    (SYM_1, "1"),
+    (SYM_2, "2"),
+    (SYM_3, "3"),
+    (SYM_4, "4"),
+    (SYM_5, "5"),
+    (SYM_6, "6"),
+    (SYM_7, "7"),
+    (SYM_8, "8"),
+    (SYM_9, "9"),
+];
+
+const VTS: [KeySym; 12] = [
+    SYM_F1, SYM_F2, SYM_F3, SYM_F4, SYM_F5, SYM_F6, SYM_F7, SYM_F8, SYM_F9, SYM_F10, SYM_F11,
+    SYM_F12,
 ];
 
 const RESIZE_AMOUNT: i32 = 10;
 
-fn resize_delta(field: ResizeField, val: i32) -> (i32, i32, i32, i32) {
-    match field {
-        ResizeField::Dx1 => (val, 0, 0, 0),
-        ResizeField::Dy1 => (0, val, 0, 0),
-        ResizeField::Dx2 => (0, 0, val, 0),
-        ResizeField::Dy2 => (0, 0, 0, val),
+// --- modes ---
+
+/// A set of shortcuts that is layered on top of the normal ones until the
+/// mode is left again.
+///
+/// Jay's config API has no mode stack, so entering a mode binds its shortcuts
+/// and rebinds its own key to leave it again. The normal bindings are never
+/// torn down, so there is no state to rebuild; only one mode at a time can be
+/// active, which is all that is ever entered. The toml side pushes onto the
+/// compositor's mode stack instead, but the two behave the same as long as
+/// modes are not nested.
+struct Mode {
+    name: &'static str,
+    key: ModifiedKeySym,
+    shortcuts: Vec<(ModifiedKeySym, Shortcut)>,
+}
+
+enum Shortcut {
+    /// Leaves the mode, then runs.
+    Leave(Rc<dyn Fn()>),
+    /// Keeps the mode active and fires again while the key is held.
+    Repeat(Rc<dyn Fn()>),
+}
+
+impl Mode {
+    fn new(name: &'static str, key: impl Into<ModifiedKeySym>) -> Self {
+        Self {
+            name,
+            key: key.into(),
+            shortcuts: vec![],
+        }
+    }
+
+    fn leave(mut self, sym: impl Into<ModifiedKeySym>, f: impl Fn() + 'static) -> Self {
+        self.shortcuts
+            .push((sym.into(), Shortcut::Leave(Rc::new(f))));
+        self
+    }
+
+    fn repeat(mut self, sym: impl Into<ModifiedKeySym>, f: impl Fn() + 'static) -> Self {
+        self.shortcuts
+            .push((sym.into(), Shortcut::Repeat(Rc::new(f))));
+        self
+    }
+
+    /// Binds the key that enters the mode. This is also how a mode that has
+    /// just been left returns to being enterable.
+    fn install(self: &Rc<Self>, seat: Seat) {
+        let mode = self.clone();
+        seat.bind(self.key, move || mode.enter(seat));
+    }
+
+    fn enter(self: &Rc<Self>, seat: Seat) {
+        for (sym, shortcut) in &self.shortcuts {
+            match shortcut {
+                Shortcut::Leave(f) => {
+                    let (mode, f) = (self.clone(), f.clone());
+                    seat.bind(*sym, move || {
+                        mode.exit(seat);
+                        f();
+                    });
+                }
+                Shortcut::Repeat(f) => {
+                    let f = f.clone();
+                    bind_repeating(seat, *sym, move || f());
+                }
+            }
+        }
+
+        for sym in [self.key, SYM_Escape.into()] {
+            let mode = self.clone();
+            seat.bind(sym, move || mode.exit(seat));
+        }
+
+        bar::set_mode(Some(self.name));
+    }
+
+    fn exit(self: &Rc<Self>, seat: Seat) {
+        for (sym, _) in &self.shortcuts {
+            seat.unbind(*sym);
+        }
+        seat.unbind(SYM_Escape);
+        self.install(seat);
+
+        bar::set_mode(None);
     }
 }
 
-fn push_resize(seat: Seat) {
-    for rk in RESIZE_KEYS {
-        let val = rk.sign * RESIZE_AMOUNT;
+fn mirror_mode(seat: Seat) {
+    let present = |action: &'static str| move || exec("wl-present", &[action]);
 
-        let (dx1, dy1, dx2, dy2) = resize_delta(rk.field, val);
-        seat.bind(rk.key, move || seat.resize(dx1, dy1, dx2, dy2));
-        seat.set_repeat_bind(rk.key, true);
-        seat.bind(rk.arrow, move || seat.resize(dx1, dy1, dx2, dy2));
-        seat.set_repeat_bind(rk.arrow, true);
+    Rc::new(
+        Mode::new("mirror", LOGO | SYM_m)
+            .leave(SYM_m, present("mirror"))
+            .leave(SYM_c, present("custom"))
+            .leave(SYM_f, present("toggle-freeze"))
+            .leave(SYM_z, present("freeze"))
+            .leave(SHIFT | SYM_z, present("unfreeze"))
+            .leave(SYM_o, present("set-output"))
+            .leave(SYM_r, present("set-region"))
+            .leave(SHIFT | SYM_r, present("unset-region"))
+            .leave(SYM_s, present("set-scaling")),
+    )
+    .install(seat);
+}
 
-        let (dx1, dy1, dx2, dy2) = resize_delta(rk.field, -val);
-        seat.bind(SHIFT | rk.key, move || seat.resize(dx1, dy1, dx2, dy2));
-        seat.set_repeat_bind(SHIFT | rk.key, true);
-        seat.bind(SHIFT | rk.arrow, move || seat.resize(dx1, dy1, dx2, dy2));
-        seat.set_repeat_bind(SHIFT | rk.arrow, true);
+fn resize_mode(seat: Seat) {
+    let resize_by = |delta: [i32; 4]| move || seat.resize(delta[0], delta[1], delta[2], delta[3]);
+
+    let mode = DIRS
+        .iter()
+        .fold(Mode::new("resize", LOGO | SYM_r), |mode, dir| {
+            let (grow, shrink) = (dir.resize(RESIZE_AMOUNT), dir.resize(-RESIZE_AMOUNT));
+            mode.repeat(dir.key, resize_by(grow))
+                .repeat(dir.arrow, resize_by(grow))
+                .repeat(SHIFT | dir.key, resize_by(shrink))
+                .repeat(SHIFT | dir.arrow, resize_by(shrink))
+        });
+
+    Rc::new(mode).install(seat);
+}
+
+fn system_mode(seat: Seat) {
+    Rc::new(
+        Mode::new("system", LOGO | SYM_p)
+            .leave(SYM_l, actions::lock)
+            .leave(SYM_s, || exec("systemctl", &["poweroff"]))
+            .leave(SYM_r, || exec("systemctl", &["reboot"]))
+            .leave(SYM_h, actions::suspend)
+            .leave(SYM_i, actions::toggle_idle_inhibitor),
+    )
+    .install(seat);
+}
+
+// --- screenshots ---
+
+/// Hands a region to the screenshot script, which is what the toml side ends
+/// up running as well. Unlike that side, which has to derive its geometry
+/// from the focused window, this can also capture an empty workspace or
+/// output; an empty region means there was nothing to capture at all.
+fn screenshot((x, y): (i32, i32), (width, height): (i32, i32)) {
+    if width > 0 && height > 0 {
+        exec(
+            "jay-screenshot",
+            &["region", &format!("{x},{y} {width}x{height}")],
+        );
     }
-
-    seat.bind(LOGO | SYM_r, move || pop_resize(seat));
-    seat.bind(SYM_Escape, move || pop_resize(seat));
-
-    notify_push("resize");
 }
 
-fn pop_resize(seat: Seat) {
-    for rk in RESIZE_KEYS {
-        seat.unbind(rk.key);
-        seat.unbind(rk.arrow);
-        seat.unbind(SHIFT | rk.key);
-        seat.unbind(SHIFT | rk.arrow);
+/// Moves the current workspace to the neighbouring output, if there is one.
+fn move_to_output(seat: Seat, direction: Direction) {
+    let target = seat
+        .get_workspace()
+        .connector()
+        .connector_in_direction(direction);
+    if target.exists() {
+        seat.move_to_output(target);
     }
-    seat.unbind(SYM_Escape);
-    seat.bind(LOGO | SYM_r, move || push_resize(seat));
-    notify_pop();
-}
-
-thread_local! {
-    static IDLE_INHIBITED: Cell<bool> = const { Cell::new(false) };
-}
-
-fn toggle_idle_inhibitor() {
-    let inhibited = IDLE_INHIBITED.with(|c| {
-        let inhibited = !c.get();
-        c.set(inhibited);
-        inhibited
-    });
-    if inhibited {
-        log::info!("idle inhibitor activated");
-        set_idle(None);
-    } else {
-        log::info!("idle inhibitor deactivated");
-        set_idle(Some(crate::behavior::IDLE_TIMEOUT));
-    }
-    crate::bar::set_idle_inhibitor(inhibited);
-}
-
-fn push_system(seat: Seat) {
-    seat.bind(LOGO | SYM_p, move || pop_system(seat));
-    seat.bind(SYM_Escape, move || pop_system(seat));
-    seat.bind(SYM_l, move || {
-        pop_system(seat);
-        Command::new("swaylock").arg("--daemonize").spawn();
-    });
-    seat.bind(SYM_s, move || {
-        pop_system(seat);
-        Command::new("systemctl").arg("poweroff").spawn();
-    });
-    seat.bind(SYM_r, move || {
-        pop_system(seat);
-        Command::new("systemctl").arg("reboot").spawn();
-    });
-    seat.bind(SYM_h, move || {
-        pop_system(seat);
-        crate::power::suspend();
-    });
-    seat.bind(SYM_i, move || {
-        pop_system(seat);
-        toggle_idle_inhibitor();
-    });
-
-    notify_push("system");
-}
-
-fn pop_system(seat: Seat) {
-    seat.unbind(SYM_Escape);
-    seat.unbind(SYM_l);
-    seat.unbind(SYM_s);
-    seat.unbind(SYM_r);
-    seat.unbind(SYM_h);
-    seat.unbind(SYM_i);
-    seat.bind(LOGO | SYM_p, move || push_system(seat));
-    notify_pop();
 }
 
 pub fn setup() {
     let seat = get_default_seat();
 
-    // --- directional focus / move / move-to-output bindings ---
-    for dk in DIR_KEYS {
-        let dir = dk.dir;
-        seat.bind(LOGO | dk.key, move || seat.focus(dir));
-        seat.bind(LOGO | dk.arrow, move || seat.focus(dir));
-
-        seat.bind(LOGO | SHIFT | dk.key, move || seat.move_(dir));
-        seat.bind(LOGO | SHIFT | dk.arrow, move || seat.move_(dir));
-
-        seat.bind(LOGO | SHIFT | CTRL | dk.key, move || {
-            move_output_direction(seat, dir)
-        });
-        seat.bind(LOGO | SHIFT | CTRL | dk.arrow, move || {
-            move_output_direction(seat, dir)
-        });
+    // --- directions ---
+    //
+    // Everything that is worth holding down rather than tapping - navigating
+    // focus, dragging a window or workspace along, stepping the volume - is
+    // bound with `bind_repeating`.
+    for dir in DIRS {
+        let direction = dir.dir;
+        for sym in [dir.key, dir.arrow] {
+            bind_repeating(seat, LOGO | sym, move || seat.focus(direction));
+            bind_repeating(seat, LOGO | SHIFT | sym, move || seat.move_(direction));
+            bind_repeating(seat, LOGO | SHIFT | CTRL | sym, move || {
+                move_to_output(seat, direction)
+            });
+        }
     }
 
-    // --- workspace bindings ---
-    const WORKSPACE_SYMS: [jay_config::keyboard::syms::KeySym; 10] = [
-        SYM_0, SYM_1, SYM_2, SYM_3, SYM_4, SYM_5, SYM_6, SYM_7, SYM_8, SYM_9,
-    ];
-    const WORKSPACE_NAMES: [&str; 10] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    for (sym, name) in WORKSPACE_SYMS.into_iter().zip(WORKSPACE_NAMES) {
-        seat.bind(LOGO | sym, move || {
-            seat.show_workspace(get_workspace(name));
-        });
+    // --- workspaces ---
+    for (sym, name) in WORKSPACES {
+        seat.bind(LOGO | sym, move || seat.show_workspace(get_workspace(name)));
         seat.bind(LOGO | SHIFT | sym, move || {
-            seat.set_workspace(get_workspace(name));
+            seat.set_workspace(get_workspace(name))
         });
     }
 
     // --- switch to VT ---
-    const VT_SYMS: [jay_config::keyboard::syms::KeySym; 12] = [
-        SYM_F1, SYM_F2, SYM_F3, SYM_F4, SYM_F5, SYM_F6, SYM_F7, SYM_F8, SYM_F9, SYM_F10, SYM_F11,
-        SYM_F12,
-    ];
-    for (i, sym) in VT_SYMS.into_iter().enumerate() {
+    for (i, sym) in VTS.into_iter().enumerate() {
         let n = i as u32 + 1;
-        seat.bind(CTRL | ALT | sym, move || jay_config::switch_to_vt(n));
+        seat.bind(CTRL | ALT | sym, move || switch_to_vt(n));
     }
 
     // --- compositor ---
     seat.bind(LOGO | SHIFT | SYM_q, quit);
+    // Reloading re-runs this configuration, which also seeds the bar again.
     seat.bind(LOGO | SHIFT | SYM_r, reload);
 
     // --- windows ---
@@ -360,99 +312,92 @@ pub fn setup() {
     seat.bind(LOGO | SYM_t, || set_show_titles(true));
     seat.bind(LOGO | SHIFT | SYM_t, || set_show_titles(false));
 
-    // --- focus ---
-    seat.bind(LOGO | SYM_Tab, move || {
-        seat.focus_history(jay_config::input::Timeline::Newer)
-    });
-    seat.bind(LOGO | SHIFT | SYM_Tab, move || {
-        seat.focus_history(jay_config::input::Timeline::Older)
-    });
-    seat.bind(LOGO | SYM_Delete, move || seat.focus_tiles());
-    seat.bind(LOGO | SYM_Prior, move || {
-        seat.focus_layer_rel(jay_config::input::LayerDirection::Above)
-    });
-    seat.bind(LOGO | SYM_Next, move || {
-        seat.focus_layer_rel(jay_config::input::LayerDirection::Below)
-    });
-    seat.bind(LOGO | SYM_g, move || seat.focus_parent());
-    seat.bind(LOGO | SYM_c, move || seat.warp_mouse_to_focus());
-
-    // --- marks: the next key press identifies the mark ---
+    // Marks; the next key press identifies the mark. The toml side binds
+    // `tile-major`/`split-major` to these keys instead, neither of which this
+    // version of the jay-config crate knows about.
     seat.bind(LOGO | SYM_y, move || seat.jump_to_mark(None));
     seat.bind(LOGO | SHIFT | SYM_y, move || seat.create_mark(None));
 
+    // --- focus ---
+    bind_repeating(seat, LOGO | SYM_Tab, move || {
+        seat.focus_history(Timeline::Newer)
+    });
+    bind_repeating(seat, LOGO | SHIFT | SYM_Tab, move || {
+        seat.focus_history(Timeline::Older)
+    });
+    // layer above
+    bind_repeating(seat, LOGO | SYM_Prior, move || {
+        seat.focus_layer_rel(LayerDirection::Above)
+    });
+    // layer below
+    bind_repeating(seat, LOGO | SYM_Next, move || {
+        seat.focus_layer_rel(LayerDirection::Below)
+    });
+    bind_repeating(seat, LOGO | SYM_g, move || seat.focus_parent());
+    seat.bind(LOGO | SYM_Delete, move || seat.focus_tiles());
+    seat.bind(LOGO | SYM_c, move || seat.warp_mouse_to_focus());
+
     // --- modes ---
-    seat.bind(LOGO | SYM_m, move || push_mirror(seat));
-    seat.bind(LOGO | SYM_p, move || push_system(seat));
-    seat.bind(LOGO | SYM_r, move || push_resize(seat));
+    mirror_mode(seat);
+    resize_mode(seat);
+    system_mode(seat);
 
     // --- audio (wireplumber) ---
-    seat.bind(SYM_XF86AudioRaiseVolume, || {
-        Command::new("wpctl")
-            .arg("set-volume")
-            .arg("@DEFAULT_AUDIO_SINK@")
-            .arg("5%+")
-            .arg("--limit")
-            .arg("1.5")
-            .spawn();
+    bind_repeating(seat, SYM_XF86AudioRaiseVolume, || {
+        exec(
+            "wpctl",
+            &[
+                "set-volume",
+                "@DEFAULT_AUDIO_SINK@",
+                "5%+",
+                "--limit",
+                "1.5",
+            ],
+        )
     });
-    seat.bind(SYM_XF86AudioLowerVolume, || {
-        Command::new("wpctl")
-            .arg("set-volume")
-            .arg("@DEFAULT_AUDIO_SINK@")
-            .arg("5%-")
-            .arg("--limit")
-            .arg("0.0")
-            .spawn();
+    bind_repeating(seat, SYM_XF86AudioLowerVolume, || {
+        exec(
+            "wpctl",
+            &[
+                "set-volume",
+                "@DEFAULT_AUDIO_SINK@",
+                "5%-",
+                "--limit",
+                "0.0",
+            ],
+        )
     });
     seat.bind(SYM_XF86AudioMute, || {
-        Command::new("wpctl")
-            .arg("set-mute")
-            .arg("@DEFAULT_AUDIO_SINK@")
-            .arg("toggle")
-            .spawn();
+        exec("wpctl", &["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
     });
     seat.bind(SYM_XF86AudioMicMute, || {
-        Command::new("wpctl")
-            .arg("set-mute")
-            .arg("@DEFAULT_AUDIO_SOURCE@")
-            .arg("toggle")
-            .spawn();
+        exec("wpctl", &["set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"])
     });
 
     // --- player ---
-    seat.bind(SYM_XF86AudioPlay, || {
-        Command::new("playerctl").arg("play-pause").spawn();
-    });
-    seat.bind(SYM_XF86AudioPause, || {
-        Command::new("playerctl").arg("play-pause").spawn();
-    });
-    seat.bind(SYM_XF86AudioNext, || {
-        Command::new("playerctl").arg("next").spawn();
-    });
-    seat.bind(SYM_XF86AudioPrev, || {
-        Command::new("playerctl").arg("previous").spawn();
-    });
-    seat.bind(SYM_XF86AudioStop, || {
-        Command::new("playerctl").arg("stop").spawn();
-    });
+    seat.bind(SYM_XF86AudioPlay, || exec("playerctl", &["play-pause"]));
+    seat.bind(SYM_XF86AudioPause, || exec("playerctl", &["play-pause"]));
+    seat.bind(SYM_XF86AudioNext, || exec("playerctl", &["next"]));
+    seat.bind(SYM_XF86AudioPrev, || exec("playerctl", &["previous"]));
+    seat.bind(SYM_XF86AudioStop, || exec("playerctl", &["stop"]));
 
     // --- screenshot ---
-    seat.bind(LOGO | SYM_s, move || screenshot_output(seat));
-    seat.bind(LOGO | SHIFT | SYM_s, move || screenshot_window(seat));
-    seat.bind(LOGO | CTRL | SYM_s, move || screenshot_workspace(seat));
+    seat.bind(LOGO | SYM_s, move || {
+        let output = seat.get_keyboard_connector();
+        screenshot(output.position(), output.size());
+    });
+    seat.bind(LOGO | SHIFT | SYM_s, move || {
+        let window = seat.window();
+        screenshot(window.position(), window.size());
+    });
+    seat.bind(LOGO | CTRL | SYM_s, move || {
+        let workspace = seat.get_workspace();
+        screenshot(workspace.position(), workspace.size());
+    });
 
     // --- launch ---
-    seat.bind(LOGO | SYM_Return, || {
-        Command::new("app2unit").arg("footclient").spawn();
-    });
-    seat.bind(LOGO | SYM_d, || {
-        Command::new("fuzzel").spawn();
-    });
-    seat.bind(LOGO | SYM_a, || {
-        Command::new("swaync-client").arg("-t").spawn();
-    });
-    seat.bind(LOGO | SHIFT | SYM_v, || {
-        shell("cliphist list | fuzzel --dmenu --with-nth 2 | cliphist decode | wl-copy");
-    });
+    seat.bind(LOGO | SYM_Return, || exec("app2unit", &["footclient"]));
+    seat.bind(LOGO | SYM_d, || exec("fuzzel", &[]));
+    seat.bind(LOGO | SYM_a, || exec("swaync-client", &["-t"]));
+    seat.bind(LOGO | SHIFT | SYM_v, || exec("jay-clipboard-history", &[]));
 }

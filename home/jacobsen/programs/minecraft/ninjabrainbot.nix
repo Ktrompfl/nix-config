@@ -4,7 +4,7 @@
 }:
 {
   home.packages = [
-    pkgs.ninjabrainbot
+    pkgs.ninjabrain-bot
   ];
 
   home.file.".java/.userPrefs/ninjabrainbot/prefs.xml".text = /* xml */ ''

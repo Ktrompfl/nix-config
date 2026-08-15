@@ -10,8 +10,8 @@
 let
   src = inputs.zed-julia;
 
-  rustPkgs = pkgs.extend inputs.rust-overlay.overlays.default;
-  rustToolchain = rustPkgs.rust-bin.stable.latest.default.override {
+  rustBin = inputs.rust-overlay.lib.mkRustBin { } pkgs;
+  rustToolchain = rustBin.stable.latest.default.override {
     targets = [ "wasm32-wasip2" ];
   };
   craneLib = (inputs.crane.mkLib pkgs).overrideToolchain rustToolchain;

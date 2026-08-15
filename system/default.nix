@@ -36,7 +36,6 @@
 
       # Add overlays from other flakes
       inputs.nur.overlays.default
-      inputs.rust-overlay.overlays.default
 
       # Make supported packages use lix instead of nix
       (final: prev: {

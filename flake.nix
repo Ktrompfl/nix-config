@@ -45,6 +45,7 @@
     jay = {
       url = "github:mahkoh/jay";
       inputs = {
+        crane.follows = "crane";
         nixpkgs.follows = "nixpkgs";
         rust-overlay.follows = "rust-overlay";
       };
@@ -164,11 +165,9 @@
 
         rust =
           let
-            pkgs = import nixpkgs {
-              inherit system;
-              overlays = [ inputs.rust-overlay.overlays.default ];
-            };
-            rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+            pkgs = nixpkgs.legacyPackages.${system};
+            rustBin = inputs.rust-overlay.lib.mkRustBin { } pkgs;
+            rustToolchain = rustBin.stable.latest.default.override {
               extensions = [
                 "rust-src"
                 "rustfmt"

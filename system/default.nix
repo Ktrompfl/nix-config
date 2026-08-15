@@ -35,7 +35,6 @@
       inputs.self.overlays.modifications
 
       # Add overlays from other flakes
-      inputs.jay.overlays.default
       inputs.nur.overlays.default
       inputs.rust-overlay.overlays.default
 

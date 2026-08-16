@@ -153,8 +153,13 @@ def start_box() -> None:
 
         # data-control, so it reads the selection while the game is focused.
         # The NUL is what tells one entry from the next; text cannot contain it.
+        # One printf, not `cat` then `printf`: wl-paste runs a child per event,
+        # a single copy in the game fires several, and they all share this pipe
+        # -- two writes per entry would let them interleave into one mangled
+        # entry. A lone write under PIPE_BUF cannot be split, and a measurement
+        # is nowhere near that big.
         watcher = subprocess.Popen(
-            [WL_PASTE, "--type", "text", "--watch", SHELL, "-c", r'cat; printf "\0"'],
+            [WL_PASTE, "--type", "text", "--watch", SHELL, "-c", r'printf "%s\0" "$(cat)"'],
             stdout=subprocess.PIPE,
         )
         children.append(watcher)

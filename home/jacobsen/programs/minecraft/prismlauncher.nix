@@ -16,9 +16,6 @@
           libxt
           libxinerama
         ];
-        additionalPrograms = [
-          ninjabrain-bot
-        ];
         jdks = [
           temurin-bin-21
           temurin-bin-25

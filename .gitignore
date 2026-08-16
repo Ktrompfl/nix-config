@@ -1,5 +1,7 @@
 .*
 !.envrc
+!.gitignore
 !.sops.yaml
+**/__pycache__/
 result/
 target/

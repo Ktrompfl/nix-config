@@ -5,7 +5,7 @@
 local main = require("main")
 
 local cfg = {
-	debug_text = true,
+	debug_text = false,
 
 	-- ==== LOOKS ====
 	resolution = { 2560, 1440 },
@@ -16,13 +16,6 @@ local cfg = {
 	pie_chart_1 = "#EC6E4E",
 	pie_chart_2 = "#46CE66",
 	pie_chart_3 = "#E446C4",
-
-	ninbot_anchor = {
-		position = "topright", -- topleft, top, topright, left, right, bottomleft, bottomright
-		x = 0,
-		y = 130, -- offset
-	},
-	ninbot_opacity = 1, -- 0 to 1
 
 	-- ==== ALTERNATIVE RESOLUTIONS ====
 	thin_res = { 400, 1440 },
@@ -44,13 +37,44 @@ local cfg = {
 
 	-- ==== MACROS ====
 	-- resolution changes
-	thin = { key = "*-Alt_L", f3_safe = false, ingame_only = true },
-	wide = { key = "*-B", f3_safe = true, ingame_only = true },
-	tall = { key = "*-F4", f3_safe = false, ingame_only = false },
+	tall = { key = "*-G", f3_safe = false, ingame_only = false },
+	thin = { key = "*-B", f3_safe = false, ingame_only = true },
+	wide = { key = "*-V", f3_safe = true, ingame_only = true },
 
 	-- during game actions
-	toggle_ninbot_key = "*-apostrophe",
-	toggle_remaps_key = "Insert",
+	toggle_remaps_key = "Delete",
+
+	-- ==== SH-CALC ====
+	-- stronghold calculator
+	sh_calc = {
+		enabled = true,
+		autostart = true, -- `systemctl --user start sh-calc.service` on load
+		status_path = (os.getenv("XDG_RUNTIME_DIR") or "/tmp") .. "/sh-calc.status",
+		poll_ms = 100,
+
+		x = 30,
+		y = 30,
+		size = 2,
+
+		colors = {
+			panel = "#101014D8", -- backdrop; #RRGGBBAA
+
+			head = "#9AA0A6", -- column headers
+			main = "#FFFFFF", -- the answer to act on
+			dim = "#B8BDC2", -- alternatives and detail
+			warn = "#FFB13B", -- usable, but something is off
+			error = "#FF6B6B", -- no usable answer
+		},
+
+		keys = {
+			dec = "*-bracketleft", -- [
+			inc = "*-bracketright", -- ]
+			undo = "*-semicolon", -- ;
+			redo = "*-apostrophe", -- '
+			reset = "*-backslash", -- \
+			toggle = "*-P", -- show or hide the overlay
+		},
+	},
 
 	-- ==== KEYBOARD ====
 	xkb_config = { -- set any setting to nil if unwanted
@@ -64,14 +88,14 @@ local cfg = {
 
 	-- ==== MISC ====
 	-- see https://github.com/Esensats/mcsr-calcsens to configure sens
-	sens_change = { enabled = true, normal = 21.822959062311096, tall = 1.4721637642674297, raw_input = false }, -- setting raw_input to true will enable sens changing via maccel
+	sens_change = { enabled = true, normal = 21.822959062311096, tall = 1.4721637642674297, raw_input = false },
 	enable_resize_animations = false,
 }
 
 local remaps = {
 	remapped_kb = {
 		-- Add any playing remaps here
-		["P"] = "F3", -- example, remaps the P key to act as the F3 key
+		["LEFTALT"] = "F3",
 	},
 
 	normal_kb = {

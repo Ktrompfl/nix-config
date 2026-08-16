@@ -3,16 +3,16 @@
   ".modVersion": "2.3+1.16-1.16.1",
   ".dataVersion": 0,
   "fov": 70.0,
-  "realmsNotifications": true,
+  "realmsNotifications": false,
   "fullscreenResolution": null,
   "biomeBlendRadius": 2.0,
   "graphicsMode": 1,
   "renderDistance": 12.0,
   "ao": 2,
-  "maxFps": 260.0,
+  "maxFps": 150.0,
   "enableVsync": true,
   "bobView": false,
-  "guiScale": 4,
+  "guiScale": 6,
   "attackIndicator": 1,
   "gamma": 5.0,
   "renderClouds": 0,
@@ -55,13 +55,13 @@
   "autoJump": false,
   "key_key.jump": "key.keyboard.space",
   "key_key.sneak": "key.keyboard.left.shift",
-  "key_key.sprint": "key.keyboard.left.control",
+  "key_key.sprint": "key.keyboard.h",
   "key_key.left": "key.keyboard.a",
   "key_key.right": "key.keyboard.d",
   "key_key.back": "key.keyboard.s",
   "key_key.forward": "key.keyboard.w",
   "key_key.attack": "key.mouse.left",
-  "key_key.pickItem": "key.mouse.middle",
+  "key_key.pickItem": "key.mouse.6",
   "key_key.use": "key.mouse.right",
   "key_key.drop": "key.keyboard.q",
   "key_key.hotbar.1": "key.keyboard.1",
@@ -69,26 +69,38 @@
   "key_key.hotbar.3": "key.keyboard.3",
   "key_key.hotbar.4": "key.keyboard.4",
   "key_key.hotbar.5": "key.keyboard.5",
-  "key_key.hotbar.6": "key.keyboard.6",
-  "key_key.hotbar.7": "key.keyboard.7",
-  "key_key.hotbar.8": "key.keyboard.8",
-  "key_key.hotbar.9": "key.keyboard.9",
+  "key_key.hotbar.6": "key.keyboard.r",
+  "key_key.hotbar.7": "key.keyboard.left.control",
+  "key_key.hotbar.8": "key.keyboard.x",
+  "key_key.hotbar.9": "key.keyboard.c",
   "key_key.inventory": "key.keyboard.e",
   "key_key.swapOffhand": "key.keyboard.f",
-  "key_key.loadToolbarActivator": "key.keyboard.x",
-  "key_key.saveToolbarActivator": "key.keyboard.c",
-  "key_key.playerlist": "key.keyboard.tab",
+  "key_key.loadToolbarActivator": {
+    "enabled": false,
+    "value": "key.keyboard.x"
+  },
+  "key_key.saveToolbarActivator": {
+    "enabled": false,
+    "value": "key.keyboard.c"
+  },
+  "key_key.playerlist": "key.keyboard.unknown",
   "key_key.chat": "key.keyboard.t",
   "key_key.command": "key.keyboard.slash",
-  "key_key.advancements": "key.keyboard.l",
+  "key_key.advancements": "key.keyboard.unknown",
   "key_key.spectatorOutlines": "key.keyboard.unknown",
   "key_key.screenshot": "key.keyboard.f2",
   "key_key.smoothCamera": "key.keyboard.unknown",
-  "key_key.fullscreen": "key.keyboard.unknown",
-  "key_key.togglePerspective": "key.keyboard.z",
-  "key_Create New World": "key.keyboard.unknown",
-  "key_speedrunigt.controls.start_timer": "key.keyboard.u",
-  "key_speedrunigt.controls.stop_timer": "key.keyboard.i",
+  "key_key.fullscreen": "key.keyboard.f11",
+  "key_key.togglePerspective": "key.keyboard.tab",
+  "key_Create New World": "key.keyboard.f6",
+  "key_speedrunigt.controls.start_timer": {
+    "enabled": false,
+    "value": "key.keyboard.u"
+  },
+  "key_speedrunigt.controls.stop_timer": {
+    "enabled": false,
+    "value": "key.keyboard.i"
+  },
   "chatVisibility": 0,
   "chatColors": true,
   "chatLinks": true,
@@ -110,49 +122,28 @@
   "pauseOnLostFocus": true,
   "advancedItemTooltips": false,
   "hitboxes": {
-    "enabled": true,
-    "value": true
+    "enabled": false,
+    "value": false
   },
   "chunkborders": {
     "enabled": false,
     "value": false
   },
   "pieDirectory": {
-    "enabled": true,
-    "value": "root.gameRenderer.level.entities"
-  },
-  "perspective": {
     "enabled": false,
-    "value": 0
+    "value": "root"
   },
+  "perspective": 1,
   "f1": {
     "enabled": false,
     "value": false
   },
-  "sneaking": {
-    "enabled": false,
-    "value": false
-  },
-  "sprinting": {
-    "enabled": false,
-    "value": false
-  },
-  "fovOnWorldJoin": {
-    "enabled": false,
-    "value": 70.0
-  },
-  "renderDistanceOnWorldJoin": {
-    "enabled": false,
-    "value": 20.0
-  },
-  "entityDistanceScalingOnWorldJoin": {
-    "enabled": false,
-    "value": 1.0
-  },
-  "guiScaleOnWorldJoin": {
-    "enabled": false,
-    "value": 0
-  },
+  "sneaking": false,
+  "sprinting": true,
+  "fovOnWorldJoin": 70.0,
+  "renderDistanceOnWorldJoin": 12.0,
+  "entityDistanceScalingOnWorldJoin": 1.0,
+  "guiScaleOnWorldJoin": 4,
   "toggleStandardSettings": true,
   "toggleAll": true,
   "autoF3Esc": true,

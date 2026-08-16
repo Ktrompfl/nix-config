@@ -44,35 +44,14 @@ local cfg = {
 	-- during game actions
 	toggle_remaps_key = "Delete",
 
-	-- ==== SH-CALC ====
-	-- stronghold calculator
-	sh_calc = {
-		enabled = true,
-		autostart = true, -- `systemctl --user start sh-calc.service` on load
-		status_path = (os.getenv("XDG_RUNTIME_DIR") or "/tmp") .. "/sh-calc.status",
-		poll_ms = 100,
-
-		x = 30,
-		y = 30,
-		size = 2,
-
-		colors = {
-			panel = "#101014D8", -- backdrop; #RRGGBBAA
-
-			head = "#9AA0A6", -- column headers
-			main = "#FFFFFF", -- the answer to act on
-			dim = "#B8BDC2", -- alternatives and detail
-			warn = "#FFB13B", -- usable, but something is off
-			error = "#FF6B6B", -- no usable answer
-		},
-
+	-- ==== NINJABRAIN BOT ====
+	nbb = {
 		keys = {
-			dec = "*-bracketleft", -- [
-			inc = "*-bracketright", -- ]
+			decrement = "*-bracketleft", -- [
+			increment = "*-bracketright", -- ]
 			undo = "*-semicolon", -- ;
 			redo = "*-apostrophe", -- '
 			reset = "*-backslash", -- \
-			toggle = "*-P", -- show or hide the overlay
 		},
 	},
 
@@ -87,8 +66,9 @@ local cfg = {
 	remaps_text_config = { text = "chat mode", x = 100, y = 100, size = 2, color = "#000000" },
 
 	-- ==== MISC ====
-	-- see https://github.com/Esensats/mcsr-calcsens to configure sens
-	sens_change = { enabled = true, normal = 21.822959062311096, tall = 1.4721637642674297, raw_input = false },
+	-- see https://github.com/Esensats/mcsr-calcsens to configure sensitivity, e.g.
+	-- python calcsens.py --normalRes 2560 1440 --tallRes 384 16384 0.5 1.0
+	sens_change = { enabled = true, normal = 12.800000599064097, tall = 1.151214098039685, raw_input = false },
 	enable_resize_animations = false,
 }
 

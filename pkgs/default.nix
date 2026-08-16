@@ -11,7 +11,7 @@ in
     ;
 
   jay-config-lib = pkgs.callPackage ./jay-config-lib { inherit inputs; };
+  nbb-ootb = pkgs.callPackage ./nbb-ootb { };
   runic = pkgs.callPackage ./runic.nix { };
-  sh-calc = pkgs.callPackage ./sh-calc { };
   zed-julia = pkgs.callPackage ./zed-julia.nix { inherit inputs; };
 }

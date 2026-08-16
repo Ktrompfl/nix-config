@@ -26,28 +26,6 @@ local debug_text = "Press Shift + I to show keybinds.\n\n"
 	.. "disable this message by setting\n"
 	.. "'debug_text' to false in ~/.config/waywall/init.lua\n"
 
--- sh-calc overlay: one text object per report line, so each can carry its own
--- colour, over one backdrop object.  waywall's font atlas is a fixed 8x16
--- monospace grid, which is what makes the table align and the backdrop fit.
-local sh_calc_texts = {}
-local sh_calc_drawn = nil
-local sh_calc_visible = true
-local FONT_CELL_WIDTH = 8
-local FONT_CELL_HEIGHT = 16
-
-local read_file = function(name)
-	local file = io.open(waywall_config_path .. name, "r")
-	if not file then
-		return nil
-	end
-	local data = file:read("*a")
-	file:close()
-	return data
-end
-
--- Missing shader just means no backdrop, rather than a config that won't load.
-local panel_shader = read_file("panel.frag")
-
 -- ==== CONFIG TABLE ====
 
 return function(cfg, remaps)
@@ -80,9 +58,6 @@ return function(cfg, remaps)
 			fullscreen_width = cfg.resolution[1],
 			fullscreen_height = cfg.resolution[2],
 		},
-		shaders = panel_shader and {
-			sh_calc_panel = { fragment = panel_shader },
-		} or {},
 	}
 
 	-- ==== TOOLS ====
@@ -261,106 +236,16 @@ return function(cfg, remaps)
 		depth = 1,
 	}, cfg.thin_res[1], cfg.thin_res[2])
 
-	-- ==== SH-CALC ====
-	local sh_calc = cfg.sh_calc
-
-	local sh_calc_read = function()
-		local file = io.open(sh_calc.status_path, "r")
-		if not file then
-			return nil
-		end
-		local content = file:read("*a")
-		file:close()
-		return content
-	end
-
-	local sh_calc_clear = function()
-		for _, text in ipairs(sh_calc_texts) do
-			text:close()
-		end
-		sh_calc_texts = {}
-	end
-
-	-- A block of filler characters behind the report, painted flat by the panel
-	-- shader.  Half a cell of margin on each side, so the text is not flush
-	-- against the edge.
-	local sh_calc_backdrop = function(rows, columns)
-		if not panel_shader or not sh_calc.colors.panel or rows == 0 then
-			return
-		end
-		local line = string.rep("#", columns + 1)
-		local body = {}
-		for _ = 1, rows + 1 do
-			table.insert(body, line)
-		end
-		table.insert(
-			sh_calc_texts,
-			waywall.text(table.concat(body, "\n"), {
-				x = sh_calc.x - FONT_CELL_WIDTH * sh_calc.size / 2,
-				y = sh_calc.y - FONT_CELL_HEIGHT * sh_calc.size / 2,
-				color = sh_calc.colors.panel,
-				size = sh_calc.size,
-				depth = 2,
-				shader = "sh_calc_panel",
-			})
-		)
-	end
-
-	local sh_calc_draw = function(content)
-		sh_calc_clear()
-		if not content then
-			return
-		end
-
-		-- Parse first: the backdrop has to know how big the report is, and it
-		-- has to be created before the text so it ends up behind it.
-		local rows, columns = {}, 0
-		for line in content:gmatch("[^\n]+") do
-			local level, body = line:match("^(%a+)|(.*)$")
-			table.insert(rows, { level = level, body = body or "" })
-			if body and #body > columns then
-				columns = #body
-			end
-		end
-		sh_calc_backdrop(#rows, columns)
-
-		for row, entry in ipairs(rows) do
-			if entry.level and entry.body ~= "" then
-				table.insert(
-					sh_calc_texts,
-					waywall.text(entry.body, {
-						x = sh_calc.x,
-						y = sh_calc.y + (row - 1) * FONT_CELL_HEIGHT * sh_calc.size,
-						color = sh_calc.colors[entry.level] or sh_calc.colors.main,
-						size = sh_calc.size,
-						depth = 3,
-					})
-				)
-			end
-		end
-	end
-
-	local sh_calc_action = function(command)
+	-- ==== NINJABRAIN BOT ====
+	-- Ninjabrain Bot cannot see a key that was pressed in the game, so the
+	-- binding is replayed to it instead: into its own X server if it is running
+	-- boxed, otherwise into this one.
+	local nbb_action = function(action)
 		return function()
 			if not remaps_active then
 				return false
 			end
-			waywall.exec("sh-calc " .. command)
-		end
-	end
-
-	local sh_calc_toggle = function()
-		if not remaps_active then
-			return false
-		end
-		sh_calc_visible = not sh_calc_visible
-		if sh_calc_visible then
-			-- Redraw here rather than waiting for the next poll, so the overlay
-			-- comes back on the keypress instead of up to poll_ms later.
-			sh_calc_drawn = sh_calc_read()
-			sh_calc_draw(sh_calc_drawn)
-		else
-			sh_calc_clear()
+			waywall.exec("nbb-ootb " .. action)
 		end
 	end
 
@@ -371,25 +256,6 @@ return function(cfg, remaps)
 			debug_text2 = waywall.text(debug_text, { x = 11, y = 11, color = "#FFFF00", size = 3 })
 			debug_text3 = waywall.text(debug_text, { x = 13, y = 13, color = "#000000", size = 3 })
 			debug_text4 = waywall.text(debug_text, { x = 14, y = 14, color = "#000000", size = 3 })
-		end
-	end)
-
-	waywall.listen("load", function()
-		if not sh_calc.enabled then
-			return
-		end
-		if sh_calc.autostart then
-			waywall.exec("systemctl --user start sh-calc.service")
-		end
-		while true do
-			if sh_calc_visible then
-				local content = sh_calc_read()
-				if content ~= sh_calc_drawn then
-					sh_calc_drawn = content
-					sh_calc_draw(content)
-				end
-			end
-			waywall.sleep(sh_calc.poll_ms)
 		end
 	end)
 
@@ -473,12 +339,11 @@ return function(cfg, remaps)
 		[cfg.wide.key] = resize_helper(cfg.wide, resolutions.wide, cfg.wide.ingame_only),
 		[cfg.tall.key] = resize_helper(cfg.tall, resolutions.tall, cfg.tall.ingame_only),
 
-		[cfg.sh_calc.keys.undo] = sh_calc_action("undo"),
-		[cfg.sh_calc.keys.redo] = sh_calc_action("redo"),
-		[cfg.sh_calc.keys.inc] = sh_calc_action("inc"),
-		[cfg.sh_calc.keys.dec] = sh_calc_action("dec"),
-		[cfg.sh_calc.keys.reset] = sh_calc_action("reset"),
-		[cfg.sh_calc.keys.toggle] = sh_calc_toggle,
+		[cfg.nbb.keys.undo] = nbb_action("undo"),
+		[cfg.nbb.keys.redo] = nbb_action("redo"),
+		[cfg.nbb.keys.increment] = nbb_action("increment"),
+		[cfg.nbb.keys.decrement] = nbb_action("decrement"),
+		[cfg.nbb.keys.reset] = nbb_action("reset"),
 
 		[cfg.toggle_remaps_key] = function()
 			if rebind_text then
@@ -540,20 +405,17 @@ return function(cfg, remaps)
 					.. cfg.toggle_remaps_key
 					.. "\n"
 					.. "Undo / Redo = "
-					.. cfg.sh_calc.keys.undo
+					.. cfg.nbb.keys.undo
 					.. " / "
-					.. cfg.sh_calc.keys.redo
+					.. cfg.nbb.keys.redo
 					.. "\n"
 					.. "Inc / Dec = "
-					.. cfg.sh_calc.keys.inc
+					.. cfg.nbb.keys.increment
 					.. " / "
-					.. cfg.sh_calc.keys.dec
+					.. cfg.nbb.keys.decrement
 					.. "\n"
 					.. "Reset = "
-					.. cfg.sh_calc.keys.reset
-					.. "\n"
-					.. "Show / Hide Calc = "
-					.. cfg.sh_calc.keys.toggle
+					.. cfg.nbb.keys.reset
 					.. "\n",
 				{ x = 10, y = 10, color = "#FFFFFF", size = 3 }
 			)

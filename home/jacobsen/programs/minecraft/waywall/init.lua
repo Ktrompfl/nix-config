@@ -5,8 +5,6 @@
 local main = require("main")
 
 local cfg = {
-	debug_text = false,
-
 	-- ==== LOOKS ====
 	resolution = { 2560, 1440 },
 

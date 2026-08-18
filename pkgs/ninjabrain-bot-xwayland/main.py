@@ -1,13 +1,10 @@
-"""Ninjabrain Bot, in an XWayland of its own.
+"""Ninjabrain Bot wrapped in XWayland.
 
-The bot is an X11 program: it polls the X clipboard and grabs global hotkeys
-with XRecord, neither of which works under Wayland.  So it gets an X server of
-its own -- a rootful XWayland with no other client, where the clipboard can be
-pushed in with `wl-paste --watch` and keys injected over XTEST, both of which
-work regardless of focus.
+The bot is an X11 program: It polls the X clipboard and grabs global hotkeys
+with XRecord, neither of which works under Wayland.
+So it gets an X server of its own -- a rootful XWayland with no other client, where the clipboard can be pushed in with `wl-paste --watch` and keys injected over XTEST, both of which work regardless of focus.
 
-How big that server is and which key stands for which action are read out of
-the bot's own settings, so there is nothing to keep in sync with them.
+The window size and key binds for the actions are read from the bot's configuration at startup.
 """
 
 from __future__ import annotations

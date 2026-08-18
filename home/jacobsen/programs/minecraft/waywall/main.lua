@@ -235,7 +235,7 @@ return function(cfg, remaps)
 			if not remaps_active then
 				return false
 			end
-			waywall.exec("nbb-ootb " .. action)
+			waywall.exec("ninjabrain-bot-xwayland " .. action)
 		end
 	end
 

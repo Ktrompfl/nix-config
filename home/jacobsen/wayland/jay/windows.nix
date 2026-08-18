@@ -1,4 +1,4 @@
-{ config, jayLib, ... }:
+{ jayLib, ... }:
 let
   inherit (jayLib) moveToOutput moveToWorkspace;
 in
@@ -22,10 +22,11 @@ in
       ];
     }
     {
-      name = "nbb-ootb";
+      name = "ninjabrain-bot-xwayland";
       match = {
         app-id = "org.freedesktop.Xwayland";
-        title = "Xwayland on ${config.programs.ninjabrain-bot.display}";
+        # ninjabrain-bot-xwayland's default display; pass --display to move it.
+        title = "Xwayland on :77";
         just-mapped = true;
       };
       auto-focus = false;

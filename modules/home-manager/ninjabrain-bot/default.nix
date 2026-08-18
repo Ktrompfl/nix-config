@@ -1,7 +1,7 @@
 # Ninjabrain Bot with its settings declared here rather than clicked together
-# in its GUI. On Wayland the bot cannot read the clipboard or see a hotkey, so
-# `out-of-the-box` wraps it in `nbb-ootb`, which gives it an X server of its own
-# and replays the hotkeys below into it; see ../../../pkgs/nbb-ootb.
+# in its GUI. On Wayland the bot can neither read the clipboard nor see a
+# hotkey; `package = pkgs.ninjabrain-bot-xwayland` swaps in a wrapper that
+# fixes both, and reads the hotkeys back out of the settings generated here.
 #
 # based on https://tangled.org/althaea.zone/ninjabrain-bot-nix/
 {
@@ -59,13 +59,6 @@ let
           defaultText = lib.literalMD "derived from `key`";
           description = "The value the bot expects from JNativeHook for this key.";
         };
-
-        keycode = lib.mkOption {
-          type = lib.types.nullOr lib.types.int;
-          default = if config.key == null then null else keys.${config.key} + 8;
-          defaultText = lib.literalMD "derived from `key`";
-          description = "The X keycode to inject to produce it.";
-        };
       };
     }
   );
@@ -91,18 +84,8 @@ let
     lib.optionalAttrs (hotkey.code != null) {
       "${actions.${action}}_code" = hotkey.code + locations.${hotkey.location} * 65536;
       "${actions.${action}}_modifier" = lib.foldl' (
-        mask: modifier: lib.bitOr mask modifiers.${modifier}.mask
+        mask: modifier: lib.bitOr mask modifiers.${modifier}
       ) 0 hotkey.modifiers;
-    }
-  ) hotkeys;
-
-  actionKeys = lib.concatMapAttrs (
-    action: hotkey:
-    lib.optionalAttrs (hotkey.keycode != null) {
-      ${action} = {
-        inherit (hotkey) keycode;
-        modifiers = map (modifier: modifiers.${modifier}.keycode) hotkey.modifiers;
-      };
     }
   ) hotkeys;
 
@@ -137,25 +120,6 @@ in
 
     package = lib.mkPackageOption pkgs "ninjabrain-bot" { };
 
-    out-of-the-box = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Wrap the bot in `nbb-ootb`, which runs it in an X server of its own and
-        can replay its hotkeys. Without it the bot is installed as it comes,
-        which under Wayland leaves it unable to read the clipboard or see a
-        hotkey.
-      '';
-    };
-
-    wrapperPackage = lib.mkPackageOption pkgs "nbb-ootb" { };
-
-    finalPackage = lib.mkOption {
-      type = lib.types.package;
-      readOnly = true;
-      description = "The bot as configured, wrapped or not.";
-    };
-
     stylix = lib.mkOption {
       type = lib.types.bool;
       default = config.stylix.enable or false;
@@ -169,21 +133,9 @@ in
       description = "What the generated theme is called in the bot's theme list.";
     };
 
-    display = lib.mkOption {
-      type = lib.types.str;
-      default = ":77";
-      description = "The X display the box runs on.";
-    };
-
-    geometry = lib.mkOption {
-      type = lib.types.str;
-      default = "480x320";
-      description = "Initial size of the box. Only honoured while it floats.";
-    };
-
     hotkeys = lib.mkOption {
       default = { };
-      description = "The bot's hotkeys, and so also the actions `nbb-ootb` sends.";
+      description = "The bot's hotkeys.";
       type = lib.types.submodule {
         options = lib.mapAttrs (
           action: _:
@@ -193,7 +145,7 @@ in
               key = defaultKeys.${action};
             };
             defaultText = lib.literalExpression ''{ key = "${defaultKeys.${action}}"; }'';
-            description = "Hotkey for `nbb-ootb ${action}`.";
+            description = "Hotkey for the ${action} action.";
           }
         ) actions;
       };
@@ -469,21 +421,7 @@ in
         assertion = cfg.stylix -> config ? lib.stylix;
         message = "programs.ninjabrain-bot.stylix is set but stylix is not available.";
       }
-    ]
-    ++ lib.mapAttrsToList (action: hotkey: {
-      assertion = (hotkey.code == null) == (hotkey.keycode == null);
-      message = "programs.ninjabrain-bot.hotkeys.${action}: set both code and keycode, or neither.";
-    }) hotkeys;
-
-    programs.ninjabrain-bot.finalPackage =
-      if cfg.out-of-the-box then
-        cfg.wrapperPackage.override {
-          inherit (cfg) display geometry;
-          actions = actionKeys;
-          ninjabrain-bot = cfg.package;
-        }
-      else
-        cfg.package;
+    ];
 
     # A copy, not the usual link into the store: the bot rewrites this file
     # from its own GUI, so it has to be writable. Those changes then last until
@@ -492,6 +430,6 @@ in
       run install -Dm644 ${prefs} ${config.home.homeDirectory}/.java/.userPrefs/ninjabrainbot/prefs.xml
     '';
 
-    home.packages = [ cfg.finalPackage ];
+    home.packages = [ cfg.package ];
   };
 }

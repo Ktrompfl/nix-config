@@ -49,6 +49,7 @@
   programs = {
     # applications
     corectrl.enable = true;
+    gpu-screen-recorder.enable = true;
     piper.enable = true;
     steam.enable = true;
     via.enable = true;

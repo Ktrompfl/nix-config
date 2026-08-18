@@ -10,6 +10,7 @@
     # graphical tools
     baobab
     better-control
+    gpu-screen-recorder-gtk
     nwg-look # for debug: wayland native gtk3 settings editor, like lxappearance
 
     # audio tools

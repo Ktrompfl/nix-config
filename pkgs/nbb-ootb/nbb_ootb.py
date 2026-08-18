@@ -4,7 +4,7 @@ The bot is an X11 program: it polls the X clipboard and grabs global hotkeys
 with XRecord, neither of which works under Wayland.  So it gets an X server of
 its own -- a rootful XWayland with no other client, where the clipboard can be
 pushed in with `wl-paste --watch` and keys injected over XTEST, both of which
-work regardless of focus.  Only what the bot can parse is passed in.
+work regardless of focus.
 """
 
 from __future__ import annotations
@@ -15,7 +15,6 @@ import os
 import signal
 import subprocess
 import sys
-import threading
 import time
 from collections.abc import Callable
 
@@ -37,55 +36,6 @@ ACTIONS: dict[str, tuple[int, list[int]]] = {
 
 #: How we tell the box is up.
 SOCKET = "/tmp/.X11-unix/X" + DISPLAY.lstrip(":").split(".")[0]
-
-#: The dimensions the bot recognises in an F3+C string.
-DIMENSIONS = ("overworld", "the_nether", "the_end")
-
-
-def parses_as(text: str, parse: Callable[[str], object]) -> bool:
-    try:
-        _ = parse(text)
-    except ValueError:
-        return False
-    return True
-
-
-def is_measurement(text: str) -> bool:
-    """Whether the bot would read anything out of this clipboard entry.
-
-    Mirrors F3CData, F3IData and InputData1_12, so nothing the bot understands
-    is held back.  The last of those is plain `x z angle [correction]`, which
-    any three or four numbers satisfy -- the filter is only as tight as the
-    formats it has to let through.
-    """
-    fields = text.split(" ")
-    if text.startswith("/execute in ") and len(fields) == 11:
-        return fields[2].endswith(DIMENSIONS) and all(
-            parses_as(f, float) for f in fields[6:]
-        )
-    if text.startswith("/setblock ") and len(fields) == 5:
-        return all(parses_as(f, int) for f in fields[1:4])
-    if len(fields) in (3, 4):
-        return all(parses_as(f, float) for f in fields[:3]) and (
-            len(fields) == 3 or parses_as(fields[3], int)
-        )
-    return False
-
-
-def feed_clipboard(watcher: subprocess.Popen[bytes]) -> None:
-    """Hand the box the clipboard entries the bot can use, and only those."""
-    assert watcher.stdout is not None
-    buffered = b""
-    while chunk := os.read(watcher.stdout.fileno(), 4096):
-        buffered += chunk
-        while b"\0" in buffered:
-            entry, _, buffered = buffered.partition(b"\0")
-            if is_measurement(entry.decode(errors="replace").strip()):
-                print(f"sending clipboard: {entry}")
-                _ = subprocess.run(
-                    ["xclip", "-display", DISPLAY, "-selection", "clipboard", "-i"],
-                    input=entry,
-                )
 
 
 def wait_for(predicate: Callable[[], bool], timeout: float) -> bool:
@@ -114,26 +64,24 @@ def start() -> None:
         if not wait_for(lambda: os.path.exists(SOCKET), 10):
             sys.exit(f"nbb-ootb: Xwayland did not come up on {DISPLAY}")
 
-        # The NUL is what tells one entry from the next; text cannot contain it.
-        # One printf, not `cat` then `printf`: wl-paste runs a child per event,
-        # a single copy in the game fires several, and they all share this pipe
-        # -- two writes per entry would let them interleave into one mangled
-        # entry. A lone write under PIPE_BUF cannot be split, and a measurement
-        # is nowhere near that big.
-        watcher = subprocess.Popen(
-            [
-                "wl-paste",
-                "--type",
-                "text",
-                "--watch",
-                "bash",
-                "-c",
-                r'printf "%s\0" "$(cat)"',
-            ],
-            stdout=subprocess.PIPE,
+        # wl-paste runs a child per copy, which hands the entry to the box.
+        # xclip forks off to serve it and exits once the next one takes over.
+        children.append(
+            subprocess.Popen(
+                [
+                    "wl-paste",
+                    "--type",
+                    "text",
+                    "--watch",
+                    "xclip",
+                    "-display",
+                    DISPLAY,
+                    "-selection",
+                    "clipboard",
+                    "-i",
+                ]
+            )
         )
-        children.append(watcher)
-        threading.Thread(target=feed_clipboard, args=(watcher,), daemon=True).start()
 
         bot = subprocess.Popen(
             ["ninjabrain-bot"], env=dict(os.environ, DISPLAY=DISPLAY)

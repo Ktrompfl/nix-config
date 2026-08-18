@@ -2,7 +2,6 @@
 # see ./nbb_ootb.py. The tools it drives come in on PATH, its settings in one
 # JSON file, so it depends on nothing in the environment it is exec'd from.
 {
-  bash,
   lib,
   makeDesktopItem,
   makeWrapper,
@@ -66,7 +65,6 @@ symlinkJoin {
     makeWrapper ${lib.getExe script} $out/bin/nbb-ootb \
       --prefix PATH : ${
         lib.makeBinPath [
-          bash
           ninjabrain-bot
           wl-clipboard
           xclip

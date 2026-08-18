@@ -37,7 +37,7 @@ local cfg = {
 	-- resolution changes
 	tall = { key = "*-G", f3_safe = false, ingame_only = false },
 	thin = { key = "*-B", f3_safe = false, ingame_only = true },
-	wide = { key = "*-V", f3_safe = true, ingame_only = true },
+	wide = { key = "*-Z", f3_safe = true, ingame_only = true },
 
 	-- during game actions
 	toggle_remaps_key = "Delete",

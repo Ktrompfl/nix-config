@@ -1,10 +1,11 @@
-# Starts Ninjabrain Bot, in a box or bare, and sends it its own hotkeys; see
-# ./nbb_ootb.py. Everything it needs is baked into one JSON file, so it depends
-# on nothing in the environment it is exec'd from.
+# Starts Ninjabrain Bot in an X server of its own and sends it its own hotkeys;
+# see ./nbb_ootb.py. The tools it drives come in on PATH, its settings in one
+# JSON file, so it depends on nothing in the environment it is exec'd from.
 {
   bash,
   lib,
   makeDesktopItem,
+  makeWrapper,
   ninjabrain-bot,
   python3Packages,
   symlinkJoin,
@@ -14,30 +15,15 @@
   xclip,
   xwayland,
 
-  # Filled in by the home-manager module. Without prefs the bot's own settings
-  # file is left alone, so the bare package still works.
-  prefs ? null,
+  # Filled in by the home-manager module.
   actions ? { },
   display ? ":77",
   geometry ? "480x320",
-  prefsPath ? "~/.java/.userPrefs/ninjabrainbot/prefs.xml",
 }:
 let
   config = writeText "nbb-ootb.json" (
     builtins.toJSON {
-      inherit
-        actions
-        display
-        geometry
-        prefs
-        prefsPath
-        ;
-      bot = lib.getExe ninjabrain-bot;
-      xwayland = lib.getExe' xwayland "Xwayland";
-      wlPaste = lib.getExe' wl-clipboard "wl-paste";
-      xclip = lib.getExe xclip;
-      # Only ever runs the one-liner that delimits clipboard entries.
-      shell = lib.getExe' bash "bash";
+      inherit actions display geometry;
     }
   );
 
@@ -71,9 +57,23 @@ symlinkJoin {
     desktopItem
   ];
 
+  nativeBuildInputs = [ makeWrapper ];
+
   # The bot's own icon, which is not otherwise installed: only this wrapper ends
   # up in the profile.
   postBuild = ''
+    rm $out/bin/nbb-ootb
+    makeWrapper ${lib.getExe script} $out/bin/nbb-ootb \
+      --prefix PATH : ${
+        lib.makeBinPath [
+          bash
+          ninjabrain-bot
+          wl-clipboard
+          xclip
+          xwayland
+        ]
+      }
+
     mkdir -p $out/share
     cp -r ${ninjabrain-bot}/share/icons $out/share/
   '';

@@ -37,12 +37,7 @@ let
         key = lib.mkOption {
           type = lib.types.nullOr (lib.types.enum (lib.attrNames keys));
           example = "F9";
-          description = ''
-            Which key fires this action, or null to leave it unbound.
-
-            Irrelevant in the box, where only the bot ever sees it; in `--bare`
-            mode the game sees it too, so pick one the game does not use.
-          '';
+          description = "Which key fires this action, or null to leave it unbound.";
         };
 
         modifiers = lib.mkOption {
@@ -75,7 +70,6 @@ let
     }
   );
 
-  # Unbound in vanilla Minecraft, which matters in `--bare` mode.
   defaultKeys = {
     increment = "F7";
     decrement = "F8";
@@ -484,7 +478,6 @@ in
     programs.ninjabrain-bot.finalPackage =
       if cfg.out-of-the-box then
         cfg.wrapperPackage.override {
-          inherit prefs;
           inherit (cfg) display geometry;
           actions = actionKeys;
           ninjabrain-bot = cfg.package;
@@ -492,14 +485,12 @@ in
       else
         cfg.package;
 
-    # Forced, because the bot replaces this file behind our back: whatever it
-    # left there last must not turn the next activation into a conflict. The
-    # wrapper additionally rewrites it whenever it starts the bot, which is what
-    # keeps GUI changes from outliving a single run.
-    home.file.".java/.userPrefs/ninjabrainbot/prefs.xml" = {
-      source = prefs;
-      force = true;
-    };
+    # A copy, not the usual link into the store: the bot rewrites this file
+    # from its own GUI, so it has to be writable. Those changes then last until
+    # the next activation puts the declared settings back.
+    home.activation.ninjabrainBotPrefs = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+      run install -Dm644 ${prefs} ${config.home.homeDirectory}/.java/.userPrefs/ninjabrainbot/prefs.xml
+    '';
 
     home.packages = [ cfg.finalPackage ];
   };

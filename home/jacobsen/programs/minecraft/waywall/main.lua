@@ -229,8 +229,7 @@ return function(cfg, remaps)
 
 	-- ==== NINJABRAIN BOT ====
 	-- Ninjabrain Bot cannot see a key that was pressed in the game, so the
-	-- binding is replayed to it instead: into its own X server if it is running
-	-- boxed, otherwise into this one.
+	-- binding is replayed into the X server the bot runs in instead.
 	local nbb_action = function(action)
 		return function()
 			if not remaps_active then

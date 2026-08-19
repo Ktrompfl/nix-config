@@ -5,6 +5,7 @@
 !.sops.yaml
 !/home/
 !/hosts/
+!/lib/
 !/modules/
 !/overlays/
 !/pkgs/

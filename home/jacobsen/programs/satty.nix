@@ -1,15 +1,19 @@
-{ config, pkgs, ... }: {
-
-  # tools required to use satty
-  home.packages = with pkgs; [
+{
+  config,
+  pkgs,
+  ...
+}:
+{
+  packages = with pkgs; [
+    satty
     grim
     slurp
     wl-clipboard
   ];
 
-  programs.satty = {
-    enable = true;
-    settings = {
+  xdg.config.files."satty/config.toml" = {
+    generator = (pkgs.formats.toml { }).generate "satty-config.toml";
+    value = {
       general = {
         fullscreen = true;
         copy-command = "wl-copy";
@@ -20,24 +24,21 @@
           "save-to-file"
           "exit"
         ];
-        actions-on-escape = [
-          "exit"
-        ];
+        actions-on-escape = [ "exit" ];
       };
-      # use font / color palette from stylix
+
       font = {
-        family = config.stylix.fonts.sansSerif.name;
+        family = config.theme.fonts.sansSerif.name;
         style = "Regular";
       };
-      color-palette = {
-        palette = with config.lib.stylix.colors.withHashtag; [
-          "${base08}ff" # red     - errors/highlights
-          "${base0B}ff" # green   - success/ok
-          "${base0A}ff" # yellow  - warnings
-          "${base0D}ff" # blue    - info/accent
-          "${base0E}ff" # purple  - extra accent
-        ];
-      };
+
+      color-palette.palette = with config.theme.colors; [
+        "#${opaque "error"}" # errors/highlights
+        "#${opaque "success"}" # success/ok
+        "#${opaque "highlight"}" # warnings
+        "#${opaque "accent"}" # info/accent
+        "#${opaque "keyword"}" # extra accent
+      ];
     };
   };
 }

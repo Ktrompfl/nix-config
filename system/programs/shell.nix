@@ -1,6 +1,6 @@
 { pkgs, ... }:
 {
-  # fish is configured with home-manager, but enabling in system settings is still required for completions
+  # fish is configured per user; enabling it here is still required for completions
   programs.fish = {
     enable = true;
     interactiveShellInit = ''

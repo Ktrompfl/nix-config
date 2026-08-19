@@ -5,28 +5,16 @@
   ...
 }:
 {
-  programs = {
-    mcp = {
-      enable = true;
-      servers = {
-        context7 = {
-          enabled = true;
-          command = lib.getExe pkgs.context7-mcp;
-          args = [ ];
-          env = {
-            CONTEXT7_API_KEY.file = osConfig.sops.secrets."api-keys/context7".path;
-          };
-        };
-        nixos = {
-          enabled = true;
-          command = lib.getExe pkgs.mcp-nixos;
-          args = [ ];
-        };
-      };
+  programs.claude-code.mcpServers = {
+    context7 = {
+      command = lib.getExe pkgs.context7-mcp;
+      args = [ ];
+      env.CONTEXT7_API_KEY = "{file:${osConfig.sops.secrets."api-keys/context7".path}}";
     };
 
-    # agent / editor integration
-    claude-code.enableMcpIntegration = true;
-    zed-editor.enableMcpIntegration = true;
+    nixos = {
+      command = lib.getExe pkgs.mcp-nixos;
+      args = [ ];
+    };
   };
 }

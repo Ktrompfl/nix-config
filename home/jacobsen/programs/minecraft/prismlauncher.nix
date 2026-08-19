@@ -4,63 +4,66 @@
   pkgs,
   ...
 }:
+let
+  fonts = config.theme.fonts;
+in
 {
-  programs.prismlauncher = {
-    enable = true;
-    package =
-      with pkgs;
-      (prismlauncher.override {
-        additionalLibs = [
-          libxtst
-          libxkbcommon
-          libxt
-          libxinerama
-        ];
-        jdks = [
-          temurin-bin-21
-          temurin-bin-25
-        ];
-      });
+  packages = [
+    (pkgs.prismlauncher.override {
+      additionalLibs = with pkgs; [
+        libxtst
+        libxkbcommon
+        libxt
+        libxinerama
+      ];
+      jdks = with pkgs; [
+        temurin-bin-21
+      ];
+    })
+  ];
 
-    settings =
-      let
-        fonts = config.stylix.fonts;
-      in
-      {
-        AutoCloseConsole = false;
-        AutomaticJavaDownload = false;
-        AutomaticJavaSwitch = true;
-        CloseAfterLaunch = false;
-        EnableFeralGamemode = true;
-        EnableMangoHud = false;
-        Env = builtins.toJSON (
-          builtins.toJSON {
-            LD_PRELOAD = "${lib.getLib pkgs.jemalloc}/lib/libjemalloc.so.2";
-          }
-        );
-        IgnoreJavaCompatibility = true;
-        JavaPath = lib.getExe pkgs.temurin-bin-21;
-        JvmArgs = "-XX:+UseZGC -XX:+AlwaysPreTouch -Dgraal.TuneInlinerExploration=1 -XX:NmethodSweepActivity=1";
-        MaxMemAlloc = 12032;
-        MinMemAlloc = 1024;
-        PermGen = 128;
-        ShowConsole = false;
-        ShowConsoleOnError = true;
-        ShowGameTime = true;
-        ShowGameTimeWithoutDays = true;
-        ShowGlobalGameTime = true;
-        UseNativeGLFW = true;
-        UseNativeOpenAL = false;
+  xdg.data.files."PrismLauncher/prismlauncher.cfg" = {
+    type = "copy";
+    clobber = true;
+    generator = lib.generators.toINI { };
+    value.General = {
 
-        # remove when https://github.com/nix-community/stylix/pull/2335 is merged
-        ApplicationTheme = "stylix";
-        ConsoleFont = fonts.monospace.name;
-        ConsoleFontSize = fonts.sizes.terminal;
-      };
+      AutoCloseConsole = false;
+      AutomaticJavaDownload = false;
+      AutomaticJavaSwitch = true;
+      CloseAfterLaunch = false;
+      EnableFeralGamemode = true;
+      EnableMangoHud = false;
+      Env = builtins.toJSON (
+        builtins.toJSON {
+          LD_PRELOAD = "${lib.getLib pkgs.jemalloc}/lib/libjemalloc.so.2";
+        }
+      );
+      IgnoreJavaCompatibility = true;
+      JavaPath = lib.getExe pkgs.temurin-bin-21;
+      JvmArgs = "-XX:+UseZGC -XX:+AlwaysPreTouch -Dgraal.TuneInlinerExploration=1 -XX:NmethodSweepActivity=1";
+      MaxMemAlloc = 12032;
+      MinMemAlloc = 1024;
+      PermGen = 128;
+      ShowConsole = false;
+      ShowConsoleOnError = true;
+      ShowGameTime = true;
+      ShowGameTimeWithoutDays = true;
+      ShowGlobalGameTime = true;
+      UseNativeGLFW = true;
+      UseNativeOpenAL = false;
 
-    # remove when https://github.com/nix-community/stylix/pull/2335 is merged
-    themes.stylix.theme = with config.lib.stylix.colors.withHashtag; {
-      name = "Stylix";
+      ApplicationTheme = "tinted";
+      ConsoleFont = fonts.monospace.name;
+      ConsoleFontSize = fonts.sizes.terminal;
+    };
+  };
+
+  xdg.data.files."PrismLauncher/themes/tinted/theme.json" = {
+    generator = (pkgs.formats.json { }).generate "prismlauncher-theme.json";
+    value = with config.theme.colors.withHashtag; {
+
+      name = "Tinted";
       widgets = "Fusion";
 
       colors = {

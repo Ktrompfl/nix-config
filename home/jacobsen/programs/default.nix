@@ -1,47 +1,37 @@
 {
   imports = [
-    ./bat.nix
+    ./claude
+    ./firefox
+    ./minecraft
+    ./neovim
+    ./zed
+    # ./vscode
+
     ./btop.nix
     ./chromium.nix
-    ./claude
-    ./delta.nix
-    ./direnv.nix
     ./discord.nix
-    ./eza.nix
     ./fastfetch.nix
-    ./fish.nix
-    ./firefox.nix
     ./foot.nix
-    ./fuzzel.nix
-    ./fzf.nix
     ./gh.nix
     ./git.nix
-    ./i3status-rust.nix
-    ./jujutsu.nix
     ./julia.nix
-    ./kitty.nix
     ./latex.nix
     ./mangohud.nix
-    ./minecraft
+    ./matplotlib.nix
     ./moonlight.nix
-    ./neovim
     ./python.nix
-    ./ripgrep.nix
     ./satty.nix
     ./seafile.nix
+    ./shell.nix
     ./signal.nix
     ./spotify.nix
-    ./starship.nix
+    ./ssh.nix
     ./steam.nix
-    ./swaylock.nix
     ./thunderbird.nix
     ./viewnior.nix
     ./vlc.nix
-    # ./vscode.nix
-    ./yatto.nix
     ./waydroid.nix
     ./zathura.nix
-    ./zed.nix
     ./zotero.nix
   ];
 }

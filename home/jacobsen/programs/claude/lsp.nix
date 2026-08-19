@@ -109,7 +109,7 @@ in
     };
 
     julia = {
-      command = lib.getExe pkgs.julia-bin;
+      command = lib.getExe (pkgs.julia.withPackages [ "LanguageServer" ]);
       args = [
         "--startup-file=no"
         "--history-file=no"

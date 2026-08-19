@@ -17,12 +17,13 @@
     ./programs
     ./services
 
+    ./theme
     ./localization.nix
     ./packages.nix
+    ./oomd.nix
     ./preservation.nix
     ./security.nix
     ./sops.nix
-    ./stylix.nix
     ./users.nix
   ];
 

@@ -1,20 +1,13 @@
 {
-  config,
+  graphicalService,
   lib,
   pkgs,
   ...
 }:
 {
-  systemd.user.services.wl-tray-bridge = {
-    Unit = {
-      Description = "Bridge between StatusNotifierItem tray applications and jay's tray protocol";
-      PartOf = [ config.wayland.systemd.target ];
-      After = [ config.wayland.systemd.target ];
-    };
-    Service = {
-      ExecStart = lib.getExe pkgs.wl-tray-bridge;
-      Restart = "on-failure";
-    };
-    Install.WantedBy = [ config.wayland.systemd.target ];
+  # tray icons vanish for every app that has one
+  systemd.user.services.wl-tray-bridge = graphicalService "session" {
+    description = "Bridge between StatusNotifierItem tray applications and jay's tray protocol";
+    serviceConfig.ExecStart = lib.getExe pkgs.wl-tray-bridge;
   };
 }

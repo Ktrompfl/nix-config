@@ -1,10 +1,9 @@
 { config, ... }:
 let
-  font = config.stylix.fonts.monospace.name;
+  font = config.theme.fonts.monospace.name;
 in
 {
-  # Colors, fonts, and sizes, all of them following the active stylix scheme.
-  theme = with config.lib.stylix.colors.withHashtag; {
+  theme = with config.theme.colors.withHashtag; {
     inherit font;
     bg-color = base00;
 

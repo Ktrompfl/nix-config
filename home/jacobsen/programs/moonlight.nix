@@ -1,8 +1,6 @@
 { pkgs, ... }:
 {
-  home.packages = [ pkgs.moonlight-qt ]; # remote play
+  packages = [ pkgs.moonlight-qt ]; # remote play
 
-  preservation.preserveAt.state-dir.directories = [
-    ".config/Moonlight Game Streaming Project"
-  ];
+  preservation.preserveAt.state-dir.directories = [ ".config/Moonlight Game Streaming Project" ];
 }

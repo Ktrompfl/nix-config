@@ -1,28 +1,49 @@
-{ inputs, ... }:
-{
-  imports = [ inputs.nixcord.homeModules.nixcord ];
+{ config, pkgs, ... }:
+let
+  enabled = [
+    "BetterGifAltText"
+    "BiggerStreamPreview"
+    "CallTimer"
+    "ClearURLs"
+    "CrashHandler"
+    "DisableDeepLinks"
+    "FixSpotifyEmbeds"
+    "FixYoutubeEmbeds"
+    "ForceOwnerCrown"
+    "GameActivityToggle"
+    "MemberCount"
+    "NoDevtoolsWarning"
+    "OpenInApp"
+    "SpotifyShareCommands"
+    "StartupTimings"
+    "TypingIndicator"
+    "UserVoiceShow"
+    "WebContextMenus"
+    "WebKeybinds"
+    "WebScreenShareFixes"
+    "YoutubeAdblock"
+  ];
 
-  programs.nixcord = {
-    enable = true;
+  vencordSettings = {
+    autoUpdate = false;
+    autoUpdateNotification = false;
+    disableMinSize = true;
+    enableReactDevtools = false;
+    notifyAboutUpdates = false;
+    useQuickCSS = false;
 
-    config = {
-      disableMinSize = true;
-      plugins = {
-        betterGifAltText.enable = true;
-        biggerStreamPreview.enable = true;
-        callTimer.enable = true;
-        clearUrls.enable = true;
-        crashHandler.enable = true;
-        disableDeepLinks.enable = true;
-        fixSpotifyEmbeds.enable = true;
-        fixYoutubeEmbeds.enable = true;
-        forceOwnerCrown.enable = true;
-        gameActivityToggle.enable = true;
-        memberCount.enable = true;
-        noDevtoolsWarning.enable = true;
-        openInApp.enable = true;
-        pinDms = {
-          enable = true;
+    enabledThemes = [ "tinted.theme.css" ];
+
+    plugins =
+      builtins.listToAttrs (
+        map (name: {
+          inherit name;
+          value.enabled = true;
+        }) enabled
+      )
+      // {
+        PinDMs = {
+          enabled = true;
           userBasedCategoryList = {
             "139000476673769472" = [
               {
@@ -41,36 +62,33 @@
             ];
           };
         };
-        spotifyShareCommands.enable = true;
-        startupTimings.enable = true;
-        typingIndicator.enable = true;
-        userVoiceShow.enable = true;
-        webContextMenus.enable = true;
-        webKeybinds.enable = true;
-        webScreenShareFixes.enable = true;
-        youtubeAdblock.enable = true;
       };
-    };
+  };
+in
+{
+  packages = [ pkgs.vesktop ];
 
-    discord = {
-      krisp.enable = true;
-      vencord.enable = true;
-    };
+  xdg.config.files = {
+    "vesktop/themes/tinted.theme.css".source = pkgs.tinted-discord.themeFor config.theme.colors;
 
-    vesktop = {
-      enable = true;
-      settings = {
+    # vesktop settings
+    "vesktop/settings.json" = {
+      generator = (pkgs.formats.json { }).generate "vesktop-settings.json";
+      value = {
         hardwareAcceleration = true;
         tray = false;
         minimizeToTray = false;
       };
     };
+
+    # vencord settings
+    "vesktop/settings/settings.json" = {
+      generator = (pkgs.formats.json { }).generate "vencord-settings.json";
+      value = vencordSettings;
+    };
   };
 
-  # electron apps store their state inseparably in .config/
   preservation.preserveAt.state-dir.directories = [
-    ".config/discord"
     ".config/vesktop"
-    ".config/Vencord"
   ];
 }

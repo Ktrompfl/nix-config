@@ -1,5 +1,6 @@
 {
-  # steam is installed in system settings for correct hardware configuration
+  # steam itself is installed in the system configuration for correct hardware
+  # support; only its state belongs to the user
   preservation.preserveAt.state-dir.directories = [
     ".steam"
     ".local/share/Steam"

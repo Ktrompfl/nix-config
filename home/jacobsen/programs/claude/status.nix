@@ -1,25 +1,17 @@
 {
-  config,
   lib,
   pkgs,
   ...
 }:
 let
-  colors = config.lib.stylix.colors;
-
-  # e.g. mkColorVar "RED" "base08" -> `RED=$'\033[38;2;220;50;47m'`
-  mkColorVar =
-    shellVar: base:
-    "${shellVar}=$'\\033[38;2;${colors."${base}-rgb-r"};${colors."${base}-rgb-g"};${colors."${base}-rgb-b"}m'";
-
   colorVars = lib.concatStringsSep "\n" [
-    (mkColorVar "BLUE" "base0D") # directory
-    (mkColorVar "GREEN" "base0B") # clean git / low usage
-    (mkColorVar "RED" "base08") # dirty git / high usage
-    (mkColorVar "YELLOW" "base0A") # mid usage
-    (mkColorVar "MAGENTA" "base0E") # model
-    (mkColorVar "CYAN" "base0C") # output style
-    (mkColorVar "MUTED" "base03") # separators
+    "BLUE=$'\\033[34m'" # directory
+    "GREEN=$'\\033[32m'" # clean git / low usage
+    "RED=$'\\033[31m'" # dirty git / high usage
+    "YELLOW=$'\\033[33m'" # mid usage
+    "MAGENTA=$'\\033[35m'" # model
+    "CYAN=$'\\033[36m'" # output style
+    "MUTED=$'\\033[90m'" # separators
     "RESET=$'\\033[0m'"
   ];
 

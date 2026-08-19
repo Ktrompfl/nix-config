@@ -1,11 +1,8 @@
 { pkgs, ... }:
 {
-  home.packages = with pkgs; [
+  packages = with pkgs; [
     # nix tools
     manix
-
-    # wayland tools
-    wev
 
     # graphical tools
     baobab
@@ -15,20 +12,13 @@
 
     # audio tools
     alsa-scarlett-gui
-    # coppwr # Low level control GUI for the PipeWire multimedia server
-    # easyeffects # Audio effects for PipeWire applications
-    # helvum # GTK patchbay for pipewire
-    # pavucontrol # PulseAudio Volume Control
     pwvucontrol # Pipewire Volume Control
-    # sonusmix # Next-gen Pipewire audio routing tool
 
     # multi media
-    # inkscape
     libreoffice
     sqlitebrowser
 
     # languages
-    ghc # haskell
     php
     typst
   ];

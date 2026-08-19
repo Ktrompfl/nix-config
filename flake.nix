@@ -27,8 +27,8 @@
       };
     };
 
-    home-manager = {
-      url = "github:nix-community/home-manager";
+    hjem = {
+      url = "github:feel-co/hjem";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -53,15 +53,6 @@
 
     # omitting follows costs a second nixpkgs evaluation but guarantees binary cache hits
     llm-agents.url = "github:numtide/llm-agents.nix";
-
-    nixcord = {
-      url = "github:4evy/nixcord";
-      inputs = {
-        flake-compat.follows = "flake-compat";
-        flake-parts.follows = "flake-parts";
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
 
     nix-mineral = {
       url = "github:cynicsketch/nix-mineral";
@@ -100,25 +91,6 @@
       };
     };
 
-    stylix = {
-      url = "github:nix-community/stylix";
-      inputs = {
-        flake-parts.follows = "flake-parts";
-        nur.follows = "nur";
-        nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-      };
-    };
-
-    wayland-pipewire-idle-inhibit = {
-      url = "github:rafaelrc7/wayland-pipewire-idle-inhibit";
-      inputs = {
-        flake-parts.follows = "flake-parts";
-        nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-      };
-    };
-
     zed-julia = {
       url = "github:aviatesk/zed-julia/avi/JETLS";
       flake = false;
@@ -133,7 +105,11 @@
       ...
     }:
     let
-      inherit (nixpkgs) lib;
+      lib = nixpkgs.lib.extend (
+        final: prev: {
+          generators = prev.generators // import ./lib/generators.nix { lib = final; };
+        }
+      );
       eachSystem = lib.genAttrs (import systems);
     in
     {
@@ -200,9 +176,8 @@
       # These are usually stuff you would upstream into nixpkgs
       nixosModules = import ./modules/nixos;
 
-      # Reusable home-manager modules you might want to export
-      # These are usually stuff you would upstream into home-manager
-      homeManagerModules = import ./modules/home-manager;
+      # Reusable hjem modules
+      hjemModules = import ./modules/hjem;
 
       # NixOS configuration entrypoint
       # Available through 'nixos-rebuild --flake .#your-hostname'

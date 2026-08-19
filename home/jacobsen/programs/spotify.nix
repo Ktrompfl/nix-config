@@ -1,6 +1,6 @@
 { inputs, pkgs, ... }:
 {
-  imports = [ inputs.spicetify-nix.homeManagerModules.default ];
+  imports = [ inputs.spicetify-nix.hjemModules.default ];
 
   programs.spicetify =
     let
@@ -19,8 +19,5 @@
       ];
     };
 
-  # electron apps store their state inseparably in .config/
-  preservation.preserveAt.state-dir.directories = [
-    ".config/spotify"
-  ];
+  preservation.preserveAt.state-dir.directories = [ ".config/spotify" ];
 }

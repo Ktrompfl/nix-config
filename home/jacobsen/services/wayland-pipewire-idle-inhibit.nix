@@ -1,22 +1,18 @@
 {
-  config,
-  inputs,
+  graphicalService,
+  lib,
   pkgs,
   ...
 }:
+let
+  settings = (pkgs.formats.toml { }).generate "wayland-pipewire-idle-inhibit.toml" {
+    verbosity = "INFO";
+    media_minimum_duration = 5;
+  };
+in
 {
-  imports = [
-    inputs.wayland-pipewire-idle-inhibit.homeModules.default
-  ];
-
-  services.wayland-pipewire-idle-inhibit = {
-    enable = true;
-    # use package from nixpkgs to avoid building from source
-    package = pkgs.wayland-pipewire-idle-inhibit;
-    systemdTarget = config.wayland.systemd.target;
-    settings = {
-      verbosity = "INFO";
-      media_minimum_duration = 5;
-    };
+  systemd.user.services.wayland-pipewire-idle-inhibit = graphicalService "background" {
+    description = "Inhibit idle when audio is playing";
+    serviceConfig.ExecStart = "${lib.getExe pkgs.wayland-pipewire-idle-inhibit} --config ${settings}";
   };
 }

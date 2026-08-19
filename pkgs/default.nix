@@ -3,6 +3,9 @@ let
   jayScripts = pkgs.callPackage ./jay-scripts { };
 in
 {
+  tinted-discord = pkgs.callPackage ./tinted-discord { };
+  tinted-zed = pkgs.callPackage ./tinted-zed { };
+
   inherit (jayScripts)
     jay-bar
     jay-clipboard-history

@@ -7,7 +7,6 @@
     ./hardware-configuration.nix
     ./filesystem
     ./network
-    ./home.nix
     # ./rocm.nix
   ];
 
@@ -15,14 +14,13 @@
     network.hostname = "hallandren";
   };
 
-  # This value determines the NixOS / Home Manager release from which the default
+  # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05";
-  home-manager.users.jacobsen.home.stateVersion = "24.05";
 
   boot = {
     loader = {
@@ -57,8 +55,10 @@
 
     # wayland session
     carrot.enable = true;
-    jay.enable = true;
-    uwsm.enable = true;
+    jay = {
+      enable = true;
+      extraPackages = [ ];
+    };
   };
 
   services = {
@@ -68,8 +68,7 @@
     # greeter
     greetd =
       let
-        # bypass jay.desktop entry
-        session = "uwsm start -F jay run";
+        session = "jay-session";
       in
       {
         enable = true;

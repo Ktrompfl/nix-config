@@ -1,5 +1,6 @@
-{ pkgs, ... }: {
-  home.packages = [ pkgs.zotero ];
+{ pkgs, ... }:
+{
+  packages = [ pkgs.zotero ];
 
   preservation.preserveAt.state-dir.directories = [ "Zotero" ];
 }

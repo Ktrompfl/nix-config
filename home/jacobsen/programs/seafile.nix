@@ -1,8 +1,6 @@
 { pkgs, ... }:
 {
-  home.packages = [ pkgs.seafile-client ];
+  packages = [ pkgs.seafile-client ];
 
-  preservation.preserveAt.data-dir.directories = [
-    "Seafile"
-  ];
+  preservation.preserveAt.data-dir.directories = [ "Seafile" ];
 }

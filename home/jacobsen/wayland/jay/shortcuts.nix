@@ -143,7 +143,7 @@ let
   # --- programs ---
 
   # `output` and `workspace` need a focused window to derive their geometry
-  # from, see ../../../../pkgs/jay-scripts. The shared library configuration
+  # from, see ../../../../../pkgs/jay-scripts. The shared library configuration
   # computes the geometry itself and can capture an empty one.
   screenshotOf =
     mode:
@@ -339,7 +339,7 @@ in
 
       # launch
       "${modifier}-Return" = exec [
-        "app2unit"
+        "runapp"
         "footclient"
       ];
       "${modifier}-d" = exec "fuzzel";

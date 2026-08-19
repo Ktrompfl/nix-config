@@ -3,7 +3,6 @@ let
   inherit (jayLib) moveToOutput moveToWorkspace;
 in
 {
-  # What happens to a window when it is mapped.
   windows = [
     {
       name = "wl-mirror";
@@ -25,7 +24,7 @@ in
       name = "ninjabrain-bot-xwayland";
       match = {
         app-id = "org.freedesktop.Xwayland";
-        # ninjabrain-bot-xwayland's default display; pass --display to move it.
+        # --display default in ../../../../pkgs/ninjabrain-bot-xwayland
         title = "Xwayland on :77";
         just-mapped = true;
       };

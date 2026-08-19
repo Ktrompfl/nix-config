@@ -49,9 +49,6 @@
   };
 
   services = {
-    # regularly trim ssd devices
-    fstrim.enable = true;
-
     # keep firmware up to date
     fwupd.enable = true;
 

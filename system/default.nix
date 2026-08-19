@@ -26,6 +26,12 @@
     ./users.nix
   ];
 
+  documentation = {
+    doc.enable = false;
+    info.enable = false;
+    nixos.enable = false;
+  };
+
   nixpkgs = {
     config.allowUnfree = true;
 
@@ -65,10 +71,18 @@
       # disable channels
       channel.enable = false;
 
+      optimise = {
+        automatic = true;
+        dates = [ "weekly" ];
+      };
+
       settings = {
-        auto-optimise-store = true;
+        connect-timeout = 5;
+        fallback = true;
+        http-connections = 50;
+
         builders-use-substitutes = true;
-        warn-dirty = false;
+        warn-dirty = true;
         experimental-features = [
           "nix-command"
           "flakes"
@@ -100,4 +114,16 @@
         ];
       };
     };
+
+  systemd.timers.nix-optimise = {
+    unitConfig = {
+      ConditionACPower = true;
+      IOSchedulingClass = "idle";
+      CPUSchedulingPolicy = "idle";
+    };
+    timerConfig = {
+      Persistent = lib.mkForce false;
+      RandomizedDelaySec = lib.mkForce "2h";
+    };
+  };
 }

@@ -9,7 +9,13 @@
     inputs.nix-mineral.nixosModules.nix-mineral
   ];
 
-  security.doas.wheelNeedsPassword = false;
+  security.doas.extraRules = [
+    {
+      groups = [ "wheel" ];
+      noPass = true;
+      cmd = "nh";
+    }
+  ];
 
   # The default limit for open files is defined in /etc/systemd/system.conf
   # as DefaultLimitNOFILE=1024:524288, which is too low for heavy system rebuilds.
@@ -29,6 +35,8 @@
     }
   ];
 
+  boot.kernelParams = [ "init_on_alloc=1" ];
+
   nix-mineral = {
     enable = lib.mkDefault true;
     preset = "compatibility";
@@ -44,9 +52,6 @@
         # DO NOT disable all cpu mitigations,
         cpu-mitigations = "smt-on";
 
-        # Could increase I/O performance on ARM64 systems, with risk.
-        iommu-passthrough = true;
-
         # PTI (Page Table Isolation) may tax performance.
         pti = false;
 
@@ -61,6 +66,12 @@
 
         # io-uring required for jay compositor
         io-uring = true;
+
+        zero-alloc = false;
+      };
+
+      entropy = {
+        hwrng = true;
       };
 
       system = {

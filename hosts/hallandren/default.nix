@@ -62,9 +62,6 @@
   };
 
   services = {
-    # regularly trim ssd devices
-    fstrim.enable = true;
-
     # wayland session
     pipewire.enable = true;
 

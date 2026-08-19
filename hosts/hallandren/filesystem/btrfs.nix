@@ -30,6 +30,14 @@
   fileSystems."/persist".neededForBoot = true;
   fileSystems."/var/log".neededForBoot = true;
 
+  # nix-mineral merges `bind` into the options of every mount point it hardens,
+  # where it wins over `device` and `subvol`. That turns /var/log into a self
+  # bind mount of the root tmpfs instead of the `log` subvolume above, so the
+  # journal does not survive a reboot. Drop the bind, keep nosuid/noexec/nodev.
+  nix-mineral.filesystems.normal."/var/log".options.bind = false;
+
+  services.journald.extraConfig = "SystemMaxUse=10G";
+
   # preservation requires phase1 systemd
   boot.initrd.systemd.enable = true;
   preservation.enable = true;

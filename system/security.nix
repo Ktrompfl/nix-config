@@ -9,14 +9,6 @@
     inputs.nix-mineral.nixosModules.nix-mineral
   ];
 
-  security.doas.extraRules = [
-    {
-      groups = [ "wheel" ];
-      noPass = true;
-      cmd = "nh";
-    }
-  ];
-
   # The default limit for open files is defined in /etc/systemd/system.conf
   # as DefaultLimitNOFILE=1024:524288, which is too low for heavy system rebuilds.
   # Increasing the soft limit with PAM limits appears to be the cleanest way.
@@ -55,11 +47,6 @@
         # PTI (Page Table Isolation) may tax performance.
         pti = false;
 
-        # Don't use kcfi as the control flow implementation in the kernel,
-        # since it performs worse than FineIBT, which is the current Linux
-        # kernel (not nix-mineral) default.
-        kcfi = false;
-
         # Do not enable red zoning and sanity checking with slab debug, since
         # it adds significant memory allocation overhead.
         slab-debug = false;
@@ -92,17 +79,10 @@
         intelme-kmodules = false;
       };
       misc = {
-        # Replace sudo with doas, doas has a lower attack surface, but is less audited.
-        replace-sudo-with-doas = true;
-        doas-sudo-wrapper = true;
-
         # Use an opinionated SSH hardening config. Complies with ssh-audit.
         # Read what everything does first, or else you might get locked out.
         # This, for example, prevents root login AND password based login.
         ssh-hardening = true;
-
-        # Handled separably from nix-mineral.
-        usbguard.enable = false;
       };
 
       system = {

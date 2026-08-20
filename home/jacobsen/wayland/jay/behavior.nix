@@ -10,9 +10,6 @@
   workspace-display-order = "sorted";
   middle-click-paste = false;
   show-titles = true;
-
-  # Not available in the version of the jay-config crate that the shared
-  # library configuration is pinned to, so only the toml side has it.
   split-reuses-container = true;
 
   idle = jayLib.idle;

@@ -287,8 +287,6 @@ in
       "${modifier}-t" = "show-titles";
       "${modifier}-shift-t" = "hide-titles";
 
-      # Not available in the version of the jay-config crate that the shared
-      # library configuration is pinned to; it binds marks to these keys.
       "${modifier}-y" = "tile-major";
       "${modifier}-shift-y" = "split-major";
 

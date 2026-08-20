@@ -24,7 +24,6 @@ in
       name = "ninjabrain-bot-xwayland";
       match = {
         app-id = "org.freedesktop.Xwayland";
-        # --display default in ../../../../pkgs/ninjabrain-bot-xwayland
         title = "Xwayland on :77";
         just-mapped = true;
       };

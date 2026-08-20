@@ -13,11 +13,6 @@ let
       "session-lock"
     ];
     swaync = [ "layer-shell" ];
-    waybar = [
-      "foreign-toplevel-manager"
-      "layer-shell"
-      "workspace-manager"
-    ];
     wayland-pipewire-idle-inhibit = [ "layer-shell" ];
     "wl-copy|wl-paste" = [ "data-control" ];
     wl-clip-persist = [ "data-control" ];

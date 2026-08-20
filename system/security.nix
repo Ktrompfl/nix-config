@@ -9,6 +9,13 @@
     inputs.nix-mineral.nixosModules.nix-mineral
   ];
 
+  # `nh os switch` re-authenticates on every rebuild otherwise. Passwordless
+  # activation is not an option: it can activate any configuration, so it is
+  # root-equivalent whatever the rule is scoped to.
+  security.sudo.extraConfig = ''
+    Defaults timestamp_timeout=60
+  '';
+
   # The default limit for open files is defined in /etc/systemd/system.conf
   # as DefaultLimitNOFILE=1024:524288, which is too low for heavy system rebuilds.
   # Increasing the soft limit with PAM limits appears to be the cleanest way.

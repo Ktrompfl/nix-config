@@ -14,7 +14,6 @@ in
     ;
 
   jay-config-lib = pkgs.callPackage ./jay-config-lib { inherit inputs; };
-  ninjabrain-bot-xwayland = pkgs.callPackage ./ninjabrain-bot-xwayland { };
   runic = pkgs.callPackage ./runic.nix { };
   zed-julia = pkgs.callPackage ./zed-julia.nix { inherit inputs; };
 }

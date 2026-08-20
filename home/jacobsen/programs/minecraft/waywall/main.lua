@@ -4,7 +4,10 @@ local helpers = require("waywall.helpers")
 
 -- ==== RESOURCES ====
 -- see https://qmaxxen.github.io/overlay-gen/more-options/ to create overlays
-local waywall_config_path = os.getenv("XDG_CONFIG_HOME") .. "/waywall/"
+-- XDG_CONFIG_HOME is optional, and nothing in this session exports it, so it
+-- falls back to the location the spec says it stands for.
+local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
+local waywall_config_path = config_home .. "/waywall/"
 local bg_path = waywall_config_path .. "resources/background.png"
 local tall_overlay_path = waywall_config_path .. "resources/overlay_tall.png"
 local thin_overlay_path = waywall_config_path .. "resources/overlay_thin.png"
@@ -229,13 +232,13 @@ return function(cfg, remaps)
 
 	-- ==== NINJABRAIN BOT ====
 	-- Ninjabrain Bot cannot see a key that was pressed in the game, so the
-	-- binding is replayed into the X server the bot runs in instead.
+	-- action is sent to the agent inside its JVM instead.
 	local nbb_action = function(action)
 		return function()
 			if not remaps_active then
 				return false
 			end
-			waywall.exec("ninjabrain-bot-xwayland " .. action)
+			waywall.exec("ninjabrain-bot " .. action)
 		end
 	end
 

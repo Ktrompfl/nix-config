@@ -1,9 +1,6 @@
-{ pkgs, ... }:
 {
   programs.ninjabrain-bot = {
     enable = true;
-    # Runs the bot in an X server of its own, so that it works under Wayland.
-    package = pkgs.ninjabrain-bot-xwayland;
 
     settings = {
       view = "detailed";

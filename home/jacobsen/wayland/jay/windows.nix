@@ -21,12 +21,8 @@ in
       ];
     }
     {
-      name = "ninjabrain-bot-xwayland";
-      match = {
-        app-id = "org.freedesktop.Xwayland";
-        title = "Xwayland on :77";
-        just-mapped = true;
-      };
+      name = "ninjabrain-bot";
+      match.x-class = "ninjabrainbot-Main";
       auto-focus = false;
       initial-tile-state = "floating";
     }

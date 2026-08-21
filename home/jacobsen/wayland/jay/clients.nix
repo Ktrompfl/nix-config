@@ -14,6 +14,11 @@ let
     ];
     swaync = [ "layer-shell" ];
     wayland-pipewire-idle-inhibit = [ "layer-shell" ];
+    ninjabrain-box = [
+      "data-control"
+      "foreign-toplevel-manager"
+      "layer-shell"
+    ];
     "wl-copy|wl-paste" = [ "data-control" ];
     wl-clip-persist = [ "data-control" ];
     wl-mirror = [ "screencopy" ];

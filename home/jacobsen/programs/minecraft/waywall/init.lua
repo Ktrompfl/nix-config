@@ -21,10 +21,10 @@ local cfg = {
 	tall_res = { 384, 16384 },
 
 	-- ==== MIRRORS ====
-	e_count = { enabled = true, x = 1500, y = 400, size = 5, colorkey = false, show_c = false },
+	e_count = { enabled = true, x = 1500, y = 400, size = 5, colorkey = true, show_c = false },
 
-	thin_pie = { enabled = true, x = 1495, y = 645, size = 4, colorkey = false }, -- Turning off colorkeying also maintains the original pie chart's dimensions and shows the percentages
-	tall_pie = { enabled = true, x = 1495, y = 645, size = 4, colorkey = false }, -- Leave same as thin for seamlessness
+	thin_pie = { enabled = true, x = 1495, y = 645, size = 4, colorkey = true }, -- Turning off colorkeying also maintains the original pie chart's dimensions and shows the percentages
+	tall_pie = { enabled = true, x = 1495, y = 645, size = 4, colorkey = true }, -- Leave same as thin for seamlessness
 
 	thin_percent = { enabled = false, x = 1568, y = 1050, size = 6 },
 	tall_percent = { enabled = false, x = 1568, y = 1050, size = 6 }, -- Leave same as thin for seamlessness

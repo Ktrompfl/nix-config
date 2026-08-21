@@ -20,11 +20,5 @@ in
         "enter-fullscreen"
       ];
     }
-    {
-      name = "ninjabrain-bot";
-      match.x-class = "ninjabrainbot-Main";
-      auto-focus = false;
-      initial-tile-state = "floating";
-    }
   ];
 }

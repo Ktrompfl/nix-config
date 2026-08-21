@@ -1,6 +1,6 @@
 {
   imports = [
-    ./ninjabrainbot.nix
+    ./ninjabrain-box.nix
     ./prismlauncher.nix
     ./waywall.nix
   ];

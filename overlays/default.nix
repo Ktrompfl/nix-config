@@ -12,13 +12,6 @@
   # You can change versions, add patches, set compilation flags, anything really.
   # https://nixos.wiki/wiki/Overlays
   modifications = final: prev: {
-    # Wraps the bot in a java agent that exposes its actions on a socket, so
-    # that a compositor can drive it. Drop-in: same name, same binary, and on
-    # anything but Wayland the bot itself is untouched.
-    ninjabrain-bot = final.callPackage ../pkgs/ninjabrain-bot {
-      ninjabrain-bot = prev.ninjabrain-bot;
-    };
-
     # moonlight-qt 6.1.0 predates upstream's ffmpeg 7.1 API migration and no longer builds
     # against current ffmpeg. Follow master until 6.2.0 releases, as in
     # https://github.com/NixOS/nixpkgs/pull/552544

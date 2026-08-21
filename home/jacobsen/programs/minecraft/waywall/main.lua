@@ -232,14 +232,21 @@ return function(cfg, remaps)
 
 	-- ==== NINJABRAIN BOT ====
 	-- Ninjabrain Bot cannot see a key that was pressed in the game, so the
-	-- action is sent to the agent inside its JVM instead.
+	-- action is sent to the overlay instead, which replays it as a key press
+	-- on the display the bot has to itself.
 	local nbb_action = function(action)
 		return function()
 			if not remaps_active then
 				return false
 			end
-			waywall.exec("ninjabrain-bot " .. action)
+			waywall.exec("ninjabrain-box " .. action)
 		end
+	end
+
+	-- The throw table is only worth the space while measuring, which is what
+	-- the tall macro is for. The predictions stay up regardless.
+	local nbb_throws = function(shown)
+		waywall.exec("ninjabrain-box " .. (shown and "show-throws" or "hide-throws"))
 	end
 
 	-- ==== RESIZING STATES ====
@@ -248,24 +255,28 @@ return function(cfg, remaps)
 		if cfg.sens_change.enabled then
 			set_sens(cfg.sens_change.normal)
 		end
+		nbb_throws(false)
 	end
 	local tall_enable = function()
 		if cfg.sens_change.enabled and not thin_active then
 			set_sens(cfg.sens_change.tall)
 		end
 		thin_active = false
+		nbb_throws(true)
 	end
 	local wide_enable = function()
 		if cfg.sens_change.enabled then
 			set_sens(cfg.sens_change.normal)
 		end
 		thin_active = false
+		nbb_throws(false)
 	end
 	local res_disable = function()
 		if cfg.sens_change.enabled then
 			set_sens(cfg.sens_change.normal)
 		end
 		thin_active = false
+		nbb_throws(false)
 	end
 
 	-- ==== RESOLUTIONS ====

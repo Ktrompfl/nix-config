@@ -1,10 +1,18 @@
 {
   config,
+  graphicalService,
+  lib,
   pkgs,
   ...
 }:
 {
   packages = [ pkgs.swaynotificationcenter ];
+
+  # notifications fail silently if this is killed
+  systemd.services.swaync = graphicalService "session" {
+    description = "Swaync notification daemon";
+    serviceConfig.ExecStart = lib.getExe' pkgs.swaynotificationcenter "swaync";
+  };
 
   xdg.config.files = {
     "swaync/style.css".text =

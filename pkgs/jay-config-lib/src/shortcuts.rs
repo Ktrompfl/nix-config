@@ -3,14 +3,14 @@
 use std::rc::Rc;
 
 use jay_config::{
-    Axis, Direction, get_workspace,
-    input::{LayerDirection, Seat, Timeline, get_default_seat},
+    get_workspace,
+    input::{get_default_seat, LayerDirection, Seat, Timeline},
     keyboard::{
-        ModifiedKeySym,
         mods::{ALT, CTRL, LOGO, SHIFT},
         syms::*,
+        ModifiedKeySym,
     },
-    quit, reload, set_show_titles, switch_to_vt,
+    quit, reload, set_show_titles, switch_to_vt, Axis, Direction,
 };
 
 use crate::{actions, bar, exec};
@@ -396,7 +396,8 @@ pub fn setup() {
     });
 
     // --- launch ---
-    seat.bind(LOGO | SYM_Return, || exec("app2unit", &["footclient"]));
+    seat.bind(LOGO | SYM_Return, || exec("runapp", &["footclient"]));
+    seat.bind(LOGO | SHIFT | SYM_Return, || exec("runapp", &["foot"]));
     seat.bind(LOGO | SYM_d, || exec("fuzzel", &[]));
     seat.bind(LOGO | SYM_a, || exec("swaync-client", &["-t"]));
     seat.bind(LOGO | SHIFT | SYM_v, || exec("jay-clipboard-history", &[]));

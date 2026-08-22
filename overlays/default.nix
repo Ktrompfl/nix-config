@@ -1,17 +1,15 @@
 { inputs, ... }:
-{
-  # This one brings our custom packages from the 'pkgs' directory
+let
+  inherit (inputs.nixpkgs.lib) composeManyExtensions;
+
   additions =
     final: _prev:
     import ../pkgs {
-      inherit (final) pkgs;
+      pkgs = final;
       inherit inputs;
     };
 
-  # This one contains whatever you want to overlay
-  # You can change versions, add patches, set compilation flags, anything really.
-  # https://nixos.wiki/wiki/Overlays
-  modifications = final: prev: {
+  modifications = _final: _prev: {
     # moonlight-qt 6.1.0 predates upstream's ffmpeg 7.1 API migration and no longer builds
     # against current ffmpeg. Follow master until 6.2.0 releases, as in
     # https://github.com/NixOS/nixpkgs/pull/552544
@@ -33,4 +31,22 @@
     #   meta = removeAttrs oldAttrs.meta [ "changelog" ];
     # });
   };
-}
+
+  # Make supported packages use lix instead of nix.
+  lix = _final: prev: {
+    inherit (prev.lixPackageSets.stable)
+      nixpkgs-review
+      nix-eval-jobs
+      nix-fast-build
+      colmena
+      ;
+  };
+in
+composeManyExtensions [
+  additions
+  modifications
+  lix
+
+  inputs.jay.overlays.default
+  inputs.nur.overlays.default
+]

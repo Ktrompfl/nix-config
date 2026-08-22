@@ -8,8 +8,7 @@ let
   lock = "${lib.getExe pkgs.swaylock} --daemonize";
 in
 {
-  # drives the screen lock, so losing it is a security failure
-  systemd.user.services.swayidle = graphicalService "session" {
+  systemd.services.swayidle = graphicalService "session" {
     description = "Idle manager for Wayland";
 
     serviceConfig = {

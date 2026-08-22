@@ -123,7 +123,8 @@ let
   # says so.
   #
   # Each part is a plain expression that returns its piece of `settings`, not
-  # a module; no two of them define the same key.
+  # a module, so nothing merges them for us: `mergeDisjoint` below is what
+  # keeps two parts from quietly claiming the same key.
   settings =
     map
       (
@@ -150,6 +151,18 @@ let
         ./windows.nix
       ];
 
+  mergeDisjoint =
+    parts:
+    let
+      shared = lib.filter (name: lib.count (part: part ? ${name}) parts > 1) (
+        lib.unique (lib.concatMap lib.attrNames parts)
+      );
+    in
+    if shared == [ ] then
+      lib.mergeAttrsList parts
+    else
+      throw "jay config: ${lib.concatStringsSep ", " shared} defined by more than one part";
+
   # The sixteen base16 slots of the active theme scheme, lower-cased because
   # that is how the shared library configuration reads them back.
   base16 = lib.mapAttrs' (name: lib.nameValuePair (lib.toLower name)) (
@@ -162,11 +175,7 @@ in
   config.packages = with pkgs; [
     jay
 
-    # bridges StatusNotifierItem into jay's tray protocol; run by
-    # ../../services/wl-tray-bridge.nix
-    wl-tray-bridge
-
-    # named by ./shortcuts.nix and ../carrot.nix, so it has to be on PATH
+    # named by ./shortcuts.nix and ../carrot, so it has to be on PATH
     runapp
 
     # The programs the two configurations share. The toml side refers to them
@@ -183,7 +192,7 @@ in
   config.xdg.config.files = {
     "jay/config.toml" = {
       generator = (pkgs.formats.toml { }).generate "jay-config.toml";
-      value = lib.mergeAttrsList settings;
+      value = mergeDisjoint settings;
     };
 
     "jay/theme.toml".text = lib.concatStrings (

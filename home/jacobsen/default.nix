@@ -1,55 +1,28 @@
-{
-  config,
-  inputs,
-  lib,
-  ...
-}:
-{
+{ pkgs, ... }: {
   imports = [
-    inputs.hjem.nixosModules.default
-    ./services
+    ./programs/claude
+    ./programs/neovim
+
+    ./programs/btop.nix
+    ./programs/fastfetch.nix
+    ./programs/gh.nix
+    ./programs/git.nix
+    ./programs/julia.nix
+    ./programs/latex.nix
+    ./programs/matplotlib.nix
+    ./programs/python.nix
+    ./programs/shell.nix
+    ./programs/ssh.nix
+
+    ./environment.nix
   ];
 
-  hjem = {
-    clobberByDefault = false;
+  packages = with pkgs; [
+    # nix tools
+    manix
 
-    specialArgs = { inherit inputs; };
-
-    extraModules = [
-      inputs.self.hjemModules
-      ./preservation.nix
-    ];
-
-    users.jacobsen = {
-      enable = true;
-      user = "jacobsen";
-      directory = "/home/jacobsen";
-
-      imports = [
-        ./desktop
-        ./programs
-        ./wayland
-
-        ./environment.nix
-        ./packages.nix
-      ];
-    };
-  };
-
-  # ../preservation.nix, for the user scope.
-  preservation.preserveAt =
-    let
-      inherit (lib)
-        foldl'
-        mapAttrs
-        mapAttrsToList
-        recursiveUpdate
-        ;
-    in
-    foldl' recursiveUpdate { } (
-      mapAttrsToList (
-        user: userConfig:
-        mapAttrs (_: locations: { users.${user} = locations; }) (userConfig.preservation.preserveAt or { })
-      ) config.hjem.users
-    );
+    # languages
+    php
+    typst
+  ];
 }

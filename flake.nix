@@ -111,6 +111,17 @@
         }
       );
       eachSystem = lib.genAttrs (import systems);
+
+      # nixpkgs with this flake's overlays applied. The `packages` output goes
+      # through it so that `nix build .#foo` and the hosts, which apply the
+      # same overlay in ./system, cannot disagree about what `foo` is.
+      pkgsFor =
+        system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          overlays = [ self.overlays.default ];
+        };
     in
     {
       # Run the hooks in a sandbox with 'nix flake check'.
@@ -165,45 +176,44 @@
         system:
         import ./pkgs {
           inherit inputs;
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = pkgsFor system;
         }
       );
 
-      # Your custom packages and modifications, exported as overlays
-      overlays = import ./overlays { inherit inputs; };
+      # Everything this flake adds to or changes about nixpkgs
+      overlays.default = import ./overlays { inherit inputs; };
 
       # Reusable nixos modules you might want to export
       # These are usually stuff you would upstream into nixpkgs
-      nixosModules = import ./modules/nixos;
+      nixosModules.default = import ./modules/nixos;
 
       # Reusable hjem modules
-      hjemModules = import ./modules/hjem;
+      hjemModules.default = import ./modules/hjem;
 
       # NixOS configuration entrypoint
       # Available through 'nixos-rebuild --flake .#your-hostname'
       nixosConfigurations =
         let
-          common = [
+          base = [
             ./home
             ./system
           ];
+          graphical = [ ./home/graphical.nix ];
+          gaming = [ ./home/gaming.nix ];
+
+          mkHost =
+            modules:
+            lib.nixosSystem {
+              inherit modules;
+              specialArgs = { inherit inputs; };
+            };
         in
         {
           # laptop
-          luthadel = lib.nixosSystem {
-            specialArgs = { inherit inputs; };
-            modules = common ++ [
-              ./hosts/luthadel
-            ];
-          };
+          luthadel = mkHost (base ++ graphical ++ [ ./hosts/luthadel ]);
 
           # desktop
-          hallandren = lib.nixosSystem {
-            specialArgs = { inherit inputs; };
-            modules = common ++ [
-              ./hosts/hallandren
-            ];
-          };
+          hallandren = mkHost (base ++ graphical ++ gaming ++ [ ./hosts/hallandren ]);
         };
     };
 }

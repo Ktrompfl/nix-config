@@ -24,8 +24,21 @@ in
       type = lib.types.attrs;
       readOnly = true;
       description = ''
-        The parsed palette, in three shapes: `withHashtag` (`"#191724"`),
-        `withoutHashtag` (`"191724"`) and `rgb` (`{ r = 25; g = 23; b = 36; }`).
+        The parsed palette, as returned by ./palette.nix. Every accessor takes
+        either a base16 slot (`base0D`) or one of the aliases the file defines
+        (`accent`, `error`, ...).
+
+        Attribute sets, for `with` blocks: `withHashtag` (`"#191724"`) and
+        `withoutHashtag` (`"191724"`).
+
+        Functions, for the formats that want something else: `hex`
+        (`"#191724"`), `opaque` (`"191724ff"`), `rgbaHex` (name and an alpha
+        in 0..1), `rgb` (`"rgb(25, 23, 36)"`), `rgba` (name and an alpha), and
+        `channels` (`{ r = 25; g = 23; b = 36; }`).
+
+        The scheme itself: `slots`, the raw sixteen without the aliases, for
+        templates that iterate them, and `meta` (system, name, author, slug,
+        variant).
       '';
     };
 

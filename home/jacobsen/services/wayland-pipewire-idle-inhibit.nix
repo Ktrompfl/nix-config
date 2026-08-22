@@ -11,7 +11,7 @@ let
   };
 in
 {
-  systemd.user.services.wayland-pipewire-idle-inhibit = graphicalService "background" {
+  systemd.services.wayland-pipewire-idle-inhibit = graphicalService "background" {
     description = "Inhibit idle when audio is playing";
     serviceConfig.ExecStart = "${lib.getExe pkgs.wayland-pipewire-idle-inhibit} --config ${settings}";
   };

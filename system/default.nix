@@ -7,7 +7,7 @@
 }:
 {
   imports = [
-    inputs.self.nixosModules
+    inputs.self.nixosModules.default
     inputs.carrot.nixosModules.default
     inputs.jay.nixosModules.default
 
@@ -35,25 +35,7 @@
 
   nixpkgs = {
     config.allowUnfree = true;
-
-    overlays = [
-      # Add overlays this flake exports (from overlays and pkgs dir):
-      inputs.self.overlays.additions
-      inputs.self.overlays.modifications
-
-      # Add overlays from other flakes
-      inputs.nur.overlays.default
-
-      # Make supported packages use lix instead of nix
-      (final: prev: {
-        inherit (prev.lixPackageSets.stable)
-          nixpkgs-review
-          nix-eval-jobs
-          nix-fast-build
-          colmena
-          ;
-      })
-    ];
+    overlays = [ inputs.self.overlays.default ];
   };
 
   nix =

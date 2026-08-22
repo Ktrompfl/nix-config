@@ -39,7 +39,6 @@
   programs = {
     # applications
     piper.enable = true;
-    steam.enable = true;
     via.enable = true;
 
     # wayland session

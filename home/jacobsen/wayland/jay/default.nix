@@ -174,7 +174,6 @@ in
     jay-bar
     jay-clipboard-history
     jay-screenshot
-    jay-suspend
 
     # extra programs used in the jay config
     playerctl

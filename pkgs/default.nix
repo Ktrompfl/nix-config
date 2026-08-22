@@ -1,6 +1,8 @@
 { pkgs, inputs, ... }:
 let
-  jayScripts = pkgs.callPackage ./jay-scripts { };
+  jayScripts = pkgs.callPackage ./jay-scripts {
+    inherit (inputs.jay.packages.${pkgs.stdenv.hostPlatform.system}) jay;
+  };
 in
 {
   tinted-discord = pkgs.callPackage ./tinted-discord { };
@@ -10,7 +12,6 @@ in
     jay-bar
     jay-clipboard-history
     jay-screenshot
-    jay-suspend
     ;
 
   jay-config-lib = pkgs.callPackage ./jay-config-lib { inherit inputs; };

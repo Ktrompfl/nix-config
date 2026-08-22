@@ -22,7 +22,10 @@ in
       "--daemonize"
     ];
 
-    suspend = exec (lib.getExe pkgs.jay-suspend);
+    suspend = exec [
+      "systemctl"
+      "suspend-then-hibernate"
+    ];
 
     # The toml config has no state of its own, so the inhibitor toggle is
     # built out of two actions that redefine which one the shortcut runs

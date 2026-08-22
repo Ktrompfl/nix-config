@@ -12,7 +12,7 @@ pub fn lock() {
 }
 
 pub fn suspend() {
-    exec("jay-suspend", &[]);
+    exec("systemctl", &["suspend-then-hibernate"]);
 }
 
 thread_local! {

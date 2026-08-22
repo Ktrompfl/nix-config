@@ -169,8 +169,10 @@
         {
           block = "custom_dbus";
           path = "/idle_inhibitor";
+          # the fallback repeats the "off" icon that ../../../pkgs/jay-scripts
+          # pushes, so the block reads the same before anything has seeded it
           format = {
-            full = " {$text.pango-str()|} ";
+            full = " {$text.pango-str()|󰾪} ";
             short = "";
           };
         }

@@ -7,7 +7,6 @@
   cliphist,
   coreutils,
   fuzzel,
-  gnugrep,
   grim,
   jay,
   jq,
@@ -19,13 +18,13 @@
 }:
 let
   # The object paths of the two `custom_dbus` blocks that show compositor
-  # state. See ../../home/jacobsen/programs/i3status-rust.nix for the
+  # state. See ../../home/jacobsen/wayland/i3status-rust.nix for the
   # receiving end; it repeats the "off" icon as the format's fallback.
   modePath = "/mode";
   idleInhibitorPath = "/idle_inhibitor";
 
-  idleInhibitorOnIcon = "";
-  idleInhibitorOffIcon = "";
+  idleInhibitorOnIcon = "󰅶";
+  idleInhibitorOffIcon = "󰾪";
 in
 {
   # Everything shown in the bar is rendered by i3status-rust. The two segments
@@ -153,22 +152,6 @@ in
       esac
 
       grim "''${args[@]}" - | satty --filename -
-    '';
-  };
-
-  jay-suspend = writeShellApplication {
-    name = "jay-suspend";
-    runtimeInputs = [
-      gnugrep
-      systemd
-    ];
-    text = ''
-      # falls back to plain suspend when there is nothing to hibernate into
-      if grep -qw disk /sys/power/state; then
-        systemctl suspend-then-hibernate
-      else
-        systemctl suspend
-      fi
     '';
   };
 }

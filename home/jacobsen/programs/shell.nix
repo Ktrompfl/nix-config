@@ -7,6 +7,10 @@
 let
   # Graphical programs started from a terminal would otherwise inherit the
   # terminal's slice; these wrappers hand them to the app slice instead.
+  #
+  # `--dir` because the unit starts in the home directory otherwise, and a
+  # relative argument would quietly mean something else: `zed .` would open
+  # `~` rather than wherever it was typed.
   runInAppSlice = {
     chromium = "chromium";
     code = "code";
@@ -137,7 +141,7 @@ in
         (section (
           lib.mapAttrsToList (name: exe: ''
             function ${name} --wraps ${exe}
-                ${lib.getExe pkgs.runapp} -- ${exe} $argv
+                ${lib.getExe pkgs.runapp} --dir=$PWD -- ${exe} $argv
             end'') runInAppSlice
         ))
 

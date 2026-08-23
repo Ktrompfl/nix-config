@@ -40,7 +40,4 @@
       "..."
     ];
   };
-  Typst = {
-    soft_wrap = "none";
-  };
 }

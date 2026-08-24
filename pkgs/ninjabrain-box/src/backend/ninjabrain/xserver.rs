@@ -11,6 +11,7 @@
 //! byte the bot executes is the release as published, taking its input the way
 //! it was written to.
 
+use anyhow::{anyhow, Context, Result};
 use std::path::Path;
 use std::process::{Child, Command};
 use std::sync::mpsc::{self, Receiver, Sender};
@@ -50,13 +51,13 @@ pub struct XServer {
 
 impl XServer {
     /// Starts a display and takes ownership of its clipboard.
-    pub fn start() -> Result<XServer, String> {
+    pub fn start() -> Result<XServer> {
         let (display, server) = spawn()?;
 
         // Connect once here so that a failure is reported now rather than
         // swallowed by the thread.
         let (connection, screen) = RustConnection::connect(Some(&display))
-            .map_err(|error| format!("cannot reach the box on {display}: {error}"))?;
+            .with_context(|| format!("cannot reach the box on {display}"))?;
 
         let (sender, receiver) = mpsc::channel();
         let owned = display.clone();
@@ -67,7 +68,7 @@ impl XServer {
                     eprintln!("ninjabrain-box: {owned}: {reason}");
                 }
             })
-            .map_err(|error| format!("cannot start the X thread: {error}"))?;
+            .context("cannot start the X thread")?;
 
         Ok(XServer {
             display,
@@ -118,7 +119,7 @@ pub fn stop(child: &mut Child) {
 }
 
 /// Starts an X server on the first display nothing else has claimed.
-fn spawn() -> Result<(String, Child), String> {
+fn spawn() -> Result<(String, Child)> {
     let mut failures = Vec::new();
     for number in DISPLAYS {
         let socket = format!("/tmp/.X11-unix/X{number}");
@@ -152,7 +153,7 @@ fn spawn() -> Result<(String, Child), String> {
 
         let mut server = match command.spawn() {
             Ok(server) => server,
-            Err(error) => return Err(format!("cannot start Xvfb: {error}")),
+            Err(error) => return Err(anyhow!("cannot start Xvfb: {error}")),
         };
         if wait_for(|| Path::new(&socket).exists(), Duration::from_secs(10)) {
             return Ok((display, server));
@@ -161,7 +162,7 @@ fn spawn() -> Result<(String, Child), String> {
         let _ = server.wait();
         failures.push(display);
     }
-    Err(format!(
+    Err(anyhow!(
         "no display came up; tried {}",
         if failures.is_empty() {
             "none, every socket was taken".to_owned()
@@ -205,7 +206,7 @@ fn serve(
     connection: RustConnection,
     screen: usize,
     requests: Receiver<Request>,
-) -> Result<(), String> {
+) -> Result<()> {
     let root = connection.setup().roots[screen].root;
     let atoms = intern(&connection)?;
     let window = own_selection(&connection, root, atoms.clipboard)?;
@@ -215,14 +216,14 @@ fn serve(
     // one dropped keystroke at a time.
     match connection
         .xtest_get_version(2, 2)
-        .map_err(|error| format!("XTEST is not usable: {error}"))?
+        .context("XTEST is not usable")?
         .reply()
     {
         Ok(version) => eprintln!(
             "ninjabrain-box: XTEST {}.{} on the box",
             version.major_version, version.minor_version
         ),
-        Err(error) => return Err(format!("XTEST is not usable: {error}")),
+        Err(error) => return Err(anyhow!("XTEST is not usable: {error}")),
     }
     let mut selection = String::new();
 
@@ -253,14 +254,14 @@ fn serve(
     }
 }
 
-fn intern(connection: &RustConnection) -> Result<Atoms, String> {
-    let atom = |name: &str| -> Result<u32, String> {
+fn intern(connection: &RustConnection) -> Result<Atoms> {
+    let atom = |name: &str| -> Result<u32> {
         connection
             .intern_atom(false, name.as_bytes())
-            .map_err(|error| format!("cannot intern {name}: {error}"))?
+            .with_context(|| format!("cannot intern {name}"))?
             .reply()
             .map(|reply| reply.atom)
-            .map_err(|error| format!("cannot intern {name}: {error}"))
+            .with_context(|| format!("cannot intern {name}"))
     };
     Ok(Atoms {
         clipboard: atom("CLIPBOARD")?,
@@ -277,10 +278,10 @@ fn intern(connection: &RustConnection) -> Result<Atoms, String> {
 
 /// An unmapped window to hang the selection off. Selections belong to windows,
 /// and this one is never mapped, so it is never anything anybody could see.
-fn own_selection(connection: &RustConnection, root: u32, clipboard: u32) -> Result<u32, String> {
+fn own_selection(connection: &RustConnection, root: u32, clipboard: u32) -> Result<u32> {
     let window = connection
         .generate_id()
-        .map_err(|error| format!("cannot allocate a window: {error}"))?;
+        .context("cannot allocate a window")?;
     connection
         .create_window(
             x11rb::COPY_DEPTH_FROM_PARENT,
@@ -295,19 +296,19 @@ fn own_selection(connection: &RustConnection, root: u32, clipboard: u32) -> Resu
             x11rb::COPY_FROM_PARENT,
             &CreateWindowAux::new(),
         )
-        .map_err(|error| format!("cannot create the selection window: {error}"))?;
+        .context("cannot create the selection window")?;
     connection
         .change_window_attributes(
             window,
             &ChangeWindowAttributesAux::new().event_mask(EventMask::PROPERTY_CHANGE),
         )
-        .map_err(|error| format!("cannot watch the selection window: {error}"))?;
+        .context("cannot watch the selection window")?;
     connection
         .set_selection_owner(window, clipboard, CURRENT_TIME)
-        .map_err(|error| format!("cannot take the clipboard: {error}"))?;
+        .context("cannot take the clipboard")?;
     connection
         .flush()
-        .map_err(|error| format!("cannot talk to the box: {error}"))?;
+        .context("cannot talk to the box")?;
     Ok(window)
 }
 
@@ -317,7 +318,7 @@ fn answer(
     atoms: &Atoms,
     selection: &str,
     request: xproto::SelectionRequestEvent,
-) -> Result<(), String> {
+) -> Result<()> {
     // A property of zero is an obsolete client asking us to use the target.
     let property = if request.property == 0 {
         request.target
@@ -363,10 +364,10 @@ fn answer(
     };
     connection
         .send_event(false, request.requestor, EventMask::NO_EVENT, notify)
-        .map_err(|error| format!("cannot answer a conversion: {error}"))?;
+        .context("cannot answer a conversion")?;
     connection
         .flush()
-        .map_err(|error| format!("cannot talk to the box: {error}"))
+        .context("cannot talk to the box")
 }
 
 /// The keycode carrying `keysym`, looked up rather than assumed: the bot reads
@@ -388,16 +389,16 @@ fn keycode(connection: &RustConnection, keysym: u32) -> Option<u8> {
         .map(|index| first + index as u8)
 }
 
-fn press(connection: &RustConnection, code: u8) -> Result<(), String> {
+fn press(connection: &RustConnection, code: u8) -> Result<()> {
     for event in [xproto::KEY_PRESS_EVENT, xproto::KEY_RELEASE_EVENT] {
         // Checked rather than fired and forgotten: a void request that the
         // server rejects reports it asynchronously, and an unchecked cookie
         // throws that away -- which looks exactly like a key that did nothing.
         connection
             .xtest_fake_input(event, code, 0, x11rb::NONE, 0, 0, 0)
-            .map_err(|error| format!("cannot replay a key: {error}"))?
+            .context("cannot replay a key")?
             .check()
-            .map_err(|error| format!("the box refused a key: {error}"))?;
+            .context("the box refused a key")?;
     }
     Ok(())
 }

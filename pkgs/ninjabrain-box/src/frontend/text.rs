@@ -4,9 +4,13 @@
 //! drawn from a rasterizer cache. That keeps columns lined up without a
 //! shaping engine, and keeps the dependency list short.
 
+use anyhow::{Context, Result, anyhow};
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 use fontdue::{Font, FontSettings};
+
+use crate::config::Config;
 
 pub struct Text {
     font: Font,
@@ -18,9 +22,22 @@ pub struct Text {
 }
 
 impl Text {
-    pub fn new(bytes: &[u8], size: f32) -> Result<Text, String> {
-        let font = Font::from_bytes(bytes, FontSettings::default())?;
-        let metrics = font.horizontal_line_metrics(size).ok_or("font has no horizontal metrics")?;
+    /// The font the table is set in, at the size the configuration asks for.
+    pub fn load(config: &Config) -> Result<Text> {
+        let path = config
+            .window
+            .font
+            .clone()
+            .or_else(|| std::env::var_os("NINJABRAIN_BOX_FONT").map(PathBuf::from))
+            .context("no font configured, and NINJABRAIN_BOX_FONT is unset")?;
+        let bytes = std::fs::read(&path)
+            .with_context(|| format!("cannot read {}", path.display()))?;
+        Text::new(&bytes, config.window.font_size)
+    }
+
+    pub fn new(bytes: &[u8], size: f32) -> Result<Text> {
+        let font = Font::from_bytes(bytes, FontSettings::default()).map_err(|e| anyhow!("{e}"))?;
+        let metrics = font.horizontal_line_metrics(size).context("font has no horizontal metrics")?;
         // Every digit shares an advance in any sane font; '0' stands for them.
         let advance = font.metrics('0', size).advance_width;
         Ok(Text {

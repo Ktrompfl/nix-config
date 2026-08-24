@@ -16,7 +16,7 @@ use wayland_protocols_wlr::foreign_toplevel::v1::client::{
     zwlr_foreign_toplevel_manager_v1::{self, ZwlrForeignToplevelManagerV1},
 };
 
-use crate::app::App;
+use super::app::App;
 
 #[derive(Default)]
 struct Toplevel {

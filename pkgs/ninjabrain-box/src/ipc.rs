@@ -1,72 +1,67 @@
-//! The socket the overlay takes its orders on.
+//! The socket the box takes its orders on.
 //!
-//! One connection is one request: a line of action names, answered with an
-//! empty line, or one starting `error: `. The overlay is the only thing that
-//! can run an action -- it holds the box the bot is in -- so this is also
-//! what the command line talks to.
+//! One connection is one request: a line, answered with a line. That line is
+//! empty when there is nothing to say, starts with `error: ` when the request
+//! was refused, and is otherwise whatever the request had to report.
 
+use anyhow::{anyhow, Context, Result};
 use std::io::{BufRead, BufReader, Write};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-/// How long either end waits on the other.
-///
-/// Both are local and send a single line, so this only ever expires on
-/// something that has stopped talking. It matters most on the serving side:
-/// that read happens on the event loop, and without a bound anything that
-/// opened the socket and then said nothing would stop the overlay dead.
+use crate::action::Request;
+use crate::control::Answer;
+
+/// How long either end waits on the other. Both are local and send a single
+/// line, so this only expires on something that has stopped talking. It
+/// matters most when serving: that read happens on the event loop, and without
+/// a bound anything that connected and then said nothing would stop the box.
 const PATIENCE: Duration = Duration::from_millis(500);
 
-use crate::action::Action;
-use crate::app::App;
-
 pub fn default_socket() -> PathBuf {
-    let runtime = std::env::var_os("XDG_RUNTIME_DIR").unwrap_or_else(|| "/tmp".into());
-    PathBuf::from(runtime).join("ninjabrain-box.sock")
+    // `place_` rather than `get_`: this is the call that creates the runtime
+    // directory, with the permissions the spec asks for.
+    crate::config::directories()
+        .place_runtime_file("socket")
+        .unwrap_or_else(|_| PathBuf::from("/tmp/ninjabrain-box.sock"))
 }
 
 /// Claims `path`, clearing away a socket a crash left behind.
-pub fn bind(path: &Path) -> Result<UnixListener, String> {
-    if answers(path) {
-        return Err(format!("another overlay is already listening on {}", path.display()));
+pub fn bind(path: &Path) -> Result<UnixListener> {
+    if UnixStream::connect(path).is_ok() {
+        return Err(anyhow!("another box is already listening on {}", path.display()));
     }
     let _ = std::fs::remove_file(path);
     let listener = UnixListener::bind(path)
-        .map_err(|error| format!("cannot listen on {}: {error}", path.display()))?;
+        .with_context(|| format!("cannot listen on {}", path.display()))?;
     listener
         .set_nonblocking(true)
-        .map_err(|error| format!("{}: {error}", path.display()))?;
+        .with_context(|| format!("{}", path.display()))?;
     Ok(listener)
 }
 
-fn answers(path: &Path) -> bool {
-    UnixStream::connect(path).is_ok()
-}
-
-/// Sends one request to a running overlay.
-pub fn request(path: &Path, line: &str) -> Result<String, String> {
-    let mut stream =
-        UnixStream::connect(path).map_err(|error| format!("no overlay: {error}"))?;
+/// Sends one request to a running box, and returns what it said.
+pub fn request(path: &Path, line: &str) -> Result<String> {
+    let mut stream = UnixStream::connect(path).context("no box")?;
     let _ = stream.set_read_timeout(Some(PATIENCE));
     let _ = stream.set_write_timeout(Some(PATIENCE));
-    stream
-        .write_all(line.as_bytes())
+    writeln!(stream, "{line}")
         .and_then(|()| stream.shutdown(std::net::Shutdown::Write))
-        .map_err(|error| error.to_string())?;
+        .context("cannot send the request")?;
     let mut answer = String::new();
     BufReader::new(&stream)
         .read_line(&mut answer)
-        .map_err(|error| error.to_string())?;
+        .context("cannot read the answer")?;
     let answer = answer.trim().to_owned();
     match answer.strip_prefix("error: ") {
-        Some(message) => Err(message.to_owned()),
+        Some(message) => Err(anyhow!("{}", message)),
         None => Ok(answer),
     }
 }
 
-/// Serves whatever is waiting on the listener.
-pub fn accept(listener: &UnixListener, app: &mut App) {
+/// Serves whatever is waiting, handing each request to `act`.
+pub fn accept(listener: &UnixListener, act: &mut dyn FnMut(&Request) -> Result<Answer>) {
     while let Ok((stream, _)) = listener.accept() {
         let _ = stream.set_read_timeout(Some(PATIENCE));
         let _ = stream.set_write_timeout(Some(PATIENCE));
@@ -74,26 +69,12 @@ pub fn accept(listener: &UnixListener, app: &mut App) {
         if BufReader::new(&stream).read_line(&mut line).is_err() {
             continue;
         }
-        let answer = handle(line.trim(), app);
+        let answer = match Request::parse(&line).and_then(|request| act(&request)) {
+            Ok(Answer::Done) => String::new(),
+            Ok(Answer::Text(text)) => text,
+            Err(reason) => format!("error: {reason:#}"),
+        };
         let mut stream = &stream;
         let _ = writeln!(stream, "{answer}");
     }
-}
-
-fn handle(line: &str, app: &mut App) -> String {
-    if line.is_empty() {
-        return String::new();
-    }
-    // Parse the lot before running any of it, so a typo runs nothing.
-    let mut actions = Vec::new();
-    for name in line.split_whitespace() {
-        match Action::parse(name) {
-            Some(action) => actions.push(action),
-            None => return format!("error: no such action: {name}"),
-        }
-    }
-    for action in actions {
-        app.act(action);
-    }
-    String::new()
 }

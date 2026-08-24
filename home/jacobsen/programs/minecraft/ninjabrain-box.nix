@@ -11,13 +11,10 @@
     generator = (pkgs.formats.toml { }).generate "ninjabrain-box.toml";
     value = {
       bot.settings = {
+        # green boat
         mc-version = "pre-1.19";
-        angle-adjustment = "tall";
-        boat-type = "green";
-        use-precise-angle = true;
         sensitivity = 0.02291165;
         sigma-boat = 0.001;
-        boat-error = 0.03;
       };
 
       window = {
@@ -34,14 +31,10 @@
       };
 
       behavior = {
-        # The predictions are up whenever the game is, and no longer: the
-        # focus rule is the whole of it, so nothing has to remember to hide.
         start-hidden = false;
-        only-when-focused = [ "waywall" ];
-
-        # The throws are only worth the space while measuring, so waywall
-        # turns them on with the tall macro and off again on the way out.
+        only-when-focused = [ "waywall" ]; # `show` overrides it until refocus
         start-with-throws = false;
+        mode = "unbound"; # restricted
       };
 
       palette = lib.genAttrs (map (digit: "base0${digit}") (lib.stringToCharacters "0123456789ABCDEF")) (

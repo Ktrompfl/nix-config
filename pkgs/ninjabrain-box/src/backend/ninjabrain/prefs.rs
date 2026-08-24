@@ -6,10 +6,11 @@
 //! settings that survive are the ones that change the arithmetic -- the rest
 //! describe a window nobody sees.
 
+use anyhow::{Context, Result};
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
-use crate::action::BOT_ACTIONS;
+use super::hotkeys::HOTKEYS;
 use crate::config::Settings;
 
 /// Where java.util.prefs looks, under the root handed to the JVM.
@@ -18,13 +19,13 @@ pub fn file(root: &Path) -> PathBuf {
 }
 
 /// Writes the preferences for the bot instance the overlay is about to start.
-pub fn write(root: &Path, settings: &Settings) -> Result<(), String> {
+pub fn write(root: &Path, settings: &Settings) -> Result<()> {
     let path = file(root);
     let directory = path.parent().expect("the preferences path has a parent");
     std::fs::create_dir_all(directory)
-        .map_err(|error| format!("cannot create {}: {error}", directory.display()))?;
+        .with_context(|| format!("cannot create {}", directory.display()))?;
     std::fs::write(&path, document(settings))
-        .map_err(|error| format!("cannot write {}: {error}", path.display()))
+        .with_context(|| format!("cannot write {}", path.display()))
 }
 
 fn document(settings: &Settings) -> String {
@@ -47,9 +48,9 @@ fn document(settings: &Settings) -> String {
     // Every action is bound to a function key. Nothing outside the box can
     // press one -- it is a display with one client and no input devices -- so
     // these never collide with anything the game or the compositor binds.
-    for action in BOT_ACTIONS {
-        put(&format!("{}_code", action.preference), action.code.to_string());
-        put(&format!("{}_modifier", action.preference), "0".into());
+    for hotkey in HOTKEYS {
+        put(&format!("{}_code", hotkey.preference), hotkey.code.to_string());
+        put(&format!("{}_modifier", hotkey.preference), "0".into());
     }
 
     for (key, value) in settings.entries() {

@@ -246,7 +246,7 @@ return function(cfg, remaps)
 	-- The throw table is only worth the space while measuring, which is what
 	-- the tall macro is for. The predictions stay up regardless.
 	local nbb_throws = function(shown)
-		waywall.exec("ninjabrain-box " .. (shown and "show-throws" or "hide-throws"))
+		waywall.exec("ninjabrain-box " .. (shown and "show" or "hide") .. " throws")
 	end
 
 	-- ==== RESIZING STATES ====
@@ -335,8 +335,8 @@ return function(cfg, remaps)
 
 		[cfg.nbb.keys.undo] = nbb_action("undo"),
 		[cfg.nbb.keys.redo] = nbb_action("redo"),
-		[cfg.nbb.keys.increment] = nbb_action("increment"),
-		[cfg.nbb.keys.decrement] = nbb_action("decrement"),
+		[cfg.nbb.keys.increment] = nbb_action("adjust +1"),
+		[cfg.nbb.keys.decrement] = nbb_action("adjust -1"),
 		[cfg.nbb.keys.reset] = nbb_action("reset"),
 
 		[cfg.toggle_remaps_key] = function()

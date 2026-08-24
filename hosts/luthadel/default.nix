@@ -29,7 +29,7 @@
       "amd_prefcore=enable"
     ];
 
-    # plymouth.enable = true;
+    plymouth.enable = true;
   };
 
   console.keyMap = "de";

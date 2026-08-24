@@ -35,6 +35,8 @@
     kernelModules = [
       "ntsync"
     ];
+
+    plymouth.enable = true;
   };
 
   console.keyMap = "us";

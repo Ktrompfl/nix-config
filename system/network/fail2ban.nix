@@ -33,9 +33,5 @@ with lib;
 
   services.logrotate.settings."/var/log/fail2ban/fail2ban.log" = { };
 
-  preservation.preserveAt.state-dir.directories = lib.optional config.services.fail2ban.enable {
-    directory = "/var/lib/fail2ban";
-    how = "symlink";
-    createLinkTarget = true;
-  };
+  preservation.preserveAt.state-dir.directories = lib.optional config.services.fail2ban.enable "/var/lib/fail2ban";
 }

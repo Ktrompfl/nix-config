@@ -17,5 +17,9 @@ in
     paths.systemd-ask-password-console.unitConfig.ConditionPathExists = "";
   };
 
-  preservation.preserveAt.state-dir.directories = lib.optional cfg.enable "/var/lib/plymouth";
+  preservation.preserveAt.state-dir.directories = lib.optional cfg.enable {
+    directory = "/var/lib/plymouth";
+    how = "symlink";
+    createLinkTarget = true;
+  };
 }

@@ -14,7 +14,7 @@
         # green boat
         mc-version = "pre-1.19";
         sensitivity = 0.02291165;
-        sigma-boat = 0.001;
+        sigma-boat = 0.0007;
       };
 
       window = {

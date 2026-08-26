@@ -17,7 +17,11 @@
 
   preservation.preserveAt.state-dir = {
     directories = [
-      "/etc/nix"
+      {
+        directory = "/etc/nix";
+        how = "symlink";
+        createLinkTarget = true;
+      }
       {
         directory = "/var/lib/nixos";
         inInitrd = true;
@@ -25,7 +29,11 @@
       "/var/lib/systemd"
     ];
     files = [
-      "/etc/adjtime"
+      {
+        file = "/etc/adjtime";
+        how = "symlink";
+        configureParent = true;
+      }
       {
         file = "/etc/machine-id";
         inInitrd = true;

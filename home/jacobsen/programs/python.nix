@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 let
   python-packages =
     ps: with ps; [
@@ -60,10 +60,17 @@ in
     };
   };
 
-  environment.sessionVariables.GRB_LICENSE_FILE = "/home/jacobsen/.gurobi/gurobi.lic";
+  environment.sessionVariables = {
+    GRB_LICENSE_FILE = "/home/jacobsen/.gurobi/gurobi.lic";
 
-  preservation.preserveAt.state-dir = {
-    files = [ ".python_history" ];
-    directories = [ ".gurobi" ]; # directory for gurobi license file per host
+    # out of $HOME and into the already-preserved XDG state directory. readline
+    # rewrites the history file through a temporary file and a rename, which
+    # fails with EBUSY against a bind-mounted file and silently detaches a
+    # symlinked one; inside a preserved directory the rename stays on /cache.
+    PYTHON_HISTORY = "${config.xdg.state.directory}/python_history";
   };
+
+  preservation.preserveAt.state-dir.directories = [
+    ".gurobi" # directory for gurobi license file per host
+  ];
 }

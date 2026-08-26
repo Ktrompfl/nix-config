@@ -164,8 +164,8 @@ in
     "direnv/lib/nix-direnv.sh".source = "${pkgs.nix-direnv}/share/nix-direnv/direnvrc";
   };
 
-  preservation.preserveAt.state-dir = {
-    files = [ ".local/share/fish/fish_history" ];
-    directories = [ ".local/share/direnv" ];
-  };
+  preservation.preserveAt.state-dir.directories = [
+    ".local/share/direnv"
+    ".local/share/fish"
+  ];
 }

@@ -170,7 +170,12 @@ in
     };
   };
 
+  # bind-mounted rather than symlinked: the tmpfs saves mounts above live
+  # inside this directory
   preservation.preserveAt.state-dir.directories = [
-    ".local/share/PrismLauncher"
+    {
+      directory = ".local/share/PrismLauncher";
+      how = "bindmount";
+    }
   ];
 }

@@ -60,5 +60,11 @@ lib.mkIf cfg.enable {
     "video"
   ];
 
-  preservation.preserveAt.state-dir.directories = [ "/var/lib/pipewire" ];
+  preservation.preserveAt.state-dir.directories = [
+    {
+      directory = "/var/lib/pipewire";
+      how = "symlink";
+      createLinkTarget = true;
+    }
+  ];
 }

@@ -61,6 +61,7 @@ in
   preservation.preserveAt.data-dir.directories = [
     {
       directory = ".ssh";
+      how = "bindmount";
       mode = "0700";
     }
   ];

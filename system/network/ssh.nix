@@ -1,4 +1,7 @@
-{ lib, ... }:
+{ config, lib, ... }:
+let
+  cfg = config.services.openssh;
+in
 {
   services.openssh = {
     enable = lib.mkDefault true;
@@ -23,4 +26,20 @@
       LogLevel = "VERBOSE";
     };
   };
+
+  # preserve host keys
+  preservation.preserveAt.data-dir.files = lib.optionals cfg.enable (
+    lib.concatMap (key: [
+      {
+        file = key.path;
+        how = "symlink";
+        configureParent = true;
+      }
+      {
+        file = "${key.path}.pub";
+        how = "symlink";
+        configureParent = true;
+      }
+    ]) cfg.hostKeys
+  );
 }

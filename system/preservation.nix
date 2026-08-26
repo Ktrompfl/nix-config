@@ -24,6 +24,14 @@
       }
       "/var/lib/systemd"
     ];
-    files = [ "/etc/adjtime" ];
+    files = [
+      "/etc/adjtime"
+      {
+        file = "/etc/machine-id";
+        inInitrd = true;
+      }
+    ];
   };
+
+  systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
 }

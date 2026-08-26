@@ -23,6 +23,12 @@
     };
   };
 
+  # `systemd --user` has no mount units, so every user's own `systemd.mounts` is
+  # folded into the system manager's.
+  systemd.mounts = lib.concatMap (userConfig: userConfig.systemd.mounts or [ ]) (
+    lib.attrValues config.hjem.users
+  );
+
   # every user's own `preservation.preserveAt` is folded into the system-wide option below the `users.<name>` key the preservation module expects it under.
   preservation.preserveAt =
     let

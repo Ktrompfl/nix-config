@@ -8,6 +8,5 @@
     ./jay-session.nix
     ./shell.nix
     ./steam.nix
-    ./waydroid.nix
   ];
 }

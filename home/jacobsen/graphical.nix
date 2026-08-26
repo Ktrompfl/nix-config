@@ -18,7 +18,6 @@
     ./programs/thunderbird.nix
     ./programs/viewnior.nix
     ./programs/vlc.nix
-    ./programs/waydroid.nix
     ./programs/zathura.nix
     ./programs/zotero.nix
   ];

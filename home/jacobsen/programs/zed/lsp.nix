@@ -87,7 +87,9 @@
     };
   };
   rust-analyzer = {
-    binary.path = lib.getExe pkgs.rust-analyzer;
-    initialization_options.rustfmt.overrideCommand = [ (lib.getExe pkgs.rustfmt) ];
+    initialization_options = {
+      rust.analyzerTargetDir = true;
+      check.command = "clippy";
+    };
   };
 }

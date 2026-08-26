@@ -92,7 +92,7 @@
     };
 
     zed-julia = {
-      url = "github:aviatesk/zed-julia/avi/JETLS";
+      url = "github:JuliaEditorSupport/zed-julia";
       flake = false;
     };
   };

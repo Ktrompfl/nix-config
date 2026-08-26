@@ -90,6 +90,15 @@ let
     inlay_hints.enabled = true;
     journal.hour_format = "hour24";
 
+    jupyter = {
+      enabled = true;
+      # fallback kernels (overwritten by project local environments)
+      kernel_selections = {
+        julia = "julia-nixpkgs";
+        python = "python3-nixpkgs";
+      };
+    };
+
     languages = import ./languages.nix { inherit lib pkgs; };
     load_direnv = "shell_hook";
     lsp = import ./lsp.nix { inherit config lib pkgs; };
@@ -102,6 +111,10 @@ let
       dock = "left";
       git_status_indicator = false;
       hide_gitignore = false;
+    };
+    repl = {
+      max_columns = 128;
+      max_lines = 64;
     };
     semantic_tokens = "combined";
     show_signature_help_after_edits = true;
@@ -155,6 +168,7 @@ in
     value = settings;
   };
 
+  # FIXME: replace this once zed-julia extension is updated to use jetls
   xdg.data.files."zed/extensions/installed/JETLS".source = pkgs.zed-julia;
 
   preservation.preserveAt.state-dir.directories = [ ".local/share/zed" ];

@@ -11,6 +11,7 @@ let
       pyyaml
 
       # scientific computing
+      ipykernel
       networkx
       numpy
       scipy
@@ -34,12 +35,30 @@ let
       # qt5
       pyqt5
     ];
+  python = pkgs.python313.withPackages python-packages;
 in
 {
   packages = [
-    (pkgs.python313.withPackages python-packages)
+    python
     pkgs.gurobi
   ];
+
+  # fallback jupyter kernel for zed repl
+  xdg.data.files."jupyter/kernels/python3-nixpkgs/kernel.json" = {
+    generator = (pkgs.formats.json { }).generate "python-kernel.json";
+    value = {
+      argv = [
+        "${python}/bin/python"
+        "-m"
+        "ipykernel_launcher"
+        "-f"
+        "{connection_file}"
+      ];
+      display_name = "Python ${python.pythonVersion}";
+      language = "python";
+      metadata.debugger = true;
+    };
+  };
 
   environment.sessionVariables.GRB_LICENSE_FILE = "/home/jacobsen/.gurobi/gurobi.lic";
 

@@ -550,16 +550,15 @@
     "zed-julia": {
       "flake": false,
       "locked": {
-        "lastModified": 1784118662,
-        "narHash": "sha256-1eVrCgcxOYsMrpPnBuhcnkMNvsXxFrdPVbBA+YLLLHE=",
-        "owner": "aviatesk",
+        "lastModified": 1786369639,
+        "narHash": "sha256-6SwBfgZDZNbebBvWwX4JQpRkhRkG9c9vgS4QDTlNyrw=",
+        "owner": "JuliaEditorSupport",
         "repo": "zed-julia",
-        "rev": "edc8ccfd937acac5cc8c972b6fb6104a5e5ce532",
+        "rev": "6cc6aabba5da6a11d33a845437bc57c52249d74a",
         "type": "github"
       },
       "original": {
-        "owner": "aviatesk",
-        "ref": "avi/JETLS",
+        "owner": "JuliaEditorSupport",
         "repo": "zed-julia",
         "type": "github"
       }

@@ -11,6 +11,7 @@
     ./programs/latex.nix
     ./programs/matplotlib.nix
     ./programs/python.nix
+    ./programs/rust.nix
     ./programs/shell.nix
     ./programs/ssh.nix
 

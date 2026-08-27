@@ -1,7 +1,6 @@
 { pkgs, ... }:
 {
   imports = [
-    ./carrot
     ./jay
 
     ./fuzzel.nix

@@ -2,7 +2,6 @@
 {
   imports = [
     inputs.self.nixosModules.default
-    inputs.carrot.nixosModules.default
     inputs.jay.nixosModules.default
 
     ./boot

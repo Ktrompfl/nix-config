@@ -175,7 +175,6 @@ in
   config.packages = with pkgs; [
     jay
 
-    # named by ./shortcuts.nix and ../carrot, so it has to be on PATH
     runapp
 
     # The programs the two configurations share. The toml side refers to them

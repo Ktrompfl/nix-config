@@ -56,7 +56,6 @@
     waywall.enable = true;
 
     # wayland session
-    carrot.enable = true;
     jay = {
       enable = true;
       extraPackages = [ ];

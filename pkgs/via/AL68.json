@@ -1,0 +1,329 @@
+{
+  "name": "AL68 Keyboard",
+  "vendorId": "0x4D4B",
+  "productId": "0x304E",
+  "matrix": {
+    "rows": 5,
+    "cols": 15
+  },
+  "layouts": {
+    "keymap": [
+      [
+        "0,0",
+        "0,1",
+        "0,2",
+        "0,3",
+        "0,4",
+        "0,5",
+        "0,6",
+        "0,7",
+        "0,8",
+        "0,9",
+        "0,10",
+        "0,11",
+        "0,12",
+        {
+          "w": 2.0
+        },
+        "0,13",
+        "4,3"
+      ],
+      [
+        {
+          "w": 1.5
+        },
+        "1,0",
+        "1,1",
+        "1,2",
+        "1,3",
+        "1,4",
+        "1,5",
+        "1,6",
+        "1,7",
+        "1,8",
+        "1,9",
+        "1,10",
+        "1,11",
+        "1,12",
+        {
+          "w": 1.5
+        },
+        "1,13",
+        "1,14"
+      ],
+      [
+        {
+          "w": 1.75
+        },
+        "2,0",
+        "2,1",
+        "2,2",
+        "2,3",
+        "2,4",
+        "2,5",
+        "2,6",
+        "2,7",
+        "2,8",
+        "2,9",
+        "2,10",
+        "2,11",
+        {
+          "w": 2.25
+        },
+        "2,13",
+        "2,14"
+      ],
+      [
+        {
+          "w": 2.25
+        },
+        "3,0",
+        "3,2",
+        "3,3",
+        "3,4",
+        "3,5",
+        "3,6",
+        "3,7",
+        "3,8",
+        "3,9",
+        "3,10",
+        "3,11",
+        {
+          "w": 1.75
+        },
+        "3,12",
+        "3,13",
+        "3,14"
+      ],
+      [
+        {
+          "w": 1.25
+        },
+        "4,0",
+        {
+          "w": 1.25
+        },
+        "4,1",
+        {
+          "w": 1.25
+        },
+        "4,2",
+        {
+          "w": 6.25
+        },
+        "4,5",
+        {
+          "w": 1.25
+        },
+        "4,10",
+        {
+          "w": 1.25
+        },
+        "4,11",
+        {
+          "x": 0.5
+        },
+        "4,12",
+        "4,13",
+        "4,14"
+      ]
+    ]
+  },
+  "customKeycodes": [
+    {
+      "name": "KC_USB",
+      "title": "USB / wired mode",
+      "shortName": "USB"
+    },
+    {
+      "name": "KC_BLE1",
+      "title": "Bluetooth slot 1",
+      "shortName": "BT1"
+    },
+    {
+      "name": "KC_BLE2",
+      "title": "Bluetooth slot 2",
+      "shortName": "BT2"
+    },
+    {
+      "name": "KC_BLE3",
+      "title": "Bluetooth slot 3",
+      "shortName": "BT3"
+    },
+    {
+      "name": "KC_24G",
+      "title": "2.4GHz dongle mode",
+      "shortName": "2.4G"
+    },
+    {
+      "name": "KC_BAT",
+      "title": "Show battery level",
+      "shortName": "BATT"
+    },
+    {
+      "name": "KC_RESET",
+      "title": "Factory reset (hold 3s)",
+      "shortName": "RESET"
+    },
+    {
+      "name": "KC_WIN",
+      "title": "Windows key",
+      "shortName": "WIN"
+    },
+    {
+      "name": "KC_WINMODE",
+      "title": "Switch to Windows layout",
+      "shortName": "WINMD"
+    },
+    {
+      "name": "KC_MACMODE",
+      "title": "Switch to macOS layout",
+      "shortName": "MACMD"
+    },
+    {
+      "name": "KC_SHUTRGB",
+      "title": "RGB on/off",
+      "shortName": "RGB"
+    },
+    {
+      "name": "KC_RRWIN",
+      "title": "Right Windows key",
+      "shortName": "RWIN"
+    },
+    {
+      "name": "KC_MODEPLUS",
+      "title": "Next RGB effect",
+      "shortName": "RGB+"
+    },
+    {
+      "name": "KC_Mctl",
+      "title": "macOS Mission Control",
+      "shortName": "MCTL"
+    },
+    {
+      "name": "KC_Lpad",
+      "title": "macOS Launchpad",
+      "shortName": "LPAD"
+    },
+    {
+      "name": "KC_HUEPLS",
+      "title": "RGB hue +",
+      "shortName": "HUE+"
+    },
+    {
+      "name": "ENC_TG",
+      "title": "Encoder / knob toggle",
+      "shortName": "ENC"
+    },
+    {
+      "name": "KC_VAL_UP",
+      "title": "RGB brightness +",
+      "shortName": "BRI+"
+    },
+    {
+      "name": "KC_VAL_DN",
+      "title": "RGB brightness -",
+      "shortName": "BRI-"
+    },
+    {
+      "name": "KC_SPD_UP",
+      "title": "RGB effect speed +",
+      "shortName": "SPD+"
+    },
+    {
+      "name": "KC_SPD_DN",
+      "title": "RGB effect speed -",
+      "shortName": "SPD-"
+    },
+    {
+      "name": "KC_LOCK",
+      "title": "Lock screen",
+      "shortName": "LOCK"
+    }
+  ],
+  "menus": [
+    {
+      "label": "Lighting",
+      "content": [
+        {
+          "label": "Backlight",
+          "content": [
+            {
+              "label": "Brightness",
+              "type": "range",
+              "options": [
+                0,
+                255
+              ],
+              "content": [
+                "id_qmk_rgb_matrix_brightness",
+                3,
+                1
+              ]
+            },
+            {
+              "label": "Effect",
+              "type": "dropdown",
+              "options": [
+                "All Off",
+                "Solid Color",
+                "Gradient Up/Down",
+                "Gradient Left/Right",
+                "Breathing",
+                "Band Sat.",
+                "Band Val.",
+                "Pinwheel Sat.",
+                "Pinwheel Val.",
+                "Spiral Sat.",
+                "Spiral Val.",
+                "Cycle All",
+                "Cycle Left/Right",
+                "Cycle Up/Down",
+                "Cycle Out/In",
+                "Cycle Out/In Dual",
+                "Rainbow Moving Chevron",
+                "Cycle Pinwheel",
+                "Cycle Spiral",
+                "Dual Beacon",
+                "Rainbow Beacon",
+                "Rainbow Pinwheels",
+                "Hue Breathing",
+                "Hue Pendulum",
+                "Hue Wave"
+              ],
+              "content": [
+                "id_qmk_rgb_matrix_effect",
+                3,
+                2
+              ]
+            },
+            {
+              "label": "Effect Speed",
+              "type": "range",
+              "options": [
+                0,
+                255
+              ],
+              "showIf": "{id_qmk_rgb_matrix_effect} != 0",
+              "content": [
+                "id_qmk_rgb_matrix_effect_speed",
+                3,
+                3
+              ]
+            },
+            {
+              "label": "Color",
+              "type": "color",
+              "showIf": "{id_qmk_rgb_matrix_effect} != 0 && {id_qmk_rgb_matrix_effect} != 11 && {id_qmk_rgb_matrix_effect} != 12 && {id_qmk_rgb_matrix_effect} != 13 && {id_qmk_rgb_matrix_effect} != 14 && {id_qmk_rgb_matrix_effect} != 15 && {id_qmk_rgb_matrix_effect} != 16 && {id_qmk_rgb_matrix_effect} != 17 && {id_qmk_rgb_matrix_effect} != 18 && {id_qmk_rgb_matrix_effect} != 19 && {id_qmk_rgb_matrix_effect} != 20 && {id_qmk_rgb_matrix_effect} != 21",
+              "content": [
+                "id_qmk_rgb_matrix_color",
+                3,
+                4
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -20,5 +20,17 @@ in
         "enter-fullscreen"
       ];
     }
+    {
+      # tile workspace containers on major axis
+      match = {
+        types = "container";
+        is-workspace-container = true;
+        just-mapped = true;
+      };
+      action = {
+        type = "tile-major";
+        target = "self";
+      };
+    }
   ];
 }

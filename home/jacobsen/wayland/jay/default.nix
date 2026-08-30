@@ -189,6 +189,9 @@ in
   ];
 
   config.xdg.config.files = {
+    # config.so takes precendence over config.toml
+    "jay/config.so".source = "${pkgs.jay-config-lib}/lib/config.so";
+
     "jay/config.toml" = {
       generator = (pkgs.formats.toml { }).generate "jay-config.toml";
       value = mergeDisjoint settings;

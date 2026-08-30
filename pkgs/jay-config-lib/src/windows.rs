@@ -1,13 +1,11 @@
 //! What happens to a window when it is mapped.
 
 use jay_config::{
-    get_workspace,
-    window::{MatchedWindow, TileState, WindowCriterion},
+    ContainerTarget, RelativeAxis, get_workspace,
+    window::{CONTAINER, MatchedWindow, WindowCriterion},
 };
 
 use crate::outputs;
-
-const NINJABRAIN_TITLE: &str = "Xwayland on :77";
 
 pub fn setup() {
     let wl_mirror = WindowCriterion::All(&[
@@ -30,13 +28,15 @@ pub fn setup() {
         window.set_fullscreen(true);
     });
 
-    let ninjabrain = WindowCriterion::All(&[
-        WindowCriterion::AppId("org.freedesktop.Xwayland"),
-        WindowCriterion::Title(NINJABRAIN_TITLE),
+    // tile workspace containers on major axis
+    WindowCriterion::All(&[
+        WindowCriterion::Types(CONTAINER),
+        WindowCriterion::IsWorkspaceContainer,
         WindowCriterion::JustMapped,
     ])
-    .to_matcher();
-
-    ninjabrain.set_auto_focus(false);
-    ninjabrain.set_initial_tile_state(TileState::Floating);
+    .bind(|matched: MatchedWindow| {
+        matched
+            .window()
+            .set_container_split_relative(ContainerTarget::Itself, RelativeAxis::Major);
+    });
 }

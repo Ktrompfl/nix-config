@@ -9,6 +9,6 @@ name = "jay_config_lib"
 crate-type = ["cdylib"]
 
 [dependencies]
-jay-config = { git = "https://github.com/mahkoh/jay", rev = "cf3a2042769d32e34809f12cc7b27302a8fe4578" }
+jay-config = { git = "https://github.com/mahkoh/jay", rev = "ee3c9b875bfe2666bb73214135c599537f824fa0" }
 regex = "1"
 log = "0.4"

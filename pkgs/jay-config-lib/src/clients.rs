@@ -2,7 +2,7 @@
 
 use jay_config::client::{
     CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_IDLE_NOTIFIER, CC_LAYER_SHELL, CC_SCREENCOPY,
-    CC_SESSION_LOCK, CC_WORKSPACE_MANAGER, ClientCapabilities, ClientCriterion,
+    CC_SESSION_LOCK, ClientCapabilities, ClientCriterion,
 };
 
 pub fn setup() {
@@ -13,13 +13,13 @@ pub fn setup() {
     // that's what ends up as the client's exe, not the plain `<name>`.
     let capabilities: [(&str, ClientCapabilities); 9] = [
         ("grim", CC_SCREENCOPY),
+        (
+            "ninjabrain-box",
+            CC_DATA_CONTROL | CC_FOREIGN_TOPLEVEL_MANAGER | CC_LAYER_SHELL,
+        ),
         ("swayidle", CC_IDLE_NOTIFIER),
         ("swaylock", CC_LAYER_SHELL | CC_SESSION_LOCK),
         ("swaync", CC_LAYER_SHELL),
-        (
-            "waybar",
-            CC_FOREIGN_TOPLEVEL_MANAGER | CC_LAYER_SHELL | CC_WORKSPACE_MANAGER,
-        ),
         ("wayland-pipewire-idle-inhibit", CC_LAYER_SHELL),
         ("wl-copy|wl-paste", CC_DATA_CONTROL),
         ("wl-clip-persist", CC_DATA_CONTROL),

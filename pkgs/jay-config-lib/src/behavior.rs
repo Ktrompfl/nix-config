@@ -5,6 +5,7 @@ use jay_config::{
     input::{FallbackOutputMode, FocusFollowsMouseMode, get_default_seat},
     keyboard::syms::SYM_Super_L,
     on_idle, set_idle, set_idle_grace_period, set_middle_click_paste_enabled, set_show_titles,
+    set_split_reuses_container,
     workspace::{WorkspaceDisplayOrder, set_workspace_display_order},
 };
 
@@ -24,9 +25,7 @@ pub fn setup() {
     set_workspace_display_order(WorkspaceDisplayOrder::Sorted);
     set_middle_click_paste_enabled(false);
     set_show_titles(true);
-
-    // The toml side additionally sets `split-reuses-container`, which this
-    // version of the jay-config crate does not know about.
+    set_split_reuses_container(true);
 
     set_idle(Some(IDLE_TIMEOUT));
     set_idle_grace_period(IDLE_GRACE_PERIOD);

@@ -10,7 +10,7 @@ use jay_config::{
         syms::*,
         ModifiedKeySym,
     },
-    quit, reload, set_show_titles, switch_to_vt, Axis, Direction,
+    quit, reload, set_show_titles, switch_to_vt, ContainerTarget, Direction, RelativeAxis,
 };
 
 use crate::{actions, bar, exec};
@@ -304,19 +304,25 @@ pub fn setup() {
     seat.bind(LOGO | SYM_q, move || seat.close());
     seat.bind(LOGO | SYM_f, move || seat.toggle_fullscreen());
     seat.bind(LOGO | SYM_space, move || seat.toggle_floating());
-    seat.bind(LOGO | SYM_n, move || seat.toggle_mono());
-    seat.bind(LOGO | SYM_v, move || seat.toggle_split());
-    seat.bind(LOGO | SYM_u, move || seat.create_split(Axis::Horizontal));
-    seat.bind(LOGO | SYM_i, move || seat.create_split(Axis::Vertical));
+    seat.bind(LOGO | SYM_n, move || {
+        seat.toggle_container_mono(ContainerTarget::Auto)
+    });
+    seat.bind(LOGO | SYM_v, move || {
+        seat.toggle_container_split(ContainerTarget::Auto)
+    });
+    seat.bind(LOGO | SYM_b, move || {
+        seat.create_split_relative(RelativeAxis::Major)
+    });
     seat.bind(LOGO | SYM_Escape, move || seat.disable_pointer_constraint());
     seat.bind(LOGO | SYM_t, || set_show_titles(true));
     seat.bind(LOGO | SHIFT | SYM_t, || set_show_titles(false));
 
-    // Marks; the next key press identifies the mark. The toml side binds
-    // `tile-major`/`split-major` to these keys instead, neither of which this
-    // version of the jay-config crate knows about.
-    seat.bind(LOGO | SYM_y, move || seat.jump_to_mark(None));
-    seat.bind(LOGO | SHIFT | SYM_y, move || seat.create_mark(None));
+    seat.bind(LOGO | SYM_y, move || {
+        seat.set_container_split_relative(ContainerTarget::Parent, RelativeAxis::Major)
+    });
+    seat.bind(LOGO | SHIFT | SYM_y, move || {
+        seat.create_split_relative(RelativeAxis::Major)
+    });
 
     // --- focus ---
     bind_repeating(seat, LOGO | SYM_Tab, move || {

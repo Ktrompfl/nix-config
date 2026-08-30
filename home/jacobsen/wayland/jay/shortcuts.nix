@@ -279,10 +279,15 @@ in
       "${modifier}-q" = "close";
       "${modifier}-f" = "toggle-fullscreen";
       "${modifier}-space" = "toggle-floating";
-      "${modifier}-n" = "toggle-mono";
-      "${modifier}-v" = "toggle-split";
-      "${modifier}-u" = "split-horizontal";
-      "${modifier}-i" = "split-vertical";
+      "${modifier}-n" = {
+        type = "toggle-mono";
+        target = "auto";
+      };
+      "${modifier}-v" = {
+        type = "toggle-split";
+        target = "auto";
+      };
+      "${modifier}-b" = "split-major";
       "${modifier}-Escape" = "disable-pointer-constraint";
       "${modifier}-t" = "show-titles";
       "${modifier}-shift-t" = "hide-titles";

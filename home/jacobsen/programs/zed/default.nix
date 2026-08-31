@@ -40,6 +40,7 @@ let
       "harper" = true;
       "html" = true;
       "ini" = true;
+      "julia" = true;
       "latex" = true;
       "log" = true;
       "lua" = true;

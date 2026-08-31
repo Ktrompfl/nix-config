@@ -4,7 +4,6 @@ let
   # installation; withPackages uses julia-bin underneath for that reason
   julia = pkgs.julia.withPackages [
     "IJulia"
-    "LanguageServer"
     "Revise"
   ];
 in
@@ -41,13 +40,6 @@ in
         using Revise
     catch e
         @warn "Error initializing Revise" exception=(e, catch_backtrace())
-    end
-    try
-        using Logging: global_logger
-        using TerminalLoggers: TerminalLogger
-        global_logger(TerminalLogger())
-    catch e
-        @warn "Error initializing TerminalLoggers" exception=(e, catch_backtrace())
     end
   '';
 }

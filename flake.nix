@@ -80,11 +80,6 @@
         systems.follows = "systems";
       };
     };
-
-    zed-julia = {
-      url = "github:JuliaEditorSupport/zed-julia";
-      flake = false;
-    };
   };
 
   outputs =

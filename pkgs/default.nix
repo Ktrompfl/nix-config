@@ -16,5 +16,4 @@ in
   tinted-discord = callPackage ./tinted-discord { };
   tinted-zed = callPackage ./tinted-zed { };
   runic = callPackage ./runic.nix { };
-  zed-julia = callPackage ./zed-julia.nix { inherit inputs; };
 }

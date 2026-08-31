@@ -8,6 +8,7 @@
     in
     {
       enable = true;
+      wayland = true;
       enabledExtensions = with spicePkgs.extensions; [
         fullAppDisplay
         history

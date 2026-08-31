@@ -13,6 +13,12 @@ writeShellApplication {
   runtimeInputs = [ systemd ];
 
   text = ''
+    while IFS= read -r assignment; do
+      if [ -n "$assignment" ]; then
+        export "''${assignment?}"
+      fi
+    done < <(${systemd}/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)
+
     cleanup() {
       systemctl --user stop graphical-session.target || true
     }

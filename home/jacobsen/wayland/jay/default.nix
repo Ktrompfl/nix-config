@@ -143,7 +143,6 @@ let
         ./bar.nix
         ./behavior.nix
         ./clients.nix
-        ./env.nix
         ./inputs.nix
         ./outputs.nix
         ./shortcuts.nix
@@ -201,11 +200,6 @@ in
       lib.mapAttrsToList (name: value: "${name} = ${builtins.toJSON (toString value)}\n") (
         base16
         // {
-          cursor_theme = config.theme.cursor.name;
-          cursor_size = config.theme.cursor.size;
-          gtk_theme = "adw-gtk3";
-          qt_platform_theme = "qtct";
-          qt_style = "kvantum";
           monospace_font = config.theme.fonts.monospace.name;
         }
       )

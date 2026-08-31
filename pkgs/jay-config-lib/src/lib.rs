@@ -12,7 +12,6 @@ mod actions;
 mod bar;
 mod behavior;
 mod clients;
-mod env;
 mod inputs;
 mod outputs;
 mod shortcuts;
@@ -42,7 +41,6 @@ fn configure() {
     bar::setup();
     behavior::setup();
     clients::setup();
-    env::setup();
     inputs::setup();
     outputs::setup();
     shortcuts::setup();

@@ -11,9 +11,6 @@ use jay_config::theme::{
     BarPosition, Color, colors, set_bar_font, set_bar_position, set_font, set_title_font, sized,
 };
 
-/// base16 default-dark (Chris Kempson) and the fonts and themes stylix would
-/// otherwise supply, used whenever `theme.toml` or a key in it is missing,
-/// e.g. before home-manager has ever written the file.
 const DEFAULTS: &[(&str, &str)] = &[
     ("base00", "181818"),
     ("base01", "282828"),
@@ -32,11 +29,6 @@ const DEFAULTS: &[(&str, &str)] = &[
     ("base0e", "ba8baf"),
     ("base0f", "a16946"),
     ("monospace_font", "monospace"),
-    ("cursor_theme", "Adwaita"),
-    ("cursor_size", "24"),
-    ("gtk_theme", "Adwaita"),
-    ("qt_platform_theme", "gtk3"),
-    ("qt_style", "Adwaita"),
 ];
 
 static THEME: OnceLock<HashMap<String, String>> = OnceLock::new();

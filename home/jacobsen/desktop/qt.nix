@@ -49,6 +49,7 @@ in
   };
 
   environment.sessionVariables = {
+    QT_QPA_PLATFORM = "wayland;xcb";
     QT_QPA_PLATFORMTHEME = "qtct";
     QT_STYLE_OVERRIDE = "kvantum";
   };

@@ -342,8 +342,7 @@
         "rust-overlay": "rust-overlay",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
-        "systems": "systems_2",
-        "zed-julia": "zed-julia"
+        "systems": "systems_2"
       }
     },
     "rust-overlay": {
@@ -457,22 +456,6 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
-    "zed-julia": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1788098984,
-        "narHash": "sha256-0aqsIbZ+GUEbiFbni8j5q++wQls7kl1RQHuGaJHVFFg=",
-        "owner": "JuliaEditorSupport",
-        "repo": "zed-julia",
-        "rev": "d8027168df5e764ba553fa8913cd7ae95dc0e6d2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "JuliaEditorSupport",
-        "repo": "zed-julia",
         "type": "github"
       }
     }

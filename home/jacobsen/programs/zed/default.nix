@@ -169,8 +169,5 @@ in
     value = settings;
   };
 
-  # FIXME: replace this once zed-julia extension is updated to use jetls
-  xdg.data.files."zed/extensions/installed/JETLS".source = pkgs.zed-julia;
-
   preservation.preserveAt.state-dir.directories = [ ".local/share/zed" ];
 }

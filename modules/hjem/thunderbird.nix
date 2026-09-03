@@ -196,11 +196,13 @@ in
 
     files = {
       ".thunderbird/profiles.ini" = {
+        clobber = true;
         generator = lib.generators.toMozillaProfiles;
         value.name = cfg.profile;
       };
 
       ".thunderbird/${cfg.profile}/user.js" = {
+        clobber = true;
         generator = lib.generators.toMozillaPrefs;
         value = cfg.settings // accountPrefs;
       };

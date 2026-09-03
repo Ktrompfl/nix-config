@@ -11,6 +11,8 @@ let
 
   mkSearch = pkgs.callPackage ./search.nix { firefox = cfg.package; };
 
+  clobbered = lib.mapAttrs (_: file: file // { clobber = true; });
+
   extensionFiles = lib.listToAttrs (
     map (addon: {
       name = "${profilePath}/extensions/${addon.addonId}.xpi";
@@ -103,80 +105,82 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    files = {
-      ".mozilla/firefox/profiles.ini" = {
-        generator = lib.generators.toMozillaProfiles;
-        value.name = cfg.profile.name;
-      };
+    files = clobbered (
+      {
+        ".mozilla/firefox/profiles.ini" = {
+          generator = lib.generators.toMozillaProfiles;
+          value.name = cfg.profile.name;
+        };
 
-      "${profilePath}/user.js" = {
-        generator = lib.generators.toMozillaPrefs;
+        "${profilePath}/user.js" = {
+          generator = lib.generators.toMozillaPrefs;
 
-        value = {
-          # Extension storage has to stay in the flat JSON backend for the
-          # per-extension storage.js files below to be read at all.
-          "extensions.webextensions.ExtensionStorageIDB.enabled" = false;
-        }
-        // lib.optionalAttrs (cfg.profile.userChrome != "") {
-          # userChrome.css is ignored without this.
-          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-        }
-        // cfg.profile.settings;
-      };
-
-      "${profilePath}/containers.json".source =
-        let
-          # Firefox keeps two private contexts of its own in this file and
-          # recreates them if they are missing, taking ownership of it.
-          internal =
-            map
-              (context: {
-                accessKey = "";
-                color = "";
-                icon = "";
-                public = false;
-                inherit (context) name userContextId;
-              })
-              [
-                {
-                  name = "userContextIdInternal.thumbnail";
-                  userContextId = 4294967294;
-                }
-                {
-                  name = "userContextIdInternal.webextStorageLocal";
-                  userContextId = 4294967295;
-                }
-              ];
-
-          ours = lib.mapAttrsToList (name: container: {
-            userContextId = container.id;
-            public = true;
-            inherit (container) icon color;
-            name = container.name or name;
-          }) cfg.profile.containers;
-        in
-        # Written compact, and as version 5, which is what Firefox writes
-        # itself; a pretty-printed file is rewritten on first start.
-        pkgs.writeText "containers.json" (
-          builtins.toJSON {
-            version = 5;
-            # The highest id handed out so far, not a count: Firefox allocates
-            # the next container from it.
-            lastUserContextId = lib.foldl' lib.max 0 (lib.mapAttrsToList (_: c: c.id) cfg.profile.containers);
-            identities = ours ++ internal;
+          value = {
+            # Extension storage has to stay in the flat JSON backend for the
+            # per-extension storage.js files below to be read at all.
+            "extensions.webextensions.ExtensionStorageIDB.enabled" = false;
           }
-        );
-    }
-    // lib.optionalAttrs (cfg.profile.userChrome != "") {
-      "${profilePath}/chrome/userChrome.css".text = cfg.profile.userChrome;
-    }
-    // lib.optionalAttrs (cfg.profile.search.engines != { }) {
-      "${profilePath}/search.json.mozlz4".source = mkSearch {
-        profilePath = cfg.profile.name;
-        inherit (cfg.profile.search) engines default order;
-      };
-    }
-    // extensionFiles
-    // extensionData;
+          // lib.optionalAttrs (cfg.profile.userChrome != "") {
+            # userChrome.css is ignored without this.
+            "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+          }
+          // cfg.profile.settings;
+        };
+
+        "${profilePath}/containers.json".source =
+          let
+            # Firefox keeps two private contexts of its own in this file and
+            # recreates them if they are missing, taking ownership of it.
+            internal =
+              map
+                (context: {
+                  accessKey = "";
+                  color = "";
+                  icon = "";
+                  public = false;
+                  inherit (context) name userContextId;
+                })
+                [
+                  {
+                    name = "userContextIdInternal.thumbnail";
+                    userContextId = 4294967294;
+                  }
+                  {
+                    name = "userContextIdInternal.webextStorageLocal";
+                    userContextId = 4294967295;
+                  }
+                ];
+
+            ours = lib.mapAttrsToList (name: container: {
+              userContextId = container.id;
+              public = true;
+              inherit (container) icon color;
+              name = container.name or name;
+            }) cfg.profile.containers;
+          in
+          # Written compact, and as version 5, which is what Firefox writes
+          # itself; a pretty-printed file is rewritten on first start.
+          pkgs.writeText "containers.json" (
+            builtins.toJSON {
+              version = 5;
+              # The highest id handed out so far, not a count: Firefox allocates
+              # the next container from it.
+              lastUserContextId = lib.foldl' lib.max 0 (lib.mapAttrsToList (_: c: c.id) cfg.profile.containers);
+              identities = ours ++ internal;
+            }
+          );
+      }
+      // lib.optionalAttrs (cfg.profile.userChrome != "") {
+        "${profilePath}/chrome/userChrome.css".text = cfg.profile.userChrome;
+      }
+      // lib.optionalAttrs (cfg.profile.search.engines != { }) {
+        "${profilePath}/search.json.mozlz4".source = mkSearch {
+          profilePath = cfg.profile.name;
+          inherit (cfg.profile.search) engines default order;
+        };
+      }
+      // extensionFiles
+      // extensionData
+    );
   };
 }

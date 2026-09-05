@@ -60,7 +60,6 @@ in
     firefox-color # applies the theme palette to the browser chrome
     bitwarden # password manager
     darkreader # dark mode for every website
-    languagetool # spell/grammar checker
     consent-o-matic # automatically handle gdpr consent forms
     ublock-origin # ad blocker
     tridactyl
@@ -103,24 +102,6 @@ in
       "webRequestBlocking"
       "notifications"
       "file:///*"
-    ];
-    # languagetool
-    "languagetool-webextension@languagetool.org".permissions = [
-      "activeTab"
-      "storage"
-      "contextMenus"
-      "scripting"
-      "alarms"
-      "http://*/*"
-      "https://*/*"
-      "file:///*"
-      "*://docs.google.com/document/*"
-      "*://docs.google.com/presentation/*"
-      "*://languagetool.org/*"
-      "https://languagetool.org/*/webextension/premium-announcement*"
-      "https://languagetool.org/webextension/premium-announcement*"
-      "http://localhost:8000/*/webextension/premium-announcement*"
-      "http://localhost:8000/webextension/premium-announcement*"
     ];
     # consent-o-matic
     "gdpr@cavi.au.dk".permissions = [

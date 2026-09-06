@@ -38,7 +38,7 @@
   # journal does not survive a reboot. Drop the bind, keep nosuid/noexec/nodev.
   nix-mineral.filesystems.normal."/var/log".options.bind = false;
 
-  services.journald.extraConfig = "SystemMaxUse=10G";
+  services.journald.settings.Journal.SystemMaxUse = "10G";
 
   # preservation requires phase1 systemd
   boot.initrd.systemd.enable = true;

@@ -48,5 +48,6 @@ composeManyExtensions [
   lix
 
   inputs.jay.overlays.default
+  inputs.jay-screenshot.overlays.default
   inputs.nur.overlays.default
 ]

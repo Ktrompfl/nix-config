@@ -193,6 +193,29 @@
         "type": "github"
       }
     },
+    "jay-screenshot": {
+      "inputs": {
+        "jay": [
+          "jay"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788692668,
+        "narHash": "sha256-AgJ0C3LT3zjZUO2oKjJUKCmA1wgMcYlcRpa+rbx02EU=",
+        "owner": "Ktrompfl",
+        "repo": "jay-screenshot",
+        "rev": "73c712c7356d488186d8eea88075d2ebb8613385",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ktrompfl",
+        "repo": "jay-screenshot",
+        "type": "github"
+      }
+    },
     "llm-agents": {
       "inputs": {
         "bun2nix": "bun2nix",
@@ -335,6 +358,7 @@
         "git-hooks": "git-hooks",
         "hjem": "hjem",
         "jay": "jay",
+        "jay-screenshot": "jay-screenshot",
         "llm-agents": "llm-agents",
         "nix-mineral": "nix-mineral",
         "nixpkgs": "nixpkgs_2",

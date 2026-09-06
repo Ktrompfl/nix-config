@@ -7,10 +7,7 @@
   cliphist,
   coreutils,
   fuzzel,
-  grim,
-  jay,
-  jq,
-  libnotify,
+  jay-screenshot,
   satty,
   systemd,
   wl-clipboard,
@@ -78,6 +75,17 @@ in
     '';
   };
 
+  jay-screenshot-edit = writeShellApplication {
+    name = "jay-screenshot-edit";
+    runtimeInputs = [
+      jay-screenshot
+      satty
+    ];
+    text = ''
+      jay-screenshot --type ppm --file - "$@" | satty --filename -
+    '';
+  };
+
   jay-clipboard-history = writeShellApplication {
     name = "jay-clipboard-history";
     runtimeInputs = [
@@ -87,71 +95,6 @@ in
     ];
     text = ''
       cliphist list | fuzzel --dmenu --with-nth 2 | cliphist decode | wl-copy
-    '';
-  };
-
-  jay-screenshot = writeShellApplication {
-    name = "jay-screenshot";
-    runtimeInputs = [
-      grim
-      jay
-      jq
-      libnotify
-      satty
-    ];
-    text = ''
-      mode=''${1:-window}
-
-      fail() {
-        notify-send --urgency=critical "screenshot" "$1"
-        exit 1
-      }
-
-      # `jay --json` writes one JSON object per matched node; slurping keeps
-      # the first one and yields nothing at all when there was no match.
-      query() {
-        jay --json tree query "$@" | jq -s '.[0] // empty'
-      }
-
-      geometry() {
-        jq -er '"\(.position.x1),\(.position.y1) \(.position.width)x\(.position.height)"' <<<"$1"
-      }
-
-      # Everything but `region` derives its geometry from the focused window,
-      # because that is the only node a caller without access to the tree can
-      # name: the focused window knows its own position, and its workspace
-      # knows both its position and the output it is on. A caller that can
-      # compute the geometry itself passes `region` instead and is not
-      # restricted to workspaces and outputs that have a window on them.
-      if [[ $mode != region ]]; then
-        window=$(query match-windows -e 'focused = true')
-        [[ -n $window ]] || fail "no focused window"
-      fi
-
-      case $mode in
-        region)
-          [[ $# -eq 2 ]] || fail "usage: jay-screenshot region '<x>,<y> <w>x<h>'"
-          args=(-g "$2")
-          ;;
-        window)
-          args=(-g "$(geometry "$window")")
-          ;;
-        workspace | output)
-          name=$(jq -er '.workspace' <<<"$window") || fail "focused window is not on a workspace"
-          workspace=$(query workspace-name "$name")
-          [[ -n $workspace ]] || fail "workspace $name not found"
-          if [[ $mode == workspace ]]; then
-            args=(-g "$(geometry "$workspace")")
-          else
-            args=(-o "$(jq -er '.output' <<<"$workspace")")
-          fi
-          ;;
-        *)
-          fail "unknown mode: $mode"
-          ;;
-      esac
-
-      grim "''${args[@]}" - | satty --filename -
     '';
   };
 }

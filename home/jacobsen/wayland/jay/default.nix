@@ -181,6 +181,7 @@ in
     jay-bar
     jay-clipboard-history
     jay-screenshot
+    jay-screenshot-edit
 
     # extra programs used in the jay config
     playerctl

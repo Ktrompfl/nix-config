@@ -142,14 +142,12 @@ let
 
   # --- programs ---
 
-  # `output` and `workspace` need a focused window to derive their geometry
-  # from, see ../../../../pkgs/jay-scripts. The shared library configuration
-  # computes the geometry itself and can capture an empty one.
   screenshotOf =
     mode:
     exec [
-      (lib.getExe pkgs.jay-screenshot)
+      (lib.getExe pkgs.jay-screenshot-edit)
       mode
+      "--active"
     ];
 
   present =

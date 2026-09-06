@@ -41,6 +41,14 @@
       };
     };
 
+    jay-screenshot = {
+      url = "github:Ktrompfl/jay-screenshot";
+      inputs = {
+        jay.follows = "jay";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
     # omitting follows costs a second nixpkgs evaluation but guarantees binary cache hits
     llm-agents.url = "github:numtide/llm-agents.nix";
 

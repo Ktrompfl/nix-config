@@ -245,7 +245,7 @@ fn system_mode(seat: Seat) {
 fn screenshot((x, y): (i32, i32), (width, height): (i32, i32)) {
     if width > 0 && height > 0 {
         exec(
-            "jay-screenshot",
+            "jay-screenshot-edit",
             &["region", &format!("{x},{y} {width}x{height}")],
         );
     }

@@ -7,7 +7,7 @@ in
   inherit (jayScripts)
     jay-bar
     jay-clipboard-history
-    jay-screenshot
+    jay-screenshot-edit
     ;
 
   jay-config-lib = callPackage ./jay-config-lib { inherit inputs; };

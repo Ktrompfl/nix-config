@@ -1,4 +1,6 @@
 {
+  imports = [ ./wireguard.nix ];
+
   networking.useNetworkd = true;
 
   systemd.network = {

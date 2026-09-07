@@ -203,11 +203,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788692668,
-        "narHash": "sha256-AgJ0C3LT3zjZUO2oKjJUKCmA1wgMcYlcRpa+rbx02EU=",
+        "lastModified": 1788770341,
+        "narHash": "sha256-iUTnUlVNLCWkKmkQ6XHHdPgaXa14ENb3dI4UVRkO0v0=",
         "owner": "Ktrompfl",
         "repo": "jay-screenshot",
-        "rev": "73c712c7356d488186d8eea88075d2ebb8613385",
+        "rev": "a591aacaed69578ba6927070469a71ce3c708ba5",
         "type": "github"
       },
       "original": {

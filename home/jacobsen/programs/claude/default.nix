@@ -17,7 +17,6 @@ in
   };
 
   packages = [
-    llm-packages.claude-desktop
     llm-packages.ccusage
 
     # extra utilities

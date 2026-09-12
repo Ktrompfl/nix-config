@@ -11,6 +11,7 @@
 
     ./programs/chromium.nix
     ./programs/discord.nix
+    ./programs/mpv.nix
     ./programs/satty.nix
     ./programs/seafile.nix
     ./programs/signal.nix
@@ -29,7 +30,6 @@
 
     # multi media
     imv
-    mpv
     libreoffice
   ];
 }

@@ -18,7 +18,7 @@ in
       sub-font = fonts.sansSerif.name;
     }
     // (with colors.withHashtag; {
-      background-color = "#000000";
+      background-color = base00;
 
       osd-back-color = base01;
       osd-border-color = base01;

@@ -11,6 +11,7 @@
 
     ./programs/chromium.nix
     ./programs/discord.nix
+    ./programs/imv.nix
     ./programs/mpv.nix
     ./programs/satty.nix
     ./programs/seafile.nix
@@ -29,7 +30,6 @@
     pwvucontrol # Pipewire Volume Control
 
     # multi media
-    imv
     libreoffice
   ];
 }

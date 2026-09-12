@@ -11,7 +11,7 @@ in
   packages = [ pkgs.mpv ];
 
   xdg.config.files."mpv/mpv.conf" = {
-    generator = lib.generators.toKeyValueLines { };
+    generator = lib.generators.toKeyValueLines { quote = true; };
 
     value = {
       osd-font = fonts.sansSerif.name;

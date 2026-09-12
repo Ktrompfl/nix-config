@@ -4,7 +4,6 @@
     curl
     fd
     git
-    gparted
     gptfdisk
     inxi
     jq

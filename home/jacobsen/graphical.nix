@@ -16,23 +16,20 @@
     ./programs/signal.nix
     ./programs/spotify.nix
     ./programs/thunderbird.nix
-    ./programs/viewnior.nix
-    ./programs/vlc.nix
     ./programs/zathura.nix
     ./programs/zotero.nix
   ];
 
   packages = with pkgs; [
-    baobab
     better-control
-    nwg-look # for debug: wayland native gtk3 settings editor, like lxappearance
 
     # audio tools
     alsa-scarlett-gui
     pwvucontrol # Pipewire Volume Control
 
     # multi media
+    imv
+    mpv
     libreoffice
-    sqlitebrowser
   ];
 }

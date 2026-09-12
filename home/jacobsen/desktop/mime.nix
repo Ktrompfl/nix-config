@@ -1,8 +1,8 @@
 let
   browser = "firefox.desktop";
   editor = "dev.zed.Zed.desktop";
-  images = "viewnior.desktop";
-  media = "vlc.desktop";
+  images = "imv.desktop";
+  media = "mpv.desktop";
   reader = "org.pwmt.zathura-pdf-mupdf.desktop";
 in
 {
@@ -12,7 +12,7 @@ in
     "image/gif" = images;
     "image/jpeg" = images;
     "image/png" = images;
-    "image/svg" = browser;
+    "image/svg" = images;
 
     "audio/aac" = media;
     "audio/flac" = media;

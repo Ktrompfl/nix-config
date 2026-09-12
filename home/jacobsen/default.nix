@@ -23,7 +23,6 @@
     manix
 
     # languages
-    php
     typst
   ];
 }

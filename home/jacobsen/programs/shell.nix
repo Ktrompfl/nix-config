@@ -15,11 +15,11 @@ let
     chromium = "chromium";
     code = "code";
     firefox = "firefox";
+    imv = "imv";
     libreoffice = "libreoffice";
+    mpv = "mpv";
     steam = "steam";
     vesktop = "vesktop";
-    viewnior = "viewnior";
-    vlc = "vlc";
     zathura = "zathura";
     zed = "zeditor";
   };

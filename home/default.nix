@@ -58,6 +58,12 @@ in
     attrValues config.hjem.users
   );
 
+  # tmpfiles rules, unlike mounts, do exist in the user manager, so each user's
+  # rules stay scoped to their own session.
+  systemd.user.tmpfiles.users = mapAttrs (_: userConfig: {
+    rules = userConfig.systemd.tmpfiles.rules or [ ];
+  }) config.hjem.users;
+
   # every user's own `preservation.preserveAt` is folded into the system-wide one.
   preservation.preserveAt = foldl' recursiveUpdate { } (
     mapAttrsToList preservationOf config.hjem.users

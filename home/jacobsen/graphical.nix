@@ -6,7 +6,6 @@
     ./wayland
 
     ./programs/firefox
-    ./programs/zed
     # ./programs/vscode
 
     ./programs/chromium.nix
@@ -19,6 +18,7 @@
     ./programs/spotify.nix
     ./programs/thunderbird.nix
     ./programs/zathura.nix
+    ./programs/zed.nix
     ./programs/zotero.nix
   ];
 

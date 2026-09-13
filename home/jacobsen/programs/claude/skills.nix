@@ -1,6 +1,6 @@
 {
-  programs.claude-code.skills = {
-    ast-grep = ''
+  files = {
+    ".claude/skills/ast-grep/SKILL.md".text = ''
       ---
       name: ast-grep
       description: Use ast-grep for structural, language-aware code search instead of grep/manual file reads whenever navigating or refactoring code across a codebase. Triggers on "find all callers of X", "find every place that does Y pattern", "rename/refactor across files", "structural search", or before reaching for grep on anything more than a literal string. Falls back to ripgrep for pure text/comment/string searches ast-grep can't express.
@@ -8,7 +8,7 @@
 
       # ast-grep navigation
 
-      `ast-grep` parses code into an AST and matches structural patterns, so it finds real occurrences of a construct instead of text that happens to look like it (skips comments/strings, respects language syntax). It is already Bash-allowlisted (`Bash(ast-grep *)`) in this config.
+      `ast-grep` parses code into an AST and matches structural patterns, so it finds real occurrences of a construct instead of text that happens to look like it (skips comments/strings, respects language syntax). It is on `PATH` and runs inside the bash sandbox, so it needs no approval.
 
       ## When to reach for it
       - Locating a function/method definition or every call site across many files
@@ -50,7 +50,7 @@
       - `-l <lang>` is optional (ast-grep infers it from the file extension) but pin it when scanning mixed-language directories to avoid cross-language false matches.
     '';
 
-    conventional-commits = ''
+    ".claude/skills/conventional-commits/SKILL.md".text = ''
       ---
       name: conventional-commits
       description: Use when writing a git commit message in this repo. Produces a compact Conventional Commits header (and only a body/footer when one is actually needed) without the token overhead of a full commit-message essay. Triggers whenever the user asks to commit, write a commit message, or follow conventional commits.

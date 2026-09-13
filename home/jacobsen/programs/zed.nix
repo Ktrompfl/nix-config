@@ -2,33 +2,13 @@
   config,
   inputs,
   lib,
-  osConfig,
   pkgs,
   ...
 }:
 let
   claudeCode = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
 
-  # Zed reads MCP servers from its own settings; the secret is passed through a
-  # wrapper because zed has no `{file:...}` expansion of its own.
-  context7 = pkgs.writeShellScriptBin "mcp-context7-wrapper" ''
-    export CONTEXT7_API_KEY="$(cat ${osConfig.sops.secrets."api-keys/context7".path})"
-    exec ${lib.getExe pkgs.context7-mcp} "$@"
-  '';
   settings = {
-    context_servers = {
-      context7 = {
-        command = lib.getExe context7;
-        args = [ ];
-        enabled = true;
-      };
-      nixos = {
-        command = lib.getExe pkgs.mcp-nixos;
-        args = [ ];
-        enabled = true;
-      };
-    };
-
     buffer_font_family = config.theme.fonts.monospace.name;
     buffer_font_size = 16;
     ui_font_family = config.theme.fonts.sansSerif.name;
@@ -53,7 +33,11 @@ let
       "xml" = true;
     };
 
-    agent = import ./agent.nix;
+    agent = {
+      dock = "right";
+      show_turn_stats = true;
+      sidebar_side = "right";
+    };
     agent_servers = {
       claude-acp = {
         # type = "registry"; # latest, standalone acp adapter
@@ -62,6 +46,7 @@ let
         env = {
           # use wrapped claude code package to make configured plugins (e.g. language servers) available
           CLAUDE_CODE_EXECUTABLE = lib.getExe claudeCode;
+          TMPDIR = "${config.directory}/.local/state/claude/workspace";
         };
       };
     };
@@ -100,9 +85,51 @@ let
       };
     };
 
-    languages = import ./languages.nix { inherit lib pkgs; };
+    languages = {
+      Lua = {
+        formatter = {
+          external = {
+            command = lib.getExe pkgs.stylua;
+            arguments = [
+              "--search-parent-directories"
+              "--stdin-filepath"
+              "{buffer_path}"
+              "-"
+            ];
+          };
+        };
+      };
+      Nix = {
+        formatter.external = {
+          command = lib.getExe pkgs.nixfmt;
+        };
+        language_servers = [
+          "!nil"
+          "nixd"
+          "..."
+        ];
+        tab_size = 2;
+      };
+      Python = {
+        code_actions_on_format = {
+          "source.organizeImports.ruff" = true;
+        };
+        formatter = {
+          language_server.name = "ruff";
+        };
+        language_servers = [
+          "ruff"
+          "ty"
+          "!basedpyright"
+          "!pylsp"
+          "!pyright"
+          "..."
+        ];
+      };
+    };
+
     load_direnv = "shell_hook";
-    lsp = import ./lsp.nix { inherit config lib pkgs; };
+    lsp = (import ./lsp.nix { inherit lib pkgs; }).zed;
     node = {
       path = lib.getExe pkgs.nodejs;
       npm_path = lib.getExe' pkgs.nodejs "npm";

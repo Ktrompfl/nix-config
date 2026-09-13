@@ -1,6 +1,5 @@
 {
   imports = [
-    ./claude-code.nix
     ./firefox
     ./preservation.nix
     ./systemd-mounts.nix

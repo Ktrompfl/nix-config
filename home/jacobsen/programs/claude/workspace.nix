@@ -1,6 +1,6 @@
-{ config, ... }:
+{ config, osConfig, ... }:
 let
-  workspace = "${config.directory}/.local/state/claude/workspace";
+  workspace = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}/.local/state/claude/workspace";
 in
 {
   files.".claude/settings.json".value = {
@@ -27,7 +27,5 @@ in
     directory.
   '';
 
-  systemd.tmpfiles.rules = [ "d %h/.local/state/claude/workspace 0700 - - 7d" ];
-
-  preservation.preserveAt.state-dir.directories = [ ".local/state/claude" ];
+  systemd.tmpfiles.rules = [ "d ${workspace} 0700 - - 7d" ];
 }

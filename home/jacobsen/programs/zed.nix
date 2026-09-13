@@ -46,7 +46,7 @@ let
         env = {
           # use wrapped claude code package to make configured plugins (e.g. language servers) available
           CLAUDE_CODE_EXECUTABLE = lib.getExe claudeCode;
-          TMPDIR = "${config.directory}/.local/state/claude/workspace";
+          TMPDIR = config.files.".claude/settings.json".value.env.TMPDIR;
         };
       };
     };

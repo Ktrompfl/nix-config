@@ -1,4 +1,7 @@
-{ config, ... }:
+{ config, osConfig, ... }:
+let
+  credentials = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}/.claude/.credentials.json";
+in
 {
   files.".claude/settings.json".value = {
     sandbox = {
@@ -14,19 +17,11 @@
         "wl-paste *"
       ];
 
-      credentials.files = [
-        {
-          path = "~/.ssh";
-          mode = "deny";
-        }
-        {
-          path = "~/.claude/.credentials.json";
-          mode = "deny";
-        }
-        {
-          path = "/run/secrets";
-          mode = "deny";
-        }
+      filesystem.allowRead = [
+        "/nix/store"
+        "~/.config/git"
+        "~/.config/direnv"
+        "~/.cargo"
       ];
 
       network = {
@@ -50,18 +45,21 @@
           "pypi.org"
           "files.pythonhosted.org"
 
+          "context7.com"
+          "*.context7.com"
           "devenv.sh"
         ];
 
-        allowUnixSockets = [ "/nix/var/nix/daemon-socket/socket" ];
+        allowAllUnixSockets = true;
       };
     };
 
     permissions = {
-      allow = [
-        "Read(//nix/store/**)"
-        "Read(/${config.directory}/.claude/**)"
+      blockReadsOutsideWorkingDirectories = true;
 
+      defaultMode = "acceptEdits";
+
+      allow = [
         "WebSearch"
         "WebFetch(domain:github.com)"
         "WebFetch(domain:raw.githubusercontent.com)"
@@ -74,8 +72,9 @@
 
       deny = [
         "Read(/${config.directory}/.ssh/**)"
-        "Read(/${config.directory}/.claude/.credentials.json)"
-        "Read(//run/secrets/**)"
+        "Read(/${credentials})"
+        "Read(//run/secrets.d/**)"
+        "Read(//persist/sops/**)"
       ];
     };
   };

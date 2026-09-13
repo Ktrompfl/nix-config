@@ -13,6 +13,11 @@ let
   # (`mcp__plugin_<name>_<server>__<tool>`), so it is kept short.
   pluginName = "local";
   pluginDir = ".claude/skills/nix-managed";
+
+  context7 = pkgs.writeShellScriptBin "mcp-context7" ''
+    export CONTEXT7_API_KEY="$(cat ${osConfig.sops.secrets."api-keys/context7".path})"
+    exec ${lib.getExe pkgs.context7-mcp} "$@"
+  '';
 in
 {
   imports = [
@@ -51,9 +56,8 @@ in
       generator = json "claude-mcp.json";
       value.mcpServers = {
         context7 = {
-          command = lib.getExe pkgs.context7-mcp;
+          command = lib.getExe context7;
           args = [ ];
-          env.CONTEXT7_API_KEY = "{file:${osConfig.sops.secrets."api-keys/context7".path}}";
         };
         nixos = {
           command = lib.getExe pkgs.mcp-nixos;

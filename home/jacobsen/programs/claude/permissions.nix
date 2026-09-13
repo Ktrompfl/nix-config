@@ -17,16 +17,10 @@ in
         "wl-paste *"
       ];
 
-      filesystem.allowRead = [
-        "/nix/store"
-        "~/.config/git"
-        "~/.config/direnv"
-        "~/.cargo"
-      ];
-
       network = {
         allowedDomains = [
           "cache.nixos.org"
+          "cache.numtide.com"
           "channels.nixos.org"
           "nixos.org"
           "search.nixos.org"

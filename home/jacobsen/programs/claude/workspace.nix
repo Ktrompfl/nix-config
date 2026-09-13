@@ -1,18 +1,40 @@
 { config, osConfig, ... }:
 let
-  workspace = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}/.local/state/claude/workspace";
+  stateHome = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}";
+
+  workspace = "${stateHome}/.local/state/claude/workspace";
 in
 {
   files.".claude/settings.json".value = {
     env.TMPDIR = workspace;
 
-    sandbox.filesystem.allowWrite = [
-      workspace
-      "~/.cache/nix"
-      "~/.cargo"
-      "~/.cache/uv"
-      "~/.cache/ruff"
-    ];
+    sandbox.filesystem = {
+      denyRead = [ "/" ];
+
+      allowRead = [
+        "/nix"
+        "/bin"
+        "/etc"
+        "/run"
+        "/usr"
+        workspace
+
+        "${stateHome}/.config/git"
+        "${stateHome}/.config/direnv"
+        "~/.config/git"
+        "~/.config/direnv"
+        "~/.cargo"
+      ];
+
+      allowWrite = [
+        workspace
+        "~/.cache/nix"
+        "~/.cargo"
+        "~/.cache/uv"
+        "~/.cache/ruff"
+        "~/.julia"
+      ];
+    };
 
     permissions.additionalDirectories = [ workspace ];
   };

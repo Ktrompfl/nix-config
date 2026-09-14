@@ -12,7 +12,9 @@ let
   # The manifest name becomes the MCP tool namespace
   # (`mcp__plugin_<name>_<server>__<tool>`), so it is kept short.
   pluginName = "local";
-  pluginDir = ".claude/skills/nix-managed";
+
+  agentHome = ".local/state/claude/home";
+  pluginDir = "${agentHome}/skills/nix-managed";
 
   context7 = pkgs.writeShellScriptBin "mcp-context7" ''
     export CONTEXT7_API_KEY="$(cat ${osConfig.sops.secrets."api-keys/context7".path})"
@@ -37,7 +39,7 @@ in
   ];
 
   files = {
-    ".claude/settings.json" = {
+    "${agentHome}/settings.json" = {
       generator = json "claude-settings.json";
       value."$schema" = "https://json.schemastore.org/claude-code-settings.json";
     };
@@ -67,5 +69,5 @@ in
     };
   };
 
-  preservation.preserveAt.state-dir.directories = [ ".claude" ];
+  preservation.preserveAt.state-dir.directories = [ ".local/state/claude" ];
 }

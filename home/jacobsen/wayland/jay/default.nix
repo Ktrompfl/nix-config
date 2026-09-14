@@ -179,9 +179,7 @@ in
     # The programs the two configurations share. The toml side refers to them
     # by store path, the shared library side needs them on `PATH`.
     jay-bar
-    jay-clipboard-history
     jay-screenshot
-    jay-screenshot-edit
 
     # extra programs used in the jay config
     playerctl

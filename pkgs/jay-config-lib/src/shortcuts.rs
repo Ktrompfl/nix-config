@@ -3,14 +3,14 @@
 use std::rc::Rc;
 
 use jay_config::{
-    get_workspace,
-    input::{get_default_seat, LayerDirection, Seat, Timeline},
+    ContainerTarget, Direction, RelativeAxis, get_workspace,
+    input::{LayerDirection, Seat, Timeline, get_default_seat},
     keyboard::{
+        ModifiedKeySym,
         mods::{ALT, CTRL, LOGO, SHIFT},
         syms::*,
-        ModifiedKeySym,
     },
-    quit, reload, set_show_titles, switch_to_vt, ContainerTarget, Direction, RelativeAxis,
+    quit, reload, set_show_titles, switch_to_vt,
 };
 
 use crate::{actions, bar, exec};
@@ -238,15 +238,18 @@ fn system_mode(seat: Seat) {
 
 // --- screenshots ---
 
-/// Hands a region to the screenshot script, which is what the toml side ends
-/// up running as well. Unlike that side, which has to derive its geometry
-/// from the focused window, this can also capture an empty workspace or
-/// output; an empty region means there was nothing to capture at all.
+/// Captures a region and hands it to satty.
 fn screenshot((x, y): (i32, i32), (width, height): (i32, i32)) {
     if width > 0 && height > 0 {
         exec(
-            "jay-screenshot-edit",
-            &["region", &format!("{x},{y} {width}x{height}")],
+            "sh",
+            &[
+                "-c",
+                &format!(
+                    "jay-screenshot --type ppm --file - region '{x},{y} {width}x{height}' \
+                     | satty --filename -"
+                ),
+            ],
         );
     }
 }
@@ -406,5 +409,13 @@ pub fn setup() {
     seat.bind(LOGO | SHIFT | SYM_Return, || exec("runapp", &["foot"]));
     seat.bind(LOGO | SYM_d, || exec("fuzzel", &[]));
     seat.bind(LOGO | SYM_a, || exec("swaync-client", &["-t"]));
-    seat.bind(LOGO | SHIFT | SYM_v, || exec("jay-clipboard-history", &[]));
+    seat.bind(LOGO | SHIFT | SYM_v, || {
+        exec(
+            "sh",
+            &[
+                "-c",
+                "cliphist list | fuzzel --dmenu --with-nth 2 | cliphist decode | wl-copy",
+            ],
+        )
+    });
 }

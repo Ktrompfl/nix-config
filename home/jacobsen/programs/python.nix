@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  osConfig,
+  pkgs,
+  ...
+}:
 let
   python-packages =
     ps: with ps; [
@@ -36,6 +41,8 @@ let
       pyqt5
     ];
   python = pkgs.python313.withPackages python-packages;
+
+  stateHome = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}";
 in
 {
   packages = [
@@ -61,16 +68,8 @@ in
   };
 
   environment.sessionVariables = {
-    GRB_LICENSE_FILE = "/home/jacobsen/.gurobi/gurobi.lic";
-
-    # out of $HOME and into the already-preserved XDG state directory. readline
-    # rewrites the history file through a temporary file and a rename, which
-    # fails with EBUSY against a bind-mounted file and silently detaches a
-    # symlinked one; inside a preserved directory the rename stays on /cache.
-    PYTHON_HISTORY = "${config.xdg.state.directory}/python_history";
+    GRB_LICENSE_FILE = "${stateHome}/.local/share/gurobi/gurobi.lic";
+    PYTHON_HISTORY = "${stateHome}/.local/state/python_history";
   };
 
-  preservation.preserveAt.state-dir.directories = [
-    ".gurobi" # directory for gurobi license file per host
-  ];
 }

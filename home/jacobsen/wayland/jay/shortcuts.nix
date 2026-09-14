@@ -1,4 +1,5 @@
 {
+  config,
   jayLib,
   lib,
   pkgs,
@@ -142,13 +143,17 @@ let
 
   # --- programs ---
 
+  bash =
+    script:
+    exec [
+      (lib.getExe pkgs.bash)
+      "-c"
+      script
+    ];
+
   screenshotOf =
     mode:
-    exec [
-      (lib.getExe pkgs.jay-screenshot-edit)
-      mode
-      "--active"
-    ];
+    bash "${lib.getExe pkgs.jay-screenshot} --type ppm --file - ${mode} --active | ${lib.getExe config.apps.satty.wrapped} --filename -";
 
   present =
     action:
@@ -352,7 +357,14 @@ in
         "swaync-client"
         "-t"
       ];
-      "${modifier}-shift-v" = exec (lib.getExe pkgs.jay-clipboard-history);
+      "${modifier}-shift-v" = bash (
+        lib.concatStringsSep " | " [
+          "${lib.getExe pkgs.cliphist} list"
+          "${lib.getExe pkgs.fuzzel} --dmenu --with-nth 2"
+          "${lib.getExe pkgs.cliphist} decode"
+          (lib.getExe' pkgs.wl-clipboard "wl-copy")
+        ]
+      );
     };
 
   inherit (modeConfig) modes;

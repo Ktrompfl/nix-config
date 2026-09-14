@@ -8,6 +8,8 @@
 let
   claudeCode = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
 
+  agentHome = ".local/state/claude/home";
+
   settings = {
     buffer_font_family = config.theme.fonts.monospace.name;
     buffer_font_size = 16;
@@ -46,7 +48,7 @@ let
         env = {
           # use wrapped claude code package to make configured plugins (e.g. language servers) available
           CLAUDE_CODE_EXECUTABLE = lib.getExe claudeCode;
-          TMPDIR = config.files.".claude/settings.json".value.env.TMPDIR;
+          TMPDIR = config.files."${agentHome}/settings.json".value.env.TMPDIR;
         };
       };
     };

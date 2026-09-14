@@ -12,6 +12,7 @@ let
     cursor
     ;
   settings = {
+    gtk-application-prefer-dark-theme = true;
     gtk-theme-name = "adw-gtk3";
     gtk-icon-theme-name = icons.name;
     gtk-cursor-theme-name = cursor.name;
@@ -71,14 +72,10 @@ in
   packages = [
     pkgs.glib
     pkgs.adw-gtk3
+    pkgs.adwaita-icon-theme
     icons.package
     cursor.package
   ];
-
-  files.".gtkrc-2.0" = {
-    generator = lib.generators.toGtk2;
-    value = settings;
-  };
 
   xdg.config.files = {
     "gtk-3.0/settings.ini" = {
@@ -105,7 +102,7 @@ in
     ];
   };
 
-  # GTK2 has no XDG location of its own, so applications are pointed at the
-  # file explicitly.
-  environment.sessionVariables.GTK2_RC_FILES = "/home/jacobsen/.gtkrc-2.0";
+  environment.sessionVariables.GTK2_RC_FILES = pkgs.writeText "gtkrc-2.0" (
+    lib.generators.toGtk2 settings
+  );
 }

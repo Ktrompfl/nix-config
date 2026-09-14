@@ -97,6 +97,50 @@ in
       };
     };
 
+  # A profile's containers.json, from `{ <name> = { id; color; icon; }; }`.
+  #
+  # Firefox keeps two private contexts of its own in this file and recreates
+  # them when they are missing, taking ownership of it in the process. It also
+  # writes the file compact and as version 5, so a pretty-printed one is
+  # rewritten on first start; matching both keeps it stable.
+  toFirefoxContainers =
+    containers:
+    let
+      internal =
+        map
+          (context: {
+            accessKey = "";
+            color = "";
+            icon = "";
+            public = false;
+            inherit (context) name userContextId;
+          })
+          [
+            {
+              name = "userContextIdInternal.thumbnail";
+              userContextId = 4294967294;
+            }
+            {
+              name = "userContextIdInternal.webextStorageLocal";
+              userContextId = 4294967295;
+            }
+          ];
+
+      declared = mapAttrsToList (name: container: {
+        userContextId = container.id;
+        public = true;
+        inherit (container) icon color;
+        name = container.name or name;
+      }) containers;
+    in
+    builtins.toJSON {
+      version = 5;
+      # The highest id handed out so far, not a count: Firefox allocates the
+      # next container from it.
+      lastUserContextId = lib.foldl' lib.max 0 (mapAttrsToList (_: c: c.id) containers);
+      identities = declared ++ internal;
+    };
+
   # ~/.gtkrc-2.0, where string values are quoted but numbers, booleans and the
   # GTK_* enum constants are bare.
   toGtk2 =

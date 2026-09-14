@@ -158,8 +158,9 @@ in
     );
 
     # julia installs its apps here; PATH cannot come from environment.d
-    "fish/conf.d/10-julia.fish".source =
-      pkgs.writers.writeFish "10-julia.fish" "fish_add_path --append $HOME/.julia/bin";
+    "fish/conf.d/10-julia.fish".source = pkgs.writers.writeFish "10-julia.fish" (
+      "fish_add_path --append ${config.xdg.data.directory}/julia/bin"
+    );
 
     "direnv/lib/nix-direnv.sh".source = "${pkgs.nix-direnv}/share/nix-direnv/direnvrc";
   };

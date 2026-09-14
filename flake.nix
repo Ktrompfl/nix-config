@@ -32,6 +32,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    jail.url = "sourcehut:~alexdavid/jail.nix";
+
     jay = {
       url = "github:mahkoh/jay";
       inputs = {

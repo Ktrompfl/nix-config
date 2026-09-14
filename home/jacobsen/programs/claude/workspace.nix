@@ -1,11 +1,12 @@
 { config, osConfig, ... }:
 let
+  agentHome = ".local/state/claude/home";
   stateHome = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}";
 
   workspace = "${stateHome}/.local/state/claude/workspace";
 in
 {
-  files.".claude/settings.json".value = {
+  files."${agentHome}/settings.json".value = {
     env.TMPDIR = workspace;
 
     sandbox.filesystem = {
@@ -23,23 +24,25 @@ in
         "${stateHome}/.config/direnv"
         "~/.config/git"
         "~/.config/direnv"
-        "~/.cargo"
+        "${stateHome}/.local/share/cargo"
       ];
 
+      # nix, uv and ruff all honour XDG_CACHE_HOME, which desktop/xdg.nix
+      # points at ~/.local/cache; ~/.cache is not used and is not preserved.
       allowWrite = [
         workspace
-        "~/.cache/nix"
-        "~/.cargo"
-        "~/.cache/uv"
-        "~/.cache/ruff"
-        "~/.julia"
+        "~/.local/cache/nix"
+        "~/.local/cache/uv"
+        "~/.local/cache/ruff"
+        "${stateHome}/.local/share/cargo"
+        "~/.local/share/julia"
       ];
     };
 
     permissions.additionalDirectories = [ workspace ];
   };
 
-  files.".claude/CLAUDE.md".text = ''
+  files."${agentHome}/CLAUDE.md".text = ''
     # Scratch files
 
     `/tmp` and `/var/tmp` are a 2 GB tmpfs shared with the root filesystem.
@@ -48,6 +51,9 @@ in
     on disk and cleaned after 7 days. Never pass `/tmp` as an output
     directory.
   '';
+
+  # Claude reads its own state from here rather than from ~/.claude.
+  environment.sessionVariables.CLAUDE_CONFIG_DIR = "${config.directory}/${agentHome}";
 
   systemd.tmpfiles.rules = [ "d ${workspace} 0700 - - 7d" ];
 }

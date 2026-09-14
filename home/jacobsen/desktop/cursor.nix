@@ -8,9 +8,7 @@ in
     cursor.package
   ];
 
-  # The cursor has to be visible to X11 clients under Xwayland too, which read
-  # it from ~/.icons rather than from the theme packages.
-  files.".icons/default/index.theme" = {
+  xdg.data.files."icons/default/index.theme" = {
     generator = lib.generators.toINI { };
 
     value."Icon Theme" = {

@@ -4,10 +4,8 @@
   pkgs,
   ...
 }:
-{
-  imports = [ inputs.spicetify-nix.hjemModules.default ];
-
-  programs.spicetify =
+let
+  spotify = inputs.spicetify-nix.lib.mkSpicetify pkgs (
     let
       spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
     in
@@ -54,7 +52,20 @@
         notification = base02;
         notification-error = base08;
       };
-    };
+    }
+  );
+in
+{
+  apps.spotify = {
+    package = spotify;
+    appId = "com.spotify.Client";
 
-  preservation.preserveAt.state-dir.directories = [ ".config/spotify" ];
+    jail.permissions =
+      c: with c; [
+        desktop
+        network
+        notifications
+        (mpris "spotify")
+      ];
+  };
 }

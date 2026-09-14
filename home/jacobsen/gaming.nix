@@ -1,12 +1,12 @@
-{ pkgs, ... }:
 {
   imports = [
+    ./apps/minecraft
     ./programs/minecraft
 
+    ./apps/moonlight.nix
+
+    ./programs/gpu-screen-recorder.nix
     ./programs/mangohud.nix
-    ./programs/moonlight.nix
     ./programs/steam.nix
   ];
-
-  packages = [ pkgs.gpu-screen-recorder-gtk ];
 }

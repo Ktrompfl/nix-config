@@ -1,9 +1,10 @@
 { config, osConfig, ... }:
 let
-  credentials = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}/.claude/.credentials.json";
+  agentHome = ".local/state/claude/home";
+  credentials = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}/.local/state/claude/home/.credentials.json";
 in
 {
-  files.".claude/settings.json".value = {
+  files."${agentHome}/settings.json".value = {
     sandbox = {
       enabled = true;
       autoAllowBashIfSandboxed = true;

@@ -22,6 +22,7 @@
         how = "symlink";
         createLinkTarget = true;
       }
+      "/var/lib/hjem"
       {
         directory = "/var/lib/nixos";
         inInitrd = true;

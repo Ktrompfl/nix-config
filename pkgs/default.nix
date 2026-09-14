@@ -4,12 +4,9 @@ let
   jayScripts = callPackage ./jay-scripts { };
 in
 {
-  inherit (jayScripts)
-    jay-bar
-    jay-clipboard-history
-    jay-screenshot-edit
-    ;
+  inherit (jayScripts) jay-bar;
 
+  firefox-search = callPackage ./firefox-search.nix { };
   jay-config-lib = callPackage ./jay-config-lib { inherit inputs; };
   jay-session = callPackage ./jay-session.nix { };
   ninjabrain-box = callPackage ./ninjabrain-box { inherit inputs; };

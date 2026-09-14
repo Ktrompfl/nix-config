@@ -1,5 +1,5 @@
 {
-  graphicalService,
+  sandboxedService,
   lib,
   pkgs,
   ...
@@ -11,7 +11,7 @@ let
   };
 in
 {
-  systemd.services.wayland-pipewire-idle-inhibit = graphicalService "background" {
+  systemd.services.wayland-pipewire-idle-inhibit = sandboxedService "background" {
     description = "Inhibit idle when audio is playing";
     serviceConfig.ExecStart = "${lib.getExe pkgs.wayland-pipewire-idle-inhibit} --config ${settings}";
   };

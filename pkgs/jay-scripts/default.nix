@@ -1,16 +1,8 @@
 # Behaviour that both jay configurations need: the toml one in
 # home/jacobsen/wayland/jay and the shared library one in ../jay-config-lib.
-# Neither side reimplements what lives here, so both really do run the same
-# code; the toml side calls these by store path, the shared library by name
-# through `PATH`.
 {
-  cliphist,
   coreutils,
-  fuzzel,
-  jay-screenshot,
-  satty,
   systemd,
-  wl-clipboard,
   writeShellApplication,
 }:
 let
@@ -72,29 +64,6 @@ in
           ;;
         *) usage ;;
       esac
-    '';
-  };
-
-  jay-screenshot-edit = writeShellApplication {
-    name = "jay-screenshot-edit";
-    runtimeInputs = [
-      jay-screenshot
-      satty
-    ];
-    text = ''
-      jay-screenshot --type ppm --file - "$@" | satty --filename -
-    '';
-  };
-
-  jay-clipboard-history = writeShellApplication {
-    name = "jay-clipboard-history";
-    runtimeInputs = [
-      cliphist
-      fuzzel
-      wl-clipboard
-    ];
-    text = ''
-      cliphist list | fuzzel --dmenu --with-nth 2 | cliphist decode | wl-copy
     '';
   };
 }

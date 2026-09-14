@@ -1,17 +1,32 @@
 {
   config,
-  graphicalService,
   lib,
   pkgs,
+  sandboxedService,
   ...
 }:
 {
   packages = [ pkgs.swaynotificationcenter ];
 
   # notifications fail silently if this is killed
-  systemd.services.swaync = graphicalService "session" {
+  systemd.services.swaync = sandboxedService "session" {
     description = "Swaync notification daemon";
-    serviceConfig.ExecStart = lib.getExe' pkgs.swaynotificationcenter "swaync";
+
+    serviceConfig = {
+      ExecStart = lib.getExe' pkgs.swaynotificationcenter "swaync";
+
+      BindReadOnlyPaths = [
+        "${config.directory}/.config/swaync"
+
+        # notifications carry image paths, and the ones that are not inline
+        # point at whatever the sending application just downloaded or shot
+        "${config.directory}/Downloads"
+        "${config.directory}/Pictures"
+      ];
+
+      # notification history
+      BindPaths = [ "${config.directory}/.local/cache" ];
+    };
   };
 
   xdg.config.files = {

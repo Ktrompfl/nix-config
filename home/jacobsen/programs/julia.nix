@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 let
   # note: nix-ld is installed, so binary artifacts must not be patched on
   # installation; withPackages uses julia-bin underneath for that reason
@@ -13,7 +13,9 @@ in
     pkgs.runic
   ];
 
-  preservation.preserveAt.state-dir.directories = [ ".julia" ];
+  environment.sessionVariables.JULIA_DEPOT_PATH = "${config.xdg.data.directory}/julia";
+
+  preservation.preserveAt.state-dir.directories = [ ".local/share/julia" ];
 
   # jupyter kernel for zed repl
   xdg.data.files."jupyter/kernels/julia-nixpkgs/kernel.json" = {
@@ -35,7 +37,7 @@ in
     };
   };
 
-  files.".julia/config/startup.jl".text = /* julia */ ''
+  xdg.data.files."julia/config/startup.jl".text = /* julia */ ''
     try
         using Revise
     catch e

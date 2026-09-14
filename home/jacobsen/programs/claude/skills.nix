@@ -1,6 +1,9 @@
+let
+  agentHome = ".local/state/claude/home";
+in
 {
   files = {
-    ".claude/skills/ast-grep/SKILL.md".text = ''
+    "${agentHome}/skills/ast-grep/SKILL.md".text = ''
       ---
       name: ast-grep
       description: Use ast-grep for structural, language-aware code search instead of grep/manual file reads whenever navigating or refactoring code across a codebase. Triggers on "find all callers of X", "find every place that does Y pattern", "rename/refactor across files", "structural search", or before reaching for grep on anything more than a literal string. Falls back to ripgrep for pure text/comment/string searches ast-grep can't express.
@@ -50,7 +53,7 @@
       - `-l <lang>` is optional (ast-grep infers it from the file extension) but pin it when scanning mixed-language directories to avoid cross-language false matches.
     '';
 
-    ".claude/skills/conventional-commits/SKILL.md".text = ''
+    "${agentHome}/skills/conventional-commits/SKILL.md".text = ''
       ---
       name: conventional-commits
       description: Use when writing a git commit message in this repo. Produces a compact Conventional Commits header (and only a body/footer when one is actually needed) without the token overhead of a full commit-message essay. Triggers whenever the user asks to commit, write a commit message, or follow conventional commits.

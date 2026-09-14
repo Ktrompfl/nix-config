@@ -180,7 +180,7 @@ let
     # file -- and the declarative value wins again at the next launch.
     ++ mapAttrsToList (
       path: file:
-      add-runtime "install -D -m${file.mode} ${contentsOf path file} ${escapeShellArg "${storage}/${path}"}"
+      add-runtime "install -D -m${file.mode} ${escapeShellArg "${contentsOf path file}"} ${escapeShellArg "${storage}/${path}"}"
     ) managed
 
     # The jail clears the environment, so anything the session sets for the

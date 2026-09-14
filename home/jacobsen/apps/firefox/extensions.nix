@@ -251,15 +251,16 @@ in
   ) addons;
 
   apps.firefox.files =
-    # The xpis are never rewritten and are large enough that seeding a copy of
-    # each one before every launch would be noticeable.
+    # Seeded rather than bound, even though nothing rewrites them. A bind only
+    # exists inside the jail, so on disk the profile holds an empty file where
+    # the xpi should be -- and Firefox records a signature verdict keyed on the
+    # file's mtime, which for a store path never changes, so a verdict reached
+    # once is never revisited. Copying gives the profile real content and a
+    # fresh mtime on every launch, which is what lets Firefox re-verify.
     lib.listToAttrs (
       map (addon: {
         name = "${profile}/extensions/${addon.package.addonId}.xpi";
-        value = {
-          source = "${addon.package}/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/${addon.package.addonId}.xpi";
-          mutable = false;
-        };
+        value.source = "${addon.package}/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/${addon.package.addonId}.xpi";
       }) addons
     )
     // lib.listToAttrs (

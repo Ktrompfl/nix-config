@@ -2,14 +2,15 @@
   config,
   lib,
   pkgs,
-  sandboxedService,
   ...
 }:
 {
   packages = [ pkgs.swaynotificationcenter ];
 
   # notifications fail silently if this is killed
-  systemd.services.swaync = sandboxedService "session" {
+  wayland.services.swaync = {
+    slice = "session";
+
     description = "Swaync notification daemon";
 
     serviceConfig = {

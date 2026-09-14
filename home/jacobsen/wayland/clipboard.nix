@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  sandboxedService,
   ...
 }:
 let
@@ -14,10 +13,14 @@ let
   database.BindPaths = [ "${config.directory}/.local/cache" ];
 in
 {
-  packages = [ pkgs.cliphist ];
+  packages = [
+    pkgs.cliphist
+    pkgs.wl-clipboard
+    pkgs.wl-clip-persist
+  ];
 
-  systemd.services = {
-    cliphist = sandboxedService "background" {
+  wayland.services = {
+    cliphist = {
       description = "Clipboard management daemon";
       serviceConfig = {
         ExecStart = "${wl-paste} --watch ${store}";
@@ -25,12 +28,17 @@ in
       };
     };
 
-    cliphist-images = sandboxedService "background" {
+    cliphist-images = {
       description = "Clipboard management daemon for images";
       serviceConfig = {
         ExecStart = "${wl-paste} --type image --watch ${store}";
         inherit (database) BindPaths;
       };
+    };
+
+    wl-clip-persist = {
+      description = "Wayland clipboard persistence daemon";
+      serviceConfig.ExecStart = "${lib.getExe pkgs.wl-clip-persist} --clipboard regular";
     };
   };
 }

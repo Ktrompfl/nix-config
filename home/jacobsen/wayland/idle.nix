@@ -4,6 +4,9 @@
   pkgs,
   ...
 }:
+let
+  lock = "${lib.getExe pkgs.swaylock} --daemonize";
+in
 {
   packages = [ pkgs.swaylock ];
 
@@ -42,5 +45,34 @@
       ignore-empty-password = true;
       line-uses-inside = true;
     };
+  };
+
+  wayland.services = {
+    swayidle = {
+      description = "Idle manager for Wayland";
+      sandbox = false;
+      serviceConfig = {
+        Environment = [ "PATH=${lib.makeBinPath [ pkgs.bash ]}" ];
+        ExecStart = lib.concatStringsSep " " [
+          (lib.getExe pkgs.swayidle)
+          "-w"
+          "lock '${lock}'"
+          "before-sleep '${lock}'"
+        ];
+      };
+      slice = "session";
+    };
+
+    wayland-pipewire-idle-inhibit =
+      let
+        settings = (pkgs.formats.toml { }).generate "wayland-pipewire-idle-inhibit.toml" {
+          verbosity = "INFO";
+          media_minimum_duration = 5;
+        };
+      in
+      {
+        description = "Inhibit idle when audio is playing";
+        serviceConfig.ExecStart = "${lib.getExe pkgs.wayland-pipewire-idle-inhibit} --config ${settings}";
+      };
   };
 }

@@ -1,7 +1,6 @@
 {
   imports = [
     ./apps/minecraft
-    ./programs/minecraft
 
     ./apps/moonlight.nix
 

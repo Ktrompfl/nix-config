@@ -1,7 +1,6 @@
 {
   imports = [
     ./desktop
-    ./services
     ./wayland
 
     # sandboxed through the apps module

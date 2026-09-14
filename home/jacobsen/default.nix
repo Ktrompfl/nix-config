@@ -5,7 +5,6 @@
 
     ./programs/btop.nix
     ./programs/fastfetch.nix
-    ./programs/gh.nix
     ./programs/git.nix
     ./programs/julia.nix
     ./programs/latex.nix

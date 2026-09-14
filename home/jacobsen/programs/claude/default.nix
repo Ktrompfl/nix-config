@@ -69,5 +69,4 @@ in
     };
   };
 
-  preservation.preserveAt.state-dir.directories = [ ".local/state/claude" ];
 }

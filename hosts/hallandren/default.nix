@@ -7,7 +7,6 @@
     ./hardware-configuration.nix
     ./filesystem
     ./network
-    # ./rocm.nix
   ];
 
   host = {

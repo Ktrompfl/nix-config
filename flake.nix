@@ -17,7 +17,10 @@
       flake = false;
     };
 
-    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
 
     git-hooks = {
       url = "github:cachix/git-hooks.nix";
@@ -93,119 +96,104 @@
   };
 
   outputs =
-    inputs@{
-      self,
-      nixpkgs,
-      systems,
-      ...
-    }:
+    inputs@{ flake-parts, nixpkgs, ... }:
     let
       inherit (nixpkgs) lib;
+
       generators = lib.generators // import ./lib/generators.nix { inherit lib; };
-      eachSystem = lib.genAttrs (import systems);
-
-      # nixpkgs with this flake's overlays applied. The `packages` output goes
-      # through it so that `nix build .#foo` and the hosts, which apply the
-      # same overlay in ./system, cannot disagree about what `foo` is.
-      pkgsFor =
-        system:
-        import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-          overlays = [ self.overlays.default ];
-        };
+      overlay = import ./overlays { inherit inputs; };
     in
-    {
-      # Run the hooks in a sandbox with 'nix flake check'.
-      # Read-only filesystem and no internet access.
-      checks = eachSystem (system: {
-        pre-commit-check = inputs.git-hooks.lib.${system}.run {
-          src = ./.;
-          hooks = {
-            nixfmt.enable = true;
-            # rustfmt.enable = true;
-            stylua.enable = true;
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      { withSystem, ... }:
+      let
+        mkHost =
+          system: modules:
+          lib.nixosSystem {
+            modules = [
+              ./home
+              ./system
+              { nixpkgs.pkgs = withSystem system ({ pkgs, ... }: pkgs); }
+            ]
+            ++ modules;
+            specialArgs = { inherit generators inputs; };
+          };
+      in
+      {
+        imports = [ inputs.git-hooks.flakeModule ];
+
+        systems = import inputs.systems;
+
+        perSystem =
+          {
+            config,
+            pkgs,
+            system,
+            ...
+          }:
+          {
+            _module.args.pkgs = import nixpkgs {
+              inherit system;
+              config.allowUnfree = true;
+              overlays = [ overlay ];
+            };
+
+            packages = lib.filterAttrs (_: lib.isDerivation) (import ./pkgs { inherit inputs pkgs; });
+
+            formatter = pkgs.nixfmt;
+
+            pre-commit.settings.hooks = {
+              nixfmt.enable = true;
+              # rustfmt.enable = true;
+              stylua.enable = true;
+            };
+
+            devShells = {
+              default = config.pre-commit.devShell;
+
+              rust =
+                let
+                  rustBin = inputs.rust-overlay.lib.mkRustBin { } pkgs;
+                in
+                pkgs.mkShell {
+                  buildInputs = [
+                    (rustBin.stable.latest.default.override {
+                      extensions = [
+                        "rust-src"
+                        "rustfmt"
+                        "clippy"
+                      ];
+                    })
+                  ];
+                };
+            };
+          };
+
+        flake = {
+          # Everything this flake adds to or changes about nixpkgs
+          overlays.default = overlay;
+
+          # Reusable nixos modules
+          nixosModules.default = import ./modules/nixos;
+
+          # Reusable hjem modules
+          hjemModules.default = import ./modules/hjem;
+
+          # NixOS configuration entrypoint
+          nixosConfigurations = {
+            # laptop
+            luthadel = mkHost "x86_64-linux" [
+              ./hosts/luthadel
+              ./home/graphical.nix
+            ];
+
+            # desktop
+            hallandren = mkHost "x86_64-linux" [
+              ./hosts/hallandren
+              ./home/graphical.nix
+              ./home/gaming.nix
+            ];
           };
         };
-      });
-
-      # Enter a development shell with 'nix develop'.
-      # The hooks will be installed automatically.
-      devShells = eachSystem (system: {
-        default =
-          let
-            pkgs = nixpkgs.legacyPackages.${system};
-            inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
-          in
-          pkgs.mkShell {
-            inherit shellHook;
-            buildInputs = enabledPackages;
-          };
-
-        rust =
-          let
-            pkgs = nixpkgs.legacyPackages.${system};
-            rustBin = inputs.rust-overlay.lib.mkRustBin { } pkgs;
-            rustToolchain = rustBin.stable.latest.default.override {
-              extensions = [
-                "rust-src"
-                "rustfmt"
-                "clippy"
-              ];
-            };
-          in
-          pkgs.mkShell {
-            buildInputs = [ rustToolchain ];
-          };
-      });
-
-      # Formatter for your nix files, available through 'nix fmt'
-      formatter = eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt);
-
-      # Your custom packages
-      # Accessible through 'nix build', 'nix shell', etc
-      packages = eachSystem (
-        system:
-        import ./pkgs {
-          inherit inputs;
-          pkgs = pkgsFor system;
-        }
-      );
-
-      # Everything this flake adds to or changes about nixpkgs
-      overlays.default = import ./overlays { inherit inputs; };
-
-      # Reusable nixos modules you might want to export
-      # These are usually stuff you would upstream into nixpkgs
-      nixosModules.default = import ./modules/nixos;
-
-      # Reusable hjem modules
-      hjemModules.default = import ./modules/hjem;
-
-      # NixOS configuration entrypoint
-      # Available through 'nixos-rebuild --flake .#your-hostname'
-      nixosConfigurations =
-        let
-          base = [
-            ./home
-            ./system
-          ];
-          graphical = [ ./home/graphical.nix ];
-          gaming = [ ./home/gaming.nix ];
-
-          mkHost =
-            modules:
-            lib.nixosSystem {
-              inherit modules;
-              specialArgs = { inherit generators inputs; };
-            };
-        in
-        {
-          # laptop
-          luthadel = mkHost (base ++ graphical ++ [ ./hosts/luthadel ]);
-
-          # desktop
-          hallandren = mkHost (base ++ graphical ++ gaming ++ [ ./hosts/hallandren ]);
-        };
-    };
+      }
+    );
 }

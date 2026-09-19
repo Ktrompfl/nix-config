@@ -1,3 +1,15 @@
+# Not imported by ./default.nix, and it no longer evaluates as written: ROCm on
+# the RX 7600 XT never worked well enough to keep, so ../../flake.nix now hands
+# every host the single nixpkgs instance built in `perSystem`. The nixpkgs
+# module asserts `nixpkgs.config == { }` whenever `nixpkgs.pkgs` is set, so the
+# `rocmSupport` line below would fail the assertion rather than be ignored.
+#
+# To use this again, either give hallandren its own nixpkgs (drop the
+# `nixpkgs.pkgs` line from `mkHost` and restore the `nixpkgs` block in
+# ../../system/default.nix), or -- cheaper, and the reason this is parked here
+# rather than deleted -- move ROCm into a project devshell flake that sets
+# `rocmSupport` in its own package set. The GPU notes below stay valid either
+# way.
 { pkgs, ... }:
 {
   environment.systemPackages = with pkgs.rocmPackages; [

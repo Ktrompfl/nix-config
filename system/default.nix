@@ -26,9 +26,4 @@
     info.enable = false;
     nixos.enable = false;
   };
-
-  nixpkgs = {
-    config.allowUnfree = true;
-    overlays = [ inputs.self.overlays.default ];
-  };
 }

@@ -2,6 +2,30 @@
 inputs.jail.lib.extend {
   inherit pkgs;
 
+  # jail.nix binds the runtime closure of everything it puts in the jail,
+  # shelling out to `nix-store --query --requisites` once per store symlink it
+  # walks. That was eight invocations at roughly 0.13s each -- most of a
+  # second added to every single launch -- to reconstruct something the store
+  # already is. Bind the store instead: it is world-readable on the host, so
+  # this gives away nothing the threat model cares about, and it makes every
+  # one of those queries redundant.
+  #
+  # The stub below leans on jail.nix internals: `runtime-deep-ro-bind` defines
+  # its shell helpers the first time it is composed, so calling it here on a
+  # path that cannot exist emits them without doing any work, and the closure
+  # walk can then be replaced before `gui`, `gpu` and `network` reach for it.
+  # If a future jail.nix renames that helper this stops taking effect and the
+  # launches get slow again -- it cannot break correctness, only speed.
+  basePermissions =
+    c: with c; [
+      base
+      fake-passwd
+
+      (unsafe-add-raw-args "--ro-bind /nix/store /nix/store")
+      (runtime-deep-ro-bind "/nonexistent-emits-the-helpers")
+      (add-runtime "bindNixStoreClosure() { :; }")
+    ];
+
   additionalCombinators =
     c: with c; rec {
       # xdg-desktop-portal identifies its caller by reading
@@ -19,10 +43,22 @@ inputs.jail.lib.extend {
               # gtk looks this up on every start and complains loudly when it
               # cannot reach it
               "org.a11y.Bus"
+
+              # a second instance reaches the first under a name below the
+              # application id, so it has to be able to call it as well
+              "${appId}.*"
             ];
             # GApplication and friends register themselves under their own
             # application id at startup and refuse to run when they cannot.
-            own = [ appId ];
+            # Firefox and Thunderbird additionally own a name below it, one
+            # per profile, and that is how a second invocation hands a url to
+            # the instance that is already running; without it every `firefox
+            # <url>` becomes a fresh process that finds the profile locked and
+            # gives up.
+            own = [
+              appId
+              "${appId}.*"
+            ];
           })
 
           (write-text "/.flatpak-info" ''
@@ -39,7 +75,37 @@ inputs.jail.lib.extend {
           (rw-bind (noescape "\"$XDG_RUNTIME_DIR/doc/by-app/${appId}\"") (
             noescape "\"$XDG_RUNTIME_DIR/doc\""
           ))
+
+          open-uri
         ];
+
+      # Electron and most toolkits open an external link by shelling out to
+      # `xdg-open`, which a jail has no reason to contain -- and the real one
+      # would be no use anyway, since it would look for a handler that is not
+      # in here either. Flatpak answers this with an `xdg-open` that forwards
+      # to the portal instead; do the same, so the host decides what opens the
+      # link and the jail never needs to see a browser.
+      open-uri = add-pkg-deps [
+        (pkgs.writeShellApplication {
+          name = "xdg-open";
+          runtimeInputs = [ pkgs.glib ];
+          text = ''
+            for target in "$@"; do
+              case "$target" in
+                *://*) uri="$target" ;;
+                /*) uri="file://$target" ;;
+                *) uri="file://$PWD/$target" ;;
+              esac
+
+              gdbus call --session \
+                --dest org.freedesktop.portal.Desktop \
+                --object-path /org/freedesktop/portal/desktop \
+                --method org.freedesktop.portal.OpenURI.OpenURI \
+                "" "$uri" "{}" >/dev/null
+            done
+          '';
+        })
+      ];
 
       # What any windowed application needs; the toolkit environment comes
       # from the module, which forwards it for every app.

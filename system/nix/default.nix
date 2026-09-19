@@ -1,4 +1,3 @@
-{ pkgs, ... }:
 {
   imports = [
     ./nh.nix
@@ -8,6 +7,4 @@
     ./settings.nix
     ./substituters.nix
   ];
-
-  nix.package = pkgs.lixPackageSets.stable.lix;
 }

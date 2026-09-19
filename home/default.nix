@@ -49,7 +49,7 @@ in
       user = "jacobsen";
       directory = "/home/jacobsen";
 
-      imports = [ ./jacobsen ];
+      imports = [ ./common ];
     };
   };
 

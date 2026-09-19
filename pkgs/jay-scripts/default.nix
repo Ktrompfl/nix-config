@@ -1,5 +1,5 @@
 # Behaviour that both jay configurations need: the toml one in
-# home/jacobsen/wayland/jay and the shared library one in ../jay-config-lib.
+# home/graphical/wayland/jay and the shared library one in ../jay-config-lib.
 {
   coreutils,
   systemd,
@@ -7,7 +7,7 @@
 }:
 let
   # The object paths of the two `custom_dbus` blocks that show compositor
-  # state. See ../../home/jacobsen/wayland/i3status-rust.nix for the
+  # state. See ../../home/graphical/wayland/status.nix for the
   # receiving end; it repeats the "off" icon as the format's fallback.
   modePath = "/mode";
   idleInhibitorPath = "/idle_inhibitor";

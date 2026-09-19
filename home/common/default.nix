@@ -1,0 +1,6 @@
+{
+  imports = [
+    ./programs
+    ./environment.nix
+  ];
+}

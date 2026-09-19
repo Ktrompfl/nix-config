@@ -1,3 +1,3 @@
 {
-  hjem.users.jacobsen.imports = [ ./jacobsen/graphical.nix ];
+  hjem.users.jacobsen.imports = [ ./graphical ];
 }

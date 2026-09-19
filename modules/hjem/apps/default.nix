@@ -178,9 +178,16 @@ let
     # rewrite it with any method it likes -- truncate, or write-and-rename,
     # which defeats both a symlink into the read-only store and a bind mounted
     # file -- and the declarative value wins again at the next launch.
+    #
+    # `-p` keeps the store's timestamp rather than stamping the copy with the
+    # time of the launch. Anything caching a verdict about a file keys it on
+    # the mtime, so without this the work is redone on every start: Firefox
+    # re-verified all seven extension signatures each launch, which is about
+    # three and a half seconds before it will so much as hand a url to the
+    # instance already running.
     ++ mapAttrsToList (
       path: file:
-      add-runtime "install -D -m${file.mode} ${escapeShellArg "${contentsOf path file}"} ${escapeShellArg "${storage}/${path}"}"
+      add-runtime "install -D -p -m${file.mode} ${escapeShellArg "${contentsOf path file}"} ${escapeShellArg "${storage}/${path}"}"
     ) managed
 
     # The jail clears the environment, so anything the session sets for the

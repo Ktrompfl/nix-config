@@ -100,11 +100,8 @@
       ...
     }:
     let
-      lib = nixpkgs.lib.extend (
-        final: prev: {
-          generators = prev.generators // import ./lib/generators.nix { lib = final; };
-        }
-      );
+      inherit (nixpkgs) lib;
+      generators = lib.generators // import ./lib/generators.nix { inherit lib; };
       eachSystem = lib.genAttrs (import systems);
 
       # nixpkgs with this flake's overlays applied. The `packages` output goes
@@ -200,7 +197,7 @@
             modules:
             lib.nixosSystem {
               inherit modules;
-              specialArgs = { inherit inputs; };
+              specialArgs = { inherit generators inputs; };
             };
         in
         {

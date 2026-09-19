@@ -1,4 +1,8 @@
-{ config, lib, ... }:
+{
+  config,
+  generators,
+  ...
+}:
 let
   inherit (config.theme) cursor icons;
 in
@@ -9,7 +13,7 @@ in
   ];
 
   xdg.data.files."icons/default/index.theme" = {
-    generator = lib.generators.toINI { };
+    generator = generators.toINI { };
 
     value."Icon Theme" = {
       Name = "Default";

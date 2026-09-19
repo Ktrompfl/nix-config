@@ -1,6 +1,6 @@
 {
   config,
-  lib,
+  generators,
   pkgs,
   ...
 }:
@@ -13,7 +13,7 @@
     '';
 
     "btop/themes/tinted.theme" = {
-      generator = lib.generators.toKeyValueLines {
+      generator = generators.toKeyValueLines {
         mkKey = key: "theme[${key}]";
         quote = true;
       };

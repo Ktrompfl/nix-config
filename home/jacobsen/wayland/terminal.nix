@@ -1,5 +1,6 @@
 {
   config,
+  generators,
   lib,
   osConfig,
   pkgs,
@@ -34,7 +35,7 @@ in
     );
 
     "foot/foot.ini" = {
-      generator = lib.generators.toINI { };
+      generator = generators.toINI { };
       value = {
         main = {
           shell = lib.getExe pkgs.fish;

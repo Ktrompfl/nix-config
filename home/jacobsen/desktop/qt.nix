@@ -1,5 +1,6 @@
 {
   config,
+  generators,
   lib,
   pkgs,
   ...
@@ -47,7 +48,7 @@ in
 
   xdg.config.files = {
     "Kvantum/kvantum.kvconfig" = {
-      generator = lib.generators.toINI { };
+      generator = generators.toINI { };
       value.General.theme = theme;
     };
 
@@ -55,12 +56,12 @@ in
     "Kvantum/${theme}/${theme}.svg".source = "${themePath}/${theme}.svg";
 
     "qt5ct/qt5ct.conf" = {
-      generator = lib.generators.toINI { };
+      generator = generators.toINI { };
       value = qtct;
     };
 
     "qt6ct/qt6ct.conf" = {
-      generator = lib.generators.toINI { };
+      generator = generators.toINI { };
       value = qtct;
     };
   };

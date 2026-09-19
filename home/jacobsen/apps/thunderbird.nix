@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  generators,
+  lib,
+  pkgs,
+  ...
+}:
 let
   profile = "jacobsen";
 
@@ -30,6 +35,7 @@ let
   };
 
   settings = {
+    "widget.use-xdg-desktop-portal.file-picker" = 1; # required inside jail
     "browser.display.use_system_colors" = true;
     "browser.display.document_color_use" = 2; # always use system colors, ignore contrast
     "mailnews.mark_message_read.auto" = false;
@@ -164,12 +170,12 @@ in
 
     files = {
       ".thunderbird/profiles.ini" = {
-        generator = lib.generators.toMozillaProfiles;
+        generator = generators.toMozillaProfiles;
         value.name = profile;
       };
 
       ".thunderbird/${profile}/user.js" = {
-        generator = lib.generators.toMozillaPrefs;
+        generator = generators.toMozillaPrefs;
         value = settings // accountPrefs;
       };
     };

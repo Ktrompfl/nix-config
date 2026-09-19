@@ -1,8 +1,12 @@
-{ config, lib, ... }:
+{
+  config,
+  generators,
+  ...
+}:
 {
   # matplotlibrc treats `#` as a comment, so colours are bare hex.
   xdg.config.files."matplotlib/matplotlibrc" = {
-    generator = lib.generators.toKeyValueLines { separator = ": "; };
+    generator = generators.toKeyValueLines { separator = ": "; };
 
     value = with config.theme.colors.withoutHashtag; {
       backend = "QtAgg";

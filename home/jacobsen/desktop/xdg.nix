@@ -1,4 +1,8 @@
-{ lib, pkgs, ... }:
+{
+  generators,
+  pkgs,
+  ...
+}:
 let
   directories = {
     XDG_DESKTOP_DIR = "/home/jacobsen/Desktop";
@@ -20,7 +24,7 @@ in
     # xdg-user-dirs reads the quoted form; the same paths are exported below
     # so that programs which only look at the environment agree with it.
     "user-dirs.dirs" = {
-      generator = lib.generators.toKeyValueLines { quote = true; };
+      generator = generators.toKeyValueLines { quote = true; };
       value = directories;
     };
 

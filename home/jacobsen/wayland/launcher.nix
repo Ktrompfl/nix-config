@@ -1,5 +1,6 @@
 {
   config,
+  generators,
   lib,
   pkgs,
   ...
@@ -8,7 +9,7 @@
   packages = [ pkgs.fuzzel ];
 
   xdg.config.files."fuzzel/fuzzel.ini" = {
-    generator = lib.generators.toINI { };
+    generator = generators.toINI { };
     value = {
       colors = with config.theme.colors; {
         background = opaque "background";

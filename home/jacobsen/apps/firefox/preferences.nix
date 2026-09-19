@@ -1,8 +1,12 @@
-{ config, lib, ... }:
+{
+  config,
+  generators,
+  ...
+}:
 {
   apps.firefox.files.".mozilla/firefox/default/user.js" = {
     mutable = false;
-    generator = lib.generators.toMozillaPrefs;
+    generator = generators.toMozillaPrefs;
 
     value = {
       # Without this the per-extension storage.js files ./extensions.nix

@@ -39,6 +39,7 @@ in
           "registry.npmjs.org"
           "pypi.org"
           "files.pythonhosted.org"
+          "packages.typst.org"
 
           "context7.com"
           "*.context7.com"

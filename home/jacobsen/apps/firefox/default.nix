@@ -1,4 +1,8 @@
-{ lib, pkgs, ... }:
+{
+  generators,
+  pkgs,
+  ...
+}:
 {
   imports = [
     ./engines.nix
@@ -23,12 +27,12 @@
 
     files = {
       ".mozilla/firefox/profiles.ini" = {
-        generator = lib.generators.toMozillaProfiles;
+        generator = generators.toMozillaProfiles;
         value.name = "default";
       };
 
       ".mozilla/firefox/default/containers.json" = {
-        generator = lib.generators.toFirefoxContainers;
+        generator = generators.toFirefoxContainers;
         value = {
           private = {
             id = 1;

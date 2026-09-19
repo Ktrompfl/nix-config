@@ -1,5 +1,6 @@
 {
   config,
+  generators,
   lib,
   pkgs,
   ...
@@ -79,12 +80,12 @@ in
 
   xdg.config.files = {
     "gtk-3.0/settings.ini" = {
-      generator = lib.generators.toGtkINI;
+      generator = generators.toGtkINI;
       value = settings;
     };
 
     "gtk-4.0/settings.ini" = {
-      generator = lib.generators.toGtkINI;
+      generator = generators.toGtkINI;
       value = settings;
     };
 
@@ -103,6 +104,6 @@ in
   };
 
   environment.sessionVariables.GTK2_RC_FILES = pkgs.writeText "gtkrc-2.0" (
-    lib.generators.toGtk2 settings
+    generators.toGtk2 settings
   );
 }

@@ -1,4 +1,8 @@
-{ lib, pkgs, ... }:
+{
+  generators,
+  pkgs,
+  ...
+}:
 let
   hosts = {
     "*" = {
@@ -53,7 +57,7 @@ in
   packages = [ pkgs.openssh ];
 
   files.".ssh/config" = {
-    generator = lib.generators.toSSHConfig;
+    generator = generators.toSSHConfig;
     value = hosts;
   };
 

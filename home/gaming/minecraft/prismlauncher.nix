@@ -1,5 +1,6 @@
 {
   config,
+  helpers,
   lib,
   osConfig,
   pkgs,
@@ -11,7 +12,6 @@ let
     concatMap
     concatStringsSep
     filter
-    generators
     getExe
     getLib
     listToAttrs
@@ -79,7 +79,7 @@ in
 
     files = {
       "${data}/PrismLauncher/prismlauncher.cfg" = {
-        generator = generators.toINI { };
+        generator = helpers.generators.toINI { };
         value.General = {
 
           AutoCloseConsole = false;

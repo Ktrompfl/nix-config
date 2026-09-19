@@ -1,5 +1,5 @@
 {
-  generators,
+  helpers,
   pkgs,
   ...
 }:
@@ -24,7 +24,7 @@ in
     # xdg-user-dirs reads the quoted form; the same paths are exported below
     # so that programs which only look at the environment agree with it.
     "user-dirs.dirs" = {
-      generator = generators.toKeyValueLines { quote = true; };
+      generator = helpers.generators.toKeyValueLines { quote = true; };
       value = directories;
     };
 

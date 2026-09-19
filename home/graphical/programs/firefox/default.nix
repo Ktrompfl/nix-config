@@ -1,5 +1,5 @@
 {
-  generators,
+  helpers,
   pkgs,
   ...
 }:
@@ -27,12 +27,12 @@
 
     files = {
       ".mozilla/firefox/profiles.ini" = {
-        generator = generators.toMozillaProfiles;
+        generator = helpers.generators.toMozillaProfiles;
         value.name = "default";
       };
 
       ".mozilla/firefox/default/containers.json" = {
-        generator = generators.toFirefoxContainers;
+        generator = helpers.generators.toFirefoxContainers;
         value = {
           private = {
             id = 1;

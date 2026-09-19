@@ -1,5 +1,5 @@
 {
-  generators,
+  helpers,
   pkgs,
   ...
 }:
@@ -57,7 +57,7 @@ in
   packages = [ pkgs.openssh ];
 
   files.".ssh/config" = {
-    generator = generators.toSSHConfig;
+    generator = helpers.generators.toSSHConfig;
     value = hosts;
   };
 

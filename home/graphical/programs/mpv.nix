@@ -1,6 +1,6 @@
 {
   config,
-  generators,
+  helpers,
   pkgs,
   ...
 }:
@@ -19,7 +19,7 @@ in
 
     files.".config/mpv/mpv.conf" = {
       mutable = false;
-      generator = generators.toKeyValueLines { quote = true; };
+      generator = helpers.generators.toKeyValueLines { quote = true; };
 
       value = {
         osd-font = fonts.sansSerif.name;

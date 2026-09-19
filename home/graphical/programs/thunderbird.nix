@@ -1,5 +1,5 @@
 {
-  generators,
+  helpers,
   lib,
   pkgs,
   ...
@@ -170,12 +170,12 @@ in
 
     files = {
       ".thunderbird/profiles.ini" = {
-        generator = generators.toMozillaProfiles;
+        generator = helpers.generators.toMozillaProfiles;
         value.name = profile;
       };
 
       ".thunderbird/${profile}/user.js" = {
-        generator = generators.toMozillaPrefs;
+        generator = helpers.generators.toMozillaPrefs;
         value = settings // accountPrefs;
       };
     };

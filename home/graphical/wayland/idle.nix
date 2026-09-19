@@ -1,6 +1,6 @@
 {
   config,
-  generators,
+  helpers,
   lib,
   pkgs,
   ...
@@ -12,7 +12,7 @@ in
   packages = [ pkgs.swaylock ];
 
   xdg.config.files."swaylock/config" = {
-    generator = generators.toKeyValueLines { flags = true; };
+    generator = helpers.generators.toKeyValueLines { flags = true; };
 
     value = with config.theme.colors.withoutHashtag; {
       color = base00;

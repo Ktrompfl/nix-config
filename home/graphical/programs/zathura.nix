@@ -1,6 +1,6 @@
 {
   config,
-  generators,
+  helpers,
   pkgs,
   ...
 }:
@@ -15,7 +15,7 @@ in
 
     files.".config/zathura/zathurarc" = {
       mutable = false;
-      generator = generators.toKeyValueLines {
+      generator = helpers.generators.toKeyValueLines {
         mkKey = key: "set ${key}";
         separator = "\t";
         quote = true;

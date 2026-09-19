@@ -91,7 +91,9 @@ let
   };
 in
 {
-  # The displays and which of them a workspace starts out on.
-  outputs = map (output: removeAttrs output [ "workspaces" ]) outputs;
-  workspaces = lib.genAttrs workspaceNames initialOutput;
+  xdg.config.files."jay/config.toml".value = {
+    # The displays and which of them a workspace starts out on.
+    outputs = map (output: removeAttrs output [ "workspaces" ]) outputs;
+    workspaces = lib.genAttrs workspaceNames initialOutput;
+  };
 }

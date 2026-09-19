@@ -1,17 +1,19 @@
-{ jayLib, ... }:
+{ helpers, ... }:
 {
-  # Compositor-wide behaviour that belongs to no particular device, window, or
-  # key.
-  window-management-key = "Super_L"; # logo uses different symbol names
+  xdg.config.files."jay/config.toml".value = {
+    # Compositor-wide behaviour that belongs to no particular device, window, or
+    # key.
+    window-management-key = "Super_L"; # logo uses different symbol names
 
-  focus-follows-mouse = true;
-  unstable-mouse-follows-focus = true;
-  fallback-output-mode = "focus"; # more useful with mouse-follows-focus
-  workspace-display-order = "sorted";
-  middle-click-paste = false;
-  show-titles = true;
-  split-reuses-container = true;
+    focus-follows-mouse = true;
+    unstable-mouse-follows-focus = true;
+    fallback-output-mode = "focus"; # more useful with mouse-follows-focus
+    workspace-display-order = "sorted";
+    middle-click-paste = false;
+    show-titles = true;
+    split-reuses-container = true;
 
-  idle = jayLib.idle;
-  on-idle = "$suspend";
+    idle = helpers.jay.idle;
+    on-idle = "$suspend";
+  };
 }

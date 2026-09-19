@@ -1,12 +1,12 @@
 {
   config,
-  jayLib,
   lib,
   pkgs,
+  helpers,
   ...
 }:
 let
-  inherit (jayLib)
+  inherit (helpers.jay)
     bar
     exec
     moveToOutput
@@ -228,144 +228,146 @@ let
   ];
 in
 {
-  # Everything that is bound to a key, including the input modes.
+  xdg.config.files."jay/config.toml".value = {
+    # Everything that is bound to a key, including the input modes.
 
-  # Everything that is worth holding down rather than tapping: navigating
-  # focus, dragging a window or workspace along, and stepping the volume.
-  # Repeating is the only reason these are complex shortcuts.
-  complex-shortcuts = repeating (
-    dirBindings "${modifier}-" (dir: "focus-${dir}")
-    // dirBindings "${modifier}-shift-" (dir: "move-${dir}")
-    // dirBindings "${modifier}-shift-ctrl-" (dir: moveToOutput { direction = dir; })
-    // {
-      # focus
-      "${modifier}-Tab" = "focus-next";
-      "${modifier}-shift-Tab" = "focus-prev";
-      "${modifier}-Prior" = "focus-above"; # layer above
-      "${modifier}-Next" = "focus-below"; # layer below
-      "${modifier}-g" = "focus-parent";
+    # Everything that is worth holding down rather than tapping: navigating
+    # focus, dragging a window or workspace along, and stepping the volume.
+    # Repeating is the only reason these are complex shortcuts.
+    complex-shortcuts = repeating (
+      dirBindings "${modifier}-" (dir: "focus-${dir}")
+      // dirBindings "${modifier}-shift-" (dir: "move-${dir}")
+      // dirBindings "${modifier}-shift-ctrl-" (dir: moveToOutput { direction = dir; })
+      // {
+        # focus
+        "${modifier}-Tab" = "focus-next";
+        "${modifier}-shift-Tab" = "focus-prev";
+        "${modifier}-Prior" = "focus-above"; # layer above
+        "${modifier}-Next" = "focus-below"; # layer below
+        "${modifier}-g" = "focus-parent";
 
-      # audio (wireplumber)
-      XF86AudioRaiseVolume = exec [
-        "wpctl"
-        "set-volume"
-        "@DEFAULT_AUDIO_SINK@"
-        "5%+"
-        "--limit"
-        "1.5"
-      ];
-      XF86AudioLowerVolume = exec [
-        "wpctl"
-        "set-volume"
-        "@DEFAULT_AUDIO_SINK@"
-        "5%-"
-        "--limit"
-        "0.0"
-      ];
-    }
-  );
+        # audio (wireplumber)
+        XF86AudioRaiseVolume = exec [
+          "wpctl"
+          "set-volume"
+          "@DEFAULT_AUDIO_SINK@"
+          "5%+"
+          "--limit"
+          "1.5"
+        ];
+        XF86AudioLowerVolume = exec [
+          "wpctl"
+          "set-volume"
+          "@DEFAULT_AUDIO_SINK@"
+          "5%-"
+          "--limit"
+          "0.0"
+        ];
+      }
+    );
 
-  shortcuts =
-    vtBindings
-    // workspaceBindings
-    // modeConfig.shortcuts
-    // {
-      # compositor
-      "${modifier}-shift-q" = "quit";
-      # a reload restarts the status program, losing the pushed blocks
-      "${modifier}-shift-r" = [
-        "reload-config-toml"
-        bar.init
-      ];
+    shortcuts =
+      vtBindings
+      // workspaceBindings
+      // modeConfig.shortcuts
+      // {
+        # compositor
+        "${modifier}-shift-q" = "quit";
+        # a reload restarts the status program, losing the pushed blocks
+        "${modifier}-shift-r" = [
+          "reload-config-toml"
+          bar.init
+        ];
 
-      # windows
-      "${modifier}-q" = "close";
-      "${modifier}-f" = "toggle-fullscreen";
-      "${modifier}-space" = "toggle-floating";
-      "${modifier}-n" = {
-        type = "toggle-mono";
-        target = "auto";
+        # windows
+        "${modifier}-q" = "close";
+        "${modifier}-f" = "toggle-fullscreen";
+        "${modifier}-space" = "toggle-floating";
+        "${modifier}-n" = {
+          type = "toggle-mono";
+          target = "auto";
+        };
+        "${modifier}-v" = {
+          type = "toggle-split";
+          target = "auto";
+        };
+        "${modifier}-b" = "split-major";
+        "${modifier}-Escape" = "disable-pointer-constraint";
+        "${modifier}-t" = "show-titles";
+        "${modifier}-shift-t" = "hide-titles";
+
+        "${modifier}-y" = "tile-major";
+        "${modifier}-shift-y" = "split-major";
+
+        # focus
+        "${modifier}-Delete" = "focus-tiles";
+        "${modifier}-c" = "warp-mouse-to-focus";
+
+        # audio (wireplumber)
+        XF86AudioMute = exec [
+          "wpctl"
+          "set-mute"
+          "@DEFAULT_AUDIO_SINK@"
+          "toggle"
+        ];
+        XF86AudioMicMute = exec [
+          "wpctl"
+          "set-mute"
+          "@DEFAULT_AUDIO_SOURCE@"
+          "toggle"
+        ];
+
+        # player
+        XF86AudioPlay = exec [
+          (lib.getExe pkgs.playerctl)
+          "play-pause"
+        ];
+        XF86AudioPause = exec [
+          (lib.getExe pkgs.playerctl)
+          "play-pause"
+        ];
+        XF86AudioNext = exec [
+          (lib.getExe pkgs.playerctl)
+          "next"
+        ];
+        XF86AudioPrev = exec [
+          (lib.getExe pkgs.playerctl)
+          "previous"
+        ];
+        XF86AudioStop = exec [
+          (lib.getExe pkgs.playerctl)
+          "stop"
+        ];
+
+        # screenshot
+        "${modifier}-s" = screenshotOf "output";
+        "${modifier}-shift-s" = screenshotOf "window";
+        "${modifier}-ctrl-s" = screenshotOf "workspace";
+
+        # launch
+        "${modifier}-Return" = exec [
+          "runapp"
+          "footclient"
+        ];
+        "${modifier}-shift-Return" = exec [
+          "runapp"
+          "foot"
+        ];
+        "${modifier}-d" = exec "fuzzel";
+        "${modifier}-a" = exec [
+          "swaync-client"
+          "-t"
+        ];
+        "${modifier}-shift-v" = bash (
+          lib.concatStringsSep " | " [
+            "${lib.getExe pkgs.cliphist} list"
+            "${lib.getExe pkgs.fuzzel} --dmenu --with-nth 2"
+            "${lib.getExe pkgs.cliphist} decode"
+            (lib.getExe' pkgs.wl-clipboard "wl-copy")
+          ]
+        );
       };
-      "${modifier}-v" = {
-        type = "toggle-split";
-        target = "auto";
-      };
-      "${modifier}-b" = "split-major";
-      "${modifier}-Escape" = "disable-pointer-constraint";
-      "${modifier}-t" = "show-titles";
-      "${modifier}-shift-t" = "hide-titles";
 
-      "${modifier}-y" = "tile-major";
-      "${modifier}-shift-y" = "split-major";
-
-      # focus
-      "${modifier}-Delete" = "focus-tiles";
-      "${modifier}-c" = "warp-mouse-to-focus";
-
-      # audio (wireplumber)
-      XF86AudioMute = exec [
-        "wpctl"
-        "set-mute"
-        "@DEFAULT_AUDIO_SINK@"
-        "toggle"
-      ];
-      XF86AudioMicMute = exec [
-        "wpctl"
-        "set-mute"
-        "@DEFAULT_AUDIO_SOURCE@"
-        "toggle"
-      ];
-
-      # player
-      XF86AudioPlay = exec [
-        (lib.getExe pkgs.playerctl)
-        "play-pause"
-      ];
-      XF86AudioPause = exec [
-        (lib.getExe pkgs.playerctl)
-        "play-pause"
-      ];
-      XF86AudioNext = exec [
-        (lib.getExe pkgs.playerctl)
-        "next"
-      ];
-      XF86AudioPrev = exec [
-        (lib.getExe pkgs.playerctl)
-        "previous"
-      ];
-      XF86AudioStop = exec [
-        (lib.getExe pkgs.playerctl)
-        "stop"
-      ];
-
-      # screenshot
-      "${modifier}-s" = screenshotOf "output";
-      "${modifier}-shift-s" = screenshotOf "window";
-      "${modifier}-ctrl-s" = screenshotOf "workspace";
-
-      # launch
-      "${modifier}-Return" = exec [
-        "runapp"
-        "footclient"
-      ];
-      "${modifier}-shift-Return" = exec [
-        "runapp"
-        "foot"
-      ];
-      "${modifier}-d" = exec "fuzzel";
-      "${modifier}-a" = exec [
-        "swaync-client"
-        "-t"
-      ];
-      "${modifier}-shift-v" = bash (
-        lib.concatStringsSep " | " [
-          "${lib.getExe pkgs.cliphist} list"
-          "${lib.getExe pkgs.fuzzel} --dmenu --with-nth 2"
-          "${lib.getExe pkgs.cliphist} decode"
-          (lib.getExe' pkgs.wl-clipboard "wl-copy")
-        ]
-      );
-    };
-
-  inherit (modeConfig) modes;
+    inherit (modeConfig) modes;
+  };
 }

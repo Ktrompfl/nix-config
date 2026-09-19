@@ -1,6 +1,6 @@
 {
   config,
-  generators,
+  helpers,
   pkgs,
   ...
 }:
@@ -9,7 +9,7 @@ let
 in
 {
   environment.sessionVariables.XENVIRONMENT = pkgs.writeText "Xresources" (
-    generators.toKeyValueLines { separator = ": "; } (
+    helpers.generators.toKeyValueLines { separator = ": "; } (
       with colors.withHashtag;
       {
         "*.faceName" = fonts.monospace.name;

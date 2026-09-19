@@ -1,6 +1,6 @@
 {
   config,
-  generators,
+  helpers,
   ...
 }:
 let
@@ -13,7 +13,7 @@ in
   ];
 
   xdg.data.files."icons/default/index.theme" = {
-    generator = generators.toINI { };
+    generator = helpers.generators.toINI { };
 
     value."Icon Theme" = {
       Name = "Default";

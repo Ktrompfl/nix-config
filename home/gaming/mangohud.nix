@@ -1,6 +1,6 @@
 {
   config,
-  generators,
+  helpers,
   pkgs,
   ...
 }:
@@ -8,7 +8,7 @@
   packages = [ pkgs.mangohud ];
 
   xdg.config.files."MangoHud/MangoHud.conf" = {
-    generator = generators.toKeyValueLines { flags = true; };
+    generator = helpers.generators.toKeyValueLines { flags = true; };
 
     value = with config.theme.colors.withoutHashtag; {
       alpha = "1.000000";

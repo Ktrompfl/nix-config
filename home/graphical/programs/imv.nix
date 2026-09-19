@@ -1,6 +1,6 @@
 {
   config,
-  generators,
+  helpers,
   pkgs,
   ...
 }:
@@ -9,7 +9,7 @@
     package = pkgs.imv;
 
     files.".config/imv/config" = {
-      generator = generators.toINI { };
+      generator = helpers.generators.toINI { };
       value.options.background = config.theme.colors.withoutHashtag.base00;
       mutable = false;
     };

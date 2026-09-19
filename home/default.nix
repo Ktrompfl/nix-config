@@ -1,6 +1,6 @@
 {
   config,
-  generators,
+  helpers,
   inputs,
   lib,
   ...
@@ -40,7 +40,7 @@ in
   hjem = {
     clobberByDefault = false;
 
-    specialArgs = { inherit generators inputs; };
+    specialArgs = { inherit helpers inputs; };
 
     extraModules = [ inputs.self.hjemModules.default ];
 

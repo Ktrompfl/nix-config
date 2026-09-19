@@ -100,7 +100,6 @@
     let
       inherit (nixpkgs) lib;
 
-      generators = lib.generators // import ./lib/generators.nix { inherit lib; };
       overlay = import ./overlays { inherit inputs; };
     in
     flake-parts.lib.mkFlake { inherit inputs; } (
@@ -108,15 +107,21 @@
       let
         mkHost =
           system: modules:
-          lib.nixosSystem {
-            modules = [
-              ./home
-              ./system
-              { nixpkgs.pkgs = withSystem system ({ pkgs, ... }: pkgs); }
-            ]
-            ++ modules;
-            specialArgs = { inherit generators inputs; };
-          };
+          withSystem system (
+            { pkgs, ... }:
+            lib.nixosSystem {
+              modules = [
+                ./home
+                ./system
+                { nixpkgs.pkgs = pkgs; }
+              ]
+              ++ modules;
+              specialArgs = {
+                inherit inputs;
+                helpers = import ./lib { inherit lib pkgs; };
+              };
+            }
+          );
       in
       {
         imports = [ inputs.git-hooks.flakeModule ];

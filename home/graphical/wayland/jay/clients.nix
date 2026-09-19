@@ -25,9 +25,11 @@ let
   };
 in
 {
-  # The wayland protocols each client is allowed to use.
-  clients = lib.mapAttrsToList (pattern: capabilities: {
-    match.exe-regex = "/\\.?(${pattern})(-wrapped)?$";
-    inherit capabilities;
-  }) clientCapabilities;
+  xdg.config.files."jay/config.toml".value = {
+    # The wayland protocols each client is allowed to use.
+    clients = lib.mapAttrsToList (pattern: capabilities: {
+      match.exe-regex = "/\\.?(${pattern})(-wrapped)?$";
+      inherit capabilities;
+    }) clientCapabilities;
+  };
 }

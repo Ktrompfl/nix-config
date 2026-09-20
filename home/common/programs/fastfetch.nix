@@ -10,7 +10,6 @@
     value.modules = [
       "title"
       "separator"
-      "os"
       "host"
       "kernel"
       "uptime"
@@ -31,8 +30,6 @@
       "swap"
       "disk"
       "wifi"
-      "localip"
-      "publicip"
       "battery"
       "poweradapter"
       "break"

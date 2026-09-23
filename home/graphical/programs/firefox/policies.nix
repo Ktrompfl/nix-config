@@ -1,10 +1,9 @@
 { pkgs, ... }:
 {
-  programs.firefox = {
-    enable = true;
-    nativeMessagingHosts.packages = [ pkgs.tridactyl-native ];
+  apps.firefox.package = pkgs.firefox.override {
+    nativeMessagingHosts = [ pkgs.tridactyl-native ];
 
-    policies = {
+    extraPolicies = {
       # debloat
       AppAutoUpdate = false;
       CaptivePortal = false;

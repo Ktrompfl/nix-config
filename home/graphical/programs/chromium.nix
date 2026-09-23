@@ -1,4 +1,11 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
+let
+  policies = "/etc/chromium/policies/managed/extra.json";
+
+  extra = (pkgs.formats.json { }).generate "chromium-policies.json" {
+    BrowserThemeColor = config.theme.colors.withHashtag.base00;
+  };
+in
 {
   apps.chromium = {
     package = pkgs.chromium.override { enableWideVine = true; };
@@ -12,6 +19,8 @@
         desktop
         network
         notifications
+
+        (ro-bind "${extra}" policies)
       ];
   };
 }

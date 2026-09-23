@@ -1,18 +1,14 @@
-{
-  helpers,
-  pkgs,
-  ...
-}:
+{ helpers, ... }:
 {
   imports = [
     ./engines.nix
     ./extensions.nix
+    ./policies.nix
     ./preferences.nix
     ./user-chrome.nix
   ];
 
   apps.firefox = {
-    package = pkgs.firefox;
     appId = "org.mozilla.firefox";
 
     # downloads are written straight to disk; uploads go through the portal

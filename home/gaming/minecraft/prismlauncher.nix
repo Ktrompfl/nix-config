@@ -58,6 +58,9 @@ in
         libxt
         libxinerama
       ];
+      additionalPrograms = with pkgs; [
+        waywall
+      ];
       jdks = with pkgs; [
         temurin-bin-21
       ];
@@ -69,11 +72,17 @@ in
       c: with c; [
         desktop
         network
+
+        # bind waywall config directly from this repository to immediately reflect edits, instead of linking an immutable config in store
+        (ro-bind "/persist/nixos/home/gaming/minecraft/waywall" "${config.directory}/.config/waywall")
       ];
 
     # the worlds the links below point at are shared between instances, so the
     # launcher never creates this itself
-    directories = [ "${data}/${shared}" ];
+    directories = [
+      ".config"
+      "${data}/${shared}"
+    ];
 
     links = worldLinks;
 

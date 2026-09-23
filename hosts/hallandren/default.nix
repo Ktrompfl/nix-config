@@ -52,7 +52,6 @@
     piper.enable = true;
     steam.enable = true;
     via.enable = true;
-    waywall.enable = true;
 
     # wayland session
     jay = {

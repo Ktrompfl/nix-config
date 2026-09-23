@@ -1,12 +1,6 @@
 { pkgs, ... }:
 {
-  # fish is configured per user; enabling it here is still required for completions
-  programs.fish = {
-    enable = true;
-    interactiveShellInit = ''
-      set fish_greeting # disable greeting
-    '';
-  };
+  programs.fish.enable = true;
 
   # Using fish as the the login shell can cause compatibility issues. For example, certain recovery environments such as systemd's emergency mode to be completely broken when fish was set as the login shell.
   # Note: Lix forks before spawning the shell process so the parent process ends up being nix-shell and not fish.

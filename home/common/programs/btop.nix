@@ -5,7 +5,7 @@
   ...
 }:
 {
-  packages = [ pkgs.btop ];
+  packages = [ pkgs.btop-rocm ];
 
   xdg.config.files = {
     "btop/btop.conf".text = ''

@@ -26,5 +26,5 @@
     };
   };
 
-  sops.secrets."api-keys/context7" = { };
+  sops.secrets."api-keys/context7".owner = "jacobsen"; # read by the claude mcp wrapper
 }

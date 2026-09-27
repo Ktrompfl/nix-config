@@ -1,15 +1,10 @@
 {
   config,
-  inputs,
   lib,
   pkgs,
   ...
 }:
 let
-  claudeCode = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
-
-  agentHome = ".local/state/claude/home";
-
   settings = {
     buffer_font_family = config.theme.fonts.monospace.name;
     buffer_font_size = 16;
@@ -35,23 +30,8 @@ let
       "xml" = true;
     };
 
-    agent = {
-      dock = "right";
-      show_turn_stats = true;
-      sidebar_side = "right";
-    };
-    agent_servers = {
-      claude-acp = {
-        # type = "registry"; # latest, standalone acp adapter
-        type = "custom";
-        command = lib.getExe inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-agent-acp;
-        env = {
-          # use wrapped claude code package to make configured plugins (e.g. language servers) available
-          CLAUDE_CODE_EXECUTABLE = lib.getExe claudeCode;
-          TMPDIR = config.files."${agentHome}/settings.json".value.env.TMPDIR;
-        };
-      };
-    };
+    # claude is used externally
+    disable_ai = true;
     auto_signature_help = true;
     auto_update = false;
     autosave = "on_focus_change";

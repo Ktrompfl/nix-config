@@ -38,7 +38,7 @@ in
   imports = [ inputs.hjem.nixosModules.default ];
 
   hjem = {
-    clobberByDefault = false;
+    clobberByDefault = true;
 
     specialArgs = { inherit helpers inputs; };
 

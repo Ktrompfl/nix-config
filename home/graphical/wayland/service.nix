@@ -79,10 +79,20 @@ let
             RestrictAddressFamilies = mkDefault [ "AF_UNIX" ];
 
             SystemCallArchitectures = mkDefault "native";
+            # Thread libraries tune their own threads through two calls in
+            # `~@resources`, which kills the whole process with SIGSYS: GTK's
+            # GPU driver drops its workers to SCHED_IDLE and pins them to a
+            # cache domain (sched_setscheduler, sched_setaffinity), and
+            # libpipewire asks for its data thread's policy the same way. Both
+            # are let back in. RestrictRealtime still refuses the realtime
+            # policies, and without CAP_SYS_NICE a thread can only lower its
+            # own priority or move within the CPUs it already has.
             SystemCallFilter = mkDefault [
               "@system-service"
               "~@privileged"
               "~@resources"
+              "sched_setscheduler"
+              "sched_setaffinity"
             ];
 
             UMask = mkDefault "0077";

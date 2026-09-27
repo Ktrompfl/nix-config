@@ -9,42 +9,10 @@
 
   # notifications fail silently if this is killed
   wayland.services.swaync = {
-    slice = "session";
-
     description = "Swaync notification daemon";
-
-    serviceConfig = {
-      ExecStart = lib.getExe' pkgs.swaynotificationcenter "swaync";
-
-      BindReadOnlyPaths = [
-        "${config.directory}/.config/swaync"
-
-        # notifications carry image paths, and the ones that are not inline
-        # point at whatever the sending application just downloaded or shot
-        "${config.directory}/Downloads"
-        "${config.directory}/Pictures"
-      ];
-
-      # notification history
-      BindPaths = [ config.xdg.cache.directory ];
-
-      # GTK draws through the GPU driver, whose worker threads lower themselves
-      # to SCHED_IDLE the first time a window is shown: a popup, or the control
-      # centre opening. That is sched_setscheduler, which the default filter's
-      # `~@resources` answers with SIGSYS, so the daemon died as soon as it had
-      # anything to draw. Only that call is let back in. RestrictRealtime still
-      # refuses the realtime policies, and without CAP_SYS_NICE a thread can
-      # only lower its own priority.
-      #
-      # Restated in full because the default list is only a default: a
-      # definition here replaces it rather than extending it.
-      SystemCallFilter = [
-        "@system-service"
-        "~@privileged"
-        "~@resources"
-        "sched_setscheduler"
-      ];
-    };
+    sandbox = false;
+    slice = "session";
+    serviceConfig.ExecStart = lib.getExe' pkgs.swaynotificationcenter "swaync";
   };
 
   xdg.config.files = {

@@ -5,7 +5,11 @@
       package = pkgs.pwvucontrol;
       appId = "com.saivert.pwvucontrol";
 
-      jail.permissions = c: with c; [ desktop ];
+      jail.permissions =
+        c: with c; [
+          gui
+          gpu
+        ];
     };
 
     # mixer for the focusrite interface
@@ -15,7 +19,8 @@
 
       jail.permissions =
         c: with c; [
-          desktop
+          gui
+          gpu
           sound
         ];
     };

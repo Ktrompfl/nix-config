@@ -181,8 +181,6 @@ in
         (set-env "NIX_REMOTE" "daemon")
 
         # the host's userland, rather than a hand-picked subset of it
-        (readonly "/run/current-system")
-        (readonly "/etc/profiles/per-user/${config.user}")
         (add-path "/run/current-system/sw/bin")
         (add-path "/etc/profiles/per-user/${config.user}/bin")
         (try-readonly "/usr/bin/env")

@@ -14,6 +14,11 @@
       mutable = false;
     };
 
-    jail.permissions = c: with c; [ viewer ];
+    jail.permissions =
+      c: with c; [
+        gui
+        gpu
+        open-args
+      ];
   };
 }

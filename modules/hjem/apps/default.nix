@@ -11,11 +11,11 @@ let
     attrNames
     attrValues
     concatLines
-    concatStringsSep
+    concatMapStringsSep
     elem
+    escapeShellArg
     filterAttrs
     hasPrefix
-    escapeShellArg
     isDerivation
     isPath
     mapAttrsToList
@@ -25,80 +25,46 @@ let
     unique
     ;
 
-  inherit (builtins) dirOf;
-
   jail = import ./jail.nix { inherit inputs pkgs; };
 
-  cfg = config.apps;
-  homeDirectory = config.directory;
+  home = config.directory;
 
-  # A jailed application never appears in the home directory. It gets a private
-  # home of its own on the partition `backup` selects, bound over $HOME inside
-  # the jail, and nothing is preserved: there is no path in the root filesystem
-  # that has to be mapped back onto persistent storage.
-  #
-  # These live below the preservation storage roots rather than beside them so
-  # that they inherit a directory the user already owns, which is what lets the
-  # wrapper create them without any privileged tmpfiles rule.
+  # The app's private home, bound over $HOME in the jail. It lives below the
+  # storage roots so that the user can create it without tmpfiles.
   storageOf =
     name: app: "${if app.backup then config.storage.data else config.storage.state}/apps/${name}";
 
-  # A grant key that names an xdg user directory resolves through its
-  # XDG_*_DIR variable, so this cannot disagree with xdg-user-dirs about where
-  # that directory is -- `screenshots` really is ~/Pictures/screenshots rather
-  # than ~/screenshots. Anything else is a path below the home directory.
-  #
-  # Either way the result is absolute and below $HOME, so the grant lands on
-  # top of the private home and the application finds it where it expects.
-  # A key that is neither is not caught here; bwrap refuses to start and names
-  # the path it could not find.
+  # An `access` key: an XDG user directory by name, or else a path below $HOME.
   grantedPath =
-    key: config.environment.sessionVariables."XDG_${lib.toUpper key}_DIR" or "${homeDirectory}/${key}";
+    key: config.environment.sessionVariables."XDG_${lib.toUpper key}_DIR" or "${home}/${key}";
 
-  # desktop/gtk.nix and desktop/qt.nix write the toolkit configuration into the
-  # shared home, which a private home by definition does not have. Bind it back
-  # read-only -- but from the store rather than from the home directory, since
-  # walking the latter at runtime would drag the preservation symlinks and with
-  # them the /cache mount point into the jail.
-  themingDirectories = [
-    "gtk-3.0"
-    "gtk-4.0"
-    "Kvantum"
-    "qt5ct"
-    "qt6ct"
-  ];
-
-  # The cursor's "default" theme has to sit in the icon search path as a
-  # directory, so unlike the toolkit rc files it cannot be named by a variable
-  # and has to be bound in.
-  themingDataFiles = [ "icons/default/index.theme" ];
-
+  # Toolkit and cursor theming from the shared home, bound from the store so
+  # that the jail does not see the preservation symlinks.
   themingFiles =
-    mapAttrsToList
-      (path: file: {
-        path = ".config/${path}";
-        inherit (file) source;
-      })
-      (
-        filterAttrs (
-          path: _: any (directory: hasPrefix "${directory}/" path) themingDirectories
-        ) config.xdg.config.files
-      )
-    ++ mapAttrsToList (path: file: {
-      path = ".local/share/${path}";
-      inherit (file) source;
-    }) (filterAttrs (path: _: elem path themingDataFiles) config.xdg.data.files);
+    let
+      from =
+        prefix: files:
+        mapAttrsToList (path: file: {
+          path = "${prefix}/${path}";
+          inherit (file) source;
+        }) files;
+      isTheming =
+        path:
+        any (directory: hasPrefix "${directory}/" path) [
+          "gtk-3.0"
+          "gtk-4.0"
+          "Kvantum"
+          "qt5ct"
+          "qt6ct"
+        ];
+    in
+    from ".config" (filterAttrs (path: _: isTheming path) config.xdg.config.files)
+    ++ from ".local/share" (
+      filterAttrs (path: _: elem path [ "icons/default/index.theme" ]) config.xdg.data.files
+    );
 
-  # hjem's trio of ways to say what a file contains, kept identical so that
-  # moving a declaration from `xdg.config.files` to `apps.<name>.files` is a
-  # change of destination only. A generator may return either a string or a
-  # derivation; both are accepted.
-  # Both paths are relative to the home directory, so the link is written
-  # relative too: an absolute one would dangle on the host, where the private
-  # home is not mounted over $HOME.
-  relativeTo =
-    from: to: lib.concatStrings (map (_: "../") (lib.init (lib.splitString "/" from))) + to;
-
+  # The same file options as hjem's, so that a file can move between
+  # `xdg.config.files` and `apps.<name>.files` unchanged.
   contentsOf =
     path: file:
     let
@@ -114,118 +80,93 @@ let
     else
       pkgs.writeText name generated;
 
+  # Relative, so that links in the private home also resolve on the host.
+  relativeTo =
+    from: to: lib.concatStrings (map (_: "../") (lib.init (lib.splitString "/" from))) + to;
+
   permissionsOf =
     name: app:
     let
       storage = storageOf name app;
-      managed = lib.filterAttrs (_: file: file.mutable) app.files;
-      bound = lib.filterAttrs (_: file: !file.mutable) app.files;
+      inStorage = path: escapeShellArg "${storage}/${path}";
 
-      # Seeded files are removed again once their declaration goes away, which
-      # a plain `install` would never notice.
-      manifest = pkgs.writeText "${name}-managed" (concatLines (attrNames managed));
-
-      readOnlyFiles =
+      copied = filterAttrs (_: file: file.mutable) app.files;
+      bound =
         mapAttrsToList (path: file: {
           inherit path;
           source = contentsOf path file;
-        }) bound
+        }) (filterAttrs (_: file: !file.mutable) app.files)
         ++ themingFiles;
 
-      # bwrap will not create a bind destination whose parent is missing, and a
-      # private home starts out with nothing in it. Seeded files get their
-      # parents from `install -D`; these have to be made by hand.
+      # What was copied in last time, so that removed files can be deleted.
+      manifest = pkgs.writeText "${name}-managed" (concatLines (attrNames copied));
+
+      # bwrap needs the parent of every bind destination to exist.
       parents = unique (
-        map (file: "${storage}/${dirOf file.path}") readOnlyFiles
-        ++ mapAttrsToList (path: _: "${storage}/${dirOf path}") app.links
-        ++ map (path: "${storage}/${path}") app.directories
+        map (file: dirOf file.path) bound
+        ++ mapAttrsToList (path: _: dirOf path) app.links
+        ++ app.directories
       );
     in
     c:
     with c;
     [
+      # Prepares the private home on the host before each launch.
       (add-runtime ''
         APP_HOME=${escapeShellArg storage}
-        mkdir -p "$APP_HOME"
+        mkdir -p "$APP_HOME" ${concatMapStringsSep " " inStorage parents}
+
         if [ -f "$APP_HOME/.managed" ]; then
           comm -23 <(sort "$APP_HOME/.managed") <(sort ${manifest}) | while IFS= read -r stale; do
             [ -n "$stale" ] && rm -f "$APP_HOME/$stale"
           done
         fi
         install -D -m644 ${manifest} "$APP_HOME/.managed"
-        mkdir -p ${concatStringsSep " " (map escapeShellArg parents)}
 
-        # A read-only bind cannot be made over an existing symlink whose
-        # target is not itself in the jail, and a private home migrated from
-        # the shared one is full of the links hjem used to manage. bwrap fails
-        # the whole sandbox when that happens, so clear the way first.
-        rm -f ${concatStringsSep " " (map (file: escapeShellArg "${storage}/${file.path}") readOnlyFiles)}
+        # bwrap cannot bind over a symlink that leads out of the jail
+        rm -f ${concatMapStringsSep " " (file: inStorage file.path) bound}
+
+        ${concatLines (
+          mapAttrsToList (
+            path: target: "ln -sfn ${escapeShellArg (relativeTo path target)} ${inStorage path}"
+          ) app.links
+        )}
+
+        # Copied rather than bound, so that the app can write them however it
+        # likes; the declared contents return at the next launch. `-p` keeps
+        # the mtime, which apps use to cache work on the file.
+        ${concatLines (
+          mapAttrsToList (
+            path: file: "install -D -p -m644 ${escapeShellArg "${contentsOf path file}"} ${inStorage path}"
+          ) copied
+        )}
       '')
 
-      (add-runtime (
-        concatLines (
-          mapAttrsToList (
-            path: target:
-            "ln -sfn ${escapeShellArg (relativeTo path target)} ${escapeShellArg "${storage}/${path}"}"
-          ) app.links
-        )
-      ))
+      (rw-bind storage home)
 
-      (rw-bind storage homeDirectory)
+      # The profiles that the variables below point into.
+      (readonly "/run/current-system")
+      (readonly "/etc/profiles/per-user/${config.user}")
     ]
 
-    # Managed config is copied in rather than linked or bound. The app can then
-    # rewrite it with any method it likes -- truncate, or write-and-rename,
-    # which defeats both a symlink into the read-only store and a bind mounted
-    # file -- and the declarative value wins again at the next launch.
-    #
-    # `-p` keeps the store's timestamp rather than stamping the copy with the
-    # time of the launch. Anything caching a verdict about a file keys it on
-    # the mtime, so without this the work is redone on every start: Firefox
-    # re-verified all seven extension signatures each launch, which is about
-    # three and a half seconds before it will so much as hand a url to the
-    # instance already running.
-    ++ mapAttrsToList (
-      path: file:
-      add-runtime "install -D -p -m${file.mode} ${escapeShellArg "${contentsOf path file}"} ${escapeShellArg "${storage}/${path}"}"
-    ) managed
-
-    # The jail clears the environment, so anything the session sets for the
-    # toolkits has to be named here. Without them every Qt application falls
-    # back to xcb -- with no X server to fall back to -- and every GTK one
-    # comes up unthemed.
-    ++ [ locale ]
-
+    # The jail clears the environment; these are needed for theming, the
+    # Wayland backends and the locale.
     ++ map try-fwd-env [
       "GTK2_RC_FILES"
       "GTK_A11Y"
       "GTK_PATH"
       "GTK_THEME"
+      "LOCALE_ARCHIVE"
       "NIXOS_OZONE_WL"
       "QT_PLUGIN_PATH"
       "QT_QPA_PLATFORM"
       "QT_QPA_PLATFORMTHEME"
       "QT_STYLE_OVERRIDE"
-
-      # libreoffice and others pick a toolkit backend from this
       "XDG_CURRENT_DESKTOP"
-    ]
-
-    # The variables above are only useful if what they point at is in here
-    # too, under the name they use.
-    ++ map (variable: paths-from-var variable ":") [
-      "GTK_PATH"
-      "QT_PLUGIN_PATH"
-      "XDG_DATA_DIRS"
-
-      # these two name a generated file in the store rather than a directory,
-      # and nothing else would pull it into the jail's closure
-      "GTK2_RC_FILES"
       "XENVIRONMENT"
     ]
 
-    # Config the app only ever reads needs no copy and leaves no artifact.
-    ++ map (file: ro-bind file.source "${homeDirectory}/${file.path}") readOnlyFiles
+    ++ map (file: ro-bind file.source "${home}/${file.path}") bound
 
     ++ mapAttrsToList (
       key: mode: (if mode == "rw" then readwrite else readonly) (grantedPath key)
@@ -235,19 +176,14 @@ let
 
     ++ app.jail.permissions c;
 
-  # jail.nix wraps a single executable and forwards nothing else, so the
-  # desktop entry and icons have to be carried over separately. Without this
-  # step `xdg-open` and the launcher would keep resolving the unjailed binary.
+  # The package's share/, with the desktop entries pointed at the jailed
+  # binaries, so that launchers and `xdg-open` do not run the unjailed ones.
   resources =
     name: app: binaries:
     pkgs.runCommand "${name}-resources" { } ''
       ${lib.optionalString (app.appId != null) ''
-        # A GApplication registers on the session bus under the id its desktop
-        # entry is named after, and the jail only lets it own the id declared
-        # here. Getting that wrong is not a build error and not a crash: the
-        # program starts, fails to register, and exits with ServiceUnknown.
-        # So when the package ships exactly one entry whose name is a legal
-        # bus name, hold the declaration to it.
+        # The jail only lets the app own `appId` on the bus; a mismatch with its
+        # desktop entry makes it exit at startup, so fail the build instead.
         shipped=$(
           ls "${app.package}/share/applications" 2>/dev/null |
             sed 's/\.desktop$//' |
@@ -267,9 +203,9 @@ let
             for entry in "$directory"/*.desktop; do
               [ -e "$entry" ] || continue
               sed ${
-                concatStringsSep " " (
-                  map (binary: "-e 's|${app.package}/bin/${binary}|${binaries}/bin/${binary}|g'") app.binaries
-                )
+                concatMapStringsSep " " (
+                  binary: "-e 's|${app.package}/bin/${binary}|${binaries}/bin/${binary}|g'"
+                ) app.binaries
               } \
                   "$entry" > "$out/share/applications/$(basename "$entry")"
             done
@@ -285,9 +221,6 @@ let
     name: app:
     let
       permissions = permissionsOf name app;
-
-      # Joined first so that the desktop entries below have a single, known
-      # path to point at, whichever of the binaries they name.
       binaries = pkgs.symlinkJoin {
         name = "${name}-binaries";
         paths = map (binary: jail binary "${app.package}/bin/${binary}" permissions) app.binaries;
@@ -299,13 +232,7 @@ let
         binaries
         (resources name app binaries)
       ];
-      passthru = {
-        inherit binaries;
-        unjailed = app.package;
-        storage = storageOf name app;
-      };
-      # `outputsToInstall` would follow the original into a join that has only
-      # one output, and the environment build then fails looking for `man`.
+      # `outputsToInstall` names outputs that the join does not have.
       meta = removeAttrs app.package.meta [ "outputsToInstall" ] // {
         mainProgram = lib.head app.binaries;
       };
@@ -341,18 +268,9 @@ let
         type = types.bool;
         default = true;
         description = ''
-          Whether the app is allowed to write this file. A mutable file is
-          copied into the private home before each launch, so a write can
-          never fail and the declared value is restored the next time the app
-          starts. An immutable file is bind mounted read-only instead, which
-          leaves nothing behind but makes any write fail outright.
+          Whether the app may write the file. A mutable file is copied in at
+          each launch, an immutable one is bound read-only.
         '';
-      };
-
-      mode = mkOption {
-        type = types.str;
-        default = "644";
-        description = "Permissions of the seeded copy; only meaningful when mutable.";
       };
     };
   };
@@ -369,35 +287,25 @@ let
         binaries = mkOption {
           type = types.listOf types.str;
           default = [ name ];
-          description = ''
-            Executables to wrap, when they differ from the attribute name or
-            the package ships more than one.
-          '';
+          description = "Executables to wrap.";
         };
 
         appId = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = ''
-            Reverse-DNS identifier presented to xdg-desktop-portal. Setting it
-            grants the app portal access and its own namespace in the document
-            portal; leaving it null withholds both.
-          '';
+          description = "Application id; setting it grants access to the portals.";
         };
 
         backup = mkOption {
           type = types.bool;
           default = false;
-          description = ''
-            Whether the app's private home belongs on /persist, and so in the
-            snapshot timeline, rather than on /cache.
-          '';
+          description = "Whether the private home is on /persist rather than /cache.";
         };
 
         files = mkOption {
           type = types.attrsOf (types.submodule fileModule);
           default = { };
-          description = "Configuration placed in the app's private home, keyed by path below it.";
+          description = "Files in the private home, keyed by path below it.";
         };
 
         access = mkOption {
@@ -413,20 +321,15 @@ let
             Seafile = "rw";
           };
           description = ''
-            What the application may reach in the shared home, and how. A key
-            is either the lowercased middle of an XDG_*_DIR variable or a path
-            below the home directory. Prefer withholding these and letting the
-            application go through the file chooser portal instead.
+            Paths in the shared home the app may reach: an XDG user directory by
+            its lowercased name, or a path below the home directory.
           '';
         };
 
         directories = mkOption {
           type = types.listOf types.str;
           default = [ ];
-          description = ''
-            Directories to make in the private home, for the ones an app
-            expects to find rather than create.
-          '';
+          description = "Directories to create in the private home.";
         };
 
         links = mkOption {
@@ -435,29 +338,26 @@ let
           example = {
             ".local/share/app/instance/save" = ".local/share/app/saves/one";
           };
-          description = ''
-            Symbolic links made inside the private home, from path to target,
-            both relative to it.
-          '';
+          description = "Symlinks in the private home, from path to target, both relative to it.";
         };
 
         jail.permissions = mkOption {
           type = types.functionTo (types.listOf types.raw);
           default = _: [ ];
           example = lib.literalExpression "c: with c; [ electron network notifications ]";
-          description = "Extra jail.nix combinators, on top of those derived from the declarations above.";
+          description = "Additional jail.nix combinators.";
         };
 
         wrapped = mkOption {
           type = types.package;
           readOnly = true;
-          description = "The package as it is actually installed.";
+          description = "The jailed package, as installed.";
         };
 
         storage = mkOption {
           type = types.str;
           readOnly = true;
-          description = "Where the private home lives on the host.";
+          description = "The private home on the host.";
         };
       };
 
@@ -466,20 +366,13 @@ let
         storage = storageOf name config;
       };
     };
-
-  apps = attrValues cfg;
 in
 {
   options.apps = mkOption {
     type = types.attrsOf (types.submodule appModule);
     default = { };
-    description = ''
-      Sandboxed applications, declared in one place: what to install, what
-      configuration they get, and what they are allowed to reach. Their state
-      lives in a private home rather than in the user's, so none of it goes
-      through preservation.
-    '';
+    description = "Applications that run in a jail with a private home.";
   };
 
-  config.packages = map (app: app.wrapped) apps;
+  config.packages = map (app: app.wrapped) (attrValues config.apps);
 }

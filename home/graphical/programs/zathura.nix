@@ -11,7 +11,12 @@ in
   apps.zathura = {
     package = pkgs.zathura;
 
-    jail.permissions = c: with c; [ viewer ];
+    jail.permissions =
+      c: with c; [
+        gui
+        gpu
+        open-args
+      ];
 
     files.".config/zathura/zathurarc" = {
       mutable = false;

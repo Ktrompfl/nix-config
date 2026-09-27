@@ -13,7 +13,9 @@ in
 
     jail.permissions =
       c: with c; [
-        viewer
+        gui
+        gpu
+        open-args
         network # streaming urls
       ];
 

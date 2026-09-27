@@ -16,7 +16,8 @@
 
     jail.permissions =
       c: with c; [
-        desktop
+        gui
+        gpu
         network
         notifications
       ];

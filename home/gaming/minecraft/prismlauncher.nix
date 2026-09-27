@@ -70,7 +70,8 @@ in
 
     jail.permissions =
       c: with c; [
-        desktop
+        gui
+        gpu
         network
 
         # bind waywall config directly from this repository to immediately reflect edits, instead of linking an immutable config in store

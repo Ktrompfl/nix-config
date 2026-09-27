@@ -17,7 +17,9 @@
 
     jail.permissions =
       c: with c; [
-        viewer
+        gui
+        gpu
+        open-args
         (add-pkg-deps [ pkgs.wl-clipboard ]) # copy-command
       ];
 

@@ -10,7 +10,8 @@
 
     jail.permissions =
       c: with c; [
-        desktop
+        gui
+        gpu
         (add-pkg-deps [ config.theme.fonts.monospace.package ])
       ];
 

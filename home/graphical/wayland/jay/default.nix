@@ -61,7 +61,4 @@ in
       )
     );
   };
-
-  # persist logs and session management
-  preservation.preserveAt.state-dir.directories = [ ".local/share/jay" ];
 }

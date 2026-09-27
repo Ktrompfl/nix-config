@@ -1,5 +1,11 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
+  environment.sessionVariables = {
+    TEXMFHOME = "${config.xdg.data.directory}/texmf";
+    TEXMFCONFIG = "${config.xdg.state.directory}/texlive/texmf-config";
+    TEXMFVAR = "${config.xdg.cache.directory}/texlive/texmf-var";
+  };
+
   packages = [
     (pkgs.texlive.withPackages (
       tpkgs: with tpkgs; [

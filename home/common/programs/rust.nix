@@ -1,16 +1,8 @@
-{
-  config,
-  osConfig,
-  pkgs,
-  ...
-}:
-let
-  stateHome = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}";
-in
+{ config, pkgs, ... }:
 {
   environment.sessionVariables = {
-    CARGO_HOME = "${stateHome}/.local/share/cargo";
-    RUSTUP_HOME = "${stateHome}/.local/share/rustup";
+    CARGO_HOME = "${config.xdg.data.directory}/cargo";
+    RUSTUP_HOME = "${config.xdg.data.directory}/rustup";
   };
 
   # fallback toolchain (overwritten by dev shell toolchains)

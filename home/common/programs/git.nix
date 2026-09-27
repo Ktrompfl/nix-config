@@ -1,9 +1,16 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   packages = [
     pkgs.git
     pkgs.delta
   ];
+
+  environment.sessionVariables.GNUPGHOME = "${config.storage.data}/.local/share/gnupg";
 
   xdg.config.files."git/config" = {
     generator = (pkgs.formats.gitIni { listsAsDuplicateKeys = true; }).generate "config";

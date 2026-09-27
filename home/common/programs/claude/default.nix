@@ -11,7 +11,30 @@ let
   json = (pkgs.formats.json { }).generate;
 
   home = config.directory;
-  stateHome = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${home}";
+  storage = config.apps.claude.storage;
+  data = config.xdg.data.directory;
+
+  # State shared with the host, so that builds are not cold in every session.
+  shared = {
+    ${config.xdg.cache.directory} = "rw";
+    "${data}/julia" = "rw";
+    "${data}/cargo" = "rw";
+    "${data}/rustup" = "rw";
+    "${data}/gurobi" = "ro";
+  };
+
+  # The session variables come in too, bar those that name the host's storage
+  # outside of what is shared: the data and state homes among them, so that
+  # whatever else runs in here keeps its state in the private home.
+  below = directory: path: path == directory || lib.hasPrefix "${directory}/" path;
+  private =
+    value:
+    lib.any (
+      path:
+      (below config.storage.state path || below config.storage.data path)
+      && !lib.any (directory: below directory path) (lib.attrNames shared)
+    ) (lib.splitString ":" value);
+  variables = lib.filterAttrs (_: value: !private (toString value)) config.environment.sessionVariables;
   zotero = if config.apps ? zotero then "${config.apps.zotero.storage}/Zotero" else null;
 
   # The manifest name becomes the MCP tool namespace
@@ -40,6 +63,9 @@ in
 
           permissions.defaultMode = "bypassPermissions";
           skipDangerousModePermissionPrompt = true;
+
+          # the terminal's sixteen colours, which follow the system scheme
+          theme = "${config.theme.colors.meta.variant or "dark"}-ansi";
 
           # Bash commands get the project's direnv environment, re-evaluated
           # before each one so that it follows `cd`. An .envrc that was never
@@ -119,6 +145,13 @@ in
         gpu
         (add-pkg-deps [ pkgs.ast-grep ])
 
+        # Without a session of its own claude stays in the terminal's
+        # foreground process group, and so gets the SIGWINCH that tells it the
+        # terminal was resized. What --new-session guards against, typing into
+        # the terminal through TIOCSTI, is refused anyway while
+        # dev.tty.legacy_tiocsti is 0, which nix-mineral sets.
+        no-new-session
+
         # Started from $HOME, mount-cwd would put the real home over the
         # private one.
         (add-runtime ''
@@ -134,16 +167,11 @@ in
 
         (readwrite "/persist/nixos")
 
-        # shared caches, so that builds are not cold in every session
-        (try-readwrite "${home}/.local/cache")
-        (try-readwrite "${home}/.local/share/julia")
-        (try-readwrite "${stateHome}/.local/share/cargo")
-        (try-readwrite "${stateHome}/.local/share/rustup")
-
         (try-readonly "${home}/.config/git")
         (try-readonly "${home}/.config/direnv")
-        (try-readonly "${home}/.local/share/direnv") # the allow list
-        (try-readonly "${stateHome}/.local/share/gurobi")
+
+        # direnv looks for its allow list in the private data home
+        (try-ro-bind "${data}/direnv" "${home}/.local/share/direnv")
         (readonly osConfig.sops.secrets."api-keys/context7".path)
 
         # nix goes through the host daemon
@@ -171,17 +199,26 @@ in
         (try-readonly "/opt/rocm")
 
         (try-fwd-env "COLORTERM")
-        (set-env "TMPDIR" "${home}/tmp")
+
+        # $EDITOR, which comes in with the session variables below, is the
+        # host's Zed. Its CLI hands a path to the running instance over the
+        # socket in Zed's data directory, and that instance then connects back
+        # to a socket the CLI makes under $TMPDIR and opens the file, which
+        # also lives there. So $TMPDIR is the same directory as ~/tmp in here,
+        # but at the path the host has for it.
+        (try-ro-bind "${data}/zed" "${home}/.local/share/zed")
+        (readwrite "${storage}/tmp")
+        (set-env "TMPDIR" "${storage}/tmp")
       ]
-      ++ lib.mapAttrsToList (name: value: set-env name (toString value)) (
-        removeAttrs config.environment.sessionVariables [ "CLAUDE_CONFIG_DIR" ]
-      )
+      # bound where the host has them, since that is what the variables say
+      ++ lib.mapAttrsToList (path: mode: if mode == "rw" then try-readwrite path else try-readonly path) shared
+      ++ lib.mapAttrsToList (name: value: set-env name (toString value)) variables
       ++ lib.optional (zotero != null) (try-readonly zotero);
   };
 
   # ccusage and claudecode.nvim on the host find the jail's state through this.
   packages = [ llm-packages.ccusage ];
-  environment.sessionVariables.CLAUDE_CONFIG_DIR = "${config.apps.claude.storage}/.claude";
+  environment.sessionVariables.CLAUDE_CONFIG_DIR = "${storage}/.claude";
 
-  systemd.tmpfiles.rules = [ "e ${config.apps.claude.storage}/tmp - - - 7d" ];
+  systemd.tmpfiles.rules = [ "e ${storage}/tmp - - - 7d" ];
 }

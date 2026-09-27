@@ -1,9 +1,4 @@
-{
-  config,
-  osConfig,
-  pkgs,
-  ...
-}:
+{ config, pkgs, ... }:
 let
   python-packages =
     ps: with ps; [
@@ -41,8 +36,6 @@ let
       pyqt5
     ];
   python = pkgs.python313.withPackages python-packages;
-
-  stateHome = "${osConfig.preservation.preserveAt.state-dir.persistentStoragePath}${config.directory}";
 in
 {
   packages = [
@@ -68,8 +61,9 @@ in
   };
 
   environment.sessionVariables = {
-    GRB_LICENSE_FILE = "${stateHome}/.local/share/gurobi/gurobi.lic";
-    PYTHON_HISTORY = "${stateHome}/.local/state/python_history";
+    GRB_LICENSE_FILE = "${config.xdg.data.directory}/gurobi/gurobi.lic";
+    PYTHON_HISTORY = "${config.xdg.state.directory}/python_history";
+    IPYTHONDIR = "${config.xdg.data.directory}/ipython";
+    JUPYTER_PLATFORM_DIRS = "1";
   };
-
 }

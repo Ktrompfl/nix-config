@@ -27,6 +27,12 @@ in
     };
   };
 
+  # Where home/common/programs/ssh.nix keeps the user's own keys, on top of
+  # the default below the home directory, which is temporary.
+  services.openssh.authorizedKeysFiles = [
+    "${config.preservation.preserveAt.data-dir.persistentStoragePath}%h/.local/share/ssh/authorized_keys"
+  ];
+
   # preserve host keys
   preservation.preserveAt.data-dir.files = lib.optionals cfg.enable (
     lib.concatMap (key: [

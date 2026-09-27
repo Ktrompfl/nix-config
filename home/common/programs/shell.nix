@@ -65,7 +65,7 @@ let
     # common options
     tarnow = "tar -acf";
     untar = "tar -zxvf";
-    wget = "wget -c";
+    wget = "wget -c --hsts-file=${config.xdg.state.directory}/wget-hsts";
   };
 
   # fish resolves named colours through the terminal, which already carries the
@@ -165,8 +165,8 @@ in
     "direnv/lib/nix-direnv.sh".source = "${pkgs.nix-direnv}/share/nix-direnv/direnvrc";
   };
 
-  preservation.preserveAt.state-dir.directories = [
-    ".local/share/direnv"
-    ".local/share/fish"
-  ];
+  environment.sessionVariables = {
+    HISTFILE = "${config.xdg.state.directory}/bash_history";
+    STARSHIP_CACHE = "${config.xdg.cache.directory}/starship";
+  };
 }

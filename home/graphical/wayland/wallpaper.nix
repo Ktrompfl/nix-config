@@ -16,7 +16,7 @@
       ExecStart = lib.getExe' pkgs.awww "awww-daemon";
 
       BindReadOnlyPaths = [ "${config.directory}/Pictures" ];
-      BindPaths = [ "${config.directory}/.local/cache" ];
+      BindPaths = [ config.xdg.cache.directory ];
     };
   };
 }

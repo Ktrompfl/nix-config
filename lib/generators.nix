@@ -2,6 +2,7 @@
 let
   inherit (lib)
     concatLines
+    concatMap
     concatStringsSep
     filterAttrs
     isBool
@@ -54,10 +55,15 @@ in
       # ssh spells booleans yes/no; true/false is rejected.
       mkSSHValue = value: if isBool value then (if value then "yes" else "no") else toString value;
 
+      # A list repeats the key, which is how ssh takes several of IdentityFile
+      # and the like.
       renderHost =
         name: options:
         concatLines (
-          [ "Host ${name}" ] ++ mapAttrsToList (key: value: "  ${key} ${mkSSHValue value}") options
+          [ "Host ${name}" ]
+          ++ concatMap (key: map (value: "  ${key} ${mkSSHValue value}") (lib.toList options.${key})) (
+            lib.attrNames options
+          )
         );
     in
     concatStringsSep "\n" (

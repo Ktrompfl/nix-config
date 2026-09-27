@@ -144,6 +144,4 @@ in
   // lib.mapAttrs' (
     name: drv: lib.nameValuePair "nvim/pack/plugins/start/${name}" { source = drv; }
   ) plugins;
-
-  preservation.preserveAt.state-dir.directories = [ ".local/share/nvim" ];
 }

@@ -182,8 +182,6 @@ in
     value = settings;
   };
 
-  preservation.preserveAt.state-dir.directories = [ ".local/share/zed" ];
-
   environment.sessionVariables = {
     EDITOR = lib.getExe zed-wait;
     VISUAL = lib.getExe zed-wait;

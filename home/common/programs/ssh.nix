@@ -1,9 +1,18 @@
 {
+  config,
   helpers,
   pkgs,
   ...
 }:
 let
+  # ssh only ever reads its configuration from ~/.ssh, but everything else is
+  # named here: the keys and known hosts on the backed up partition, the
+  # control sockets in the runtime directory.
+  directory = "${config.storage.data}/.local/share/ssh";
+
+  # Every one named has to exist, or ssh complains on each connection.
+  identities = [ "id_ed25519" ];
+
   hosts = {
     "*" = {
       ForwardAgent = false;
@@ -12,9 +21,10 @@ let
       ServerAliveInterval = 15;
       ServerAliveCountMax = 3;
       HashKnownHosts = false;
-      UserKnownHostsFile = "~/.ssh/known_hosts";
+      IdentityFile = map (identity: "${directory}/${identity}") identities;
+      UserKnownHostsFile = "${directory}/known_hosts";
       ControlMaster = "auto";
-      ControlPath = "~/.ssh/master-%r@%n:%p";
+      ControlPath = "\${XDG_RUNTIME_DIR}/ssh-%C";
       ControlPersist = "5m";
     };
     fsmathe = {
@@ -60,13 +70,4 @@ in
     generator = helpers.generators.toSSHConfig;
     value = hosts;
   };
-
-  # persist ssh keys / known hosts
-  preservation.preserveAt.data-dir.directories = [
-    {
-      directory = ".ssh";
-      how = "bindmount";
-      mode = "0700";
-    }
-  ];
 }

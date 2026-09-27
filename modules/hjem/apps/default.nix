@@ -41,7 +41,7 @@ let
   # that they inherit a directory the user already owns, which is what lets the
   # wrapper create them without any privileged tmpfiles rule.
   storageOf =
-    name: app: "${if app.backup then "/persist" else "/cache"}${homeDirectory}/apps/${name}";
+    name: app: "${if app.backup then config.storage.data else config.storage.state}/apps/${name}";
 
   # A grant key that names an xdg user directory resolves through its
   # XDG_*_DIR variable, so this cannot disagree with xdg-user-dirs about where

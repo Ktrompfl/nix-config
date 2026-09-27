@@ -1,4 +1,9 @@
-{ lib, ... }:
+{
+  config,
+  lib,
+  osConfig,
+  ...
+}:
 let
   preserveAtSubmodule = {
     options = {
@@ -21,6 +26,8 @@ let
       };
     };
   };
+
+  storageOf = location: "${osConfig.preservation.preserveAt.${location}.persistentStoragePath}${config.directory}";
 in
 {
   options.preservation.preserveAt = lib.mkOption {
@@ -33,6 +40,31 @@ in
     default = { };
     description = ''
       Locations and the corresponding state that should be preserved there.
+      Only for programs that cannot be pointed at `storage` directly.
     '';
+  };
+
+  options.storage = {
+    data = lib.mkOption {
+      type = lib.types.str;
+      readOnly = true;
+      default = storageOf "data-dir";
+      description = ''
+        This user's part of the backed up partition. State that cannot be
+        recreated goes below it, addressed by this path rather than through a
+        link in the home directory.
+      '';
+    };
+
+    state = lib.mkOption {
+      type = lib.types.str;
+      readOnly = true;
+      default = storageOf "state-dir";
+      description = ''
+        This user's part of the machine-local partition, for state that is
+        worth keeping across reboots but not worth backing up. The xdg data,
+        state and cache homes are below it.
+      '';
+    };
   };
 }

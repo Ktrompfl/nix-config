@@ -26,7 +26,7 @@
       ];
 
       # notification history
-      BindPaths = [ "${config.directory}/.local/cache" ];
+      BindPaths = [ config.xdg.cache.directory ];
 
       # GTK draws through the GPU driver, whose worker threads lower themselves
       # to SCHED_IDLE the first time a window is shown: a popup, or the control

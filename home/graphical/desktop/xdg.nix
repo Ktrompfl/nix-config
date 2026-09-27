@@ -31,36 +31,22 @@ in
     "user-dirs.conf".text = "enabled=False";
   };
 
-  environment.sessionVariables = directories // {
-    XDG_CACHE_HOME = "/home/jacobsen/.local/cache";
-  };
+  environment.sessionVariables = directories;
 
-  preservation.preserveAt = {
-    data-dir.directories = [
-      # xdg home directories
-      "Archive"
-      "Desktop"
-      "Documents"
-      "Downloads"
-      "Games"
-      "Music"
-      "Pictures"
-      "Programs"
-      "Public"
-      "Repositories"
-      "Templates"
-      "Videos"
-
-      # xdg data home, preservation delegated to individual programs
-      # ".local/share"
-    ];
-
-    state-dir.directories = [
-      # xdg cache home
-      ".local/cache"
-
-      # xdg state home
-      ".local/state"
-    ];
-  };
+  preservation.preserveAt.data-dir.directories = [
+    # xdg home directories
+    "Archive"
+    "Desktop"
+    "Documents"
+    "Downloads"
+    "Games"
+    "Music"
+    "Pictures"
+    "Programs"
+    "Projects"
+    "Public"
+    "Repositories"
+    "Templates"
+    "Videos"
+  ];
 }

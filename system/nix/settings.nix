@@ -27,6 +27,10 @@
 
     http-connections = 50;
 
+    # ~/.nix-profile, ~/.nix-defexpr and ~/.nix-channels below the xdg state
+    # home instead
+    use-xdg-base-directories = true;
+
     # An emergency valve, not a policy: a build that would otherwise fill the
     # disk collects garbage until it has room again.
     min-free = 5 * 1024 * 1024 * 1024;

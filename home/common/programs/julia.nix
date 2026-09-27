@@ -13,9 +13,9 @@ in
     pkgs.runic
   ];
 
-  environment.sessionVariables.JULIA_DEPOT_PATH = "${config.xdg.data.directory}/julia";
-
-  preservation.preserveAt.state-dir.directories = [ ".local/share/julia" ];
+  # The trailing separator keeps julia's bundled depots, with the precompiled
+  # standard library, behind this one; the wrapper appends its own after it.
+  environment.sessionVariables.JULIA_DEPOT_PATH = "${config.xdg.data.directory}/julia:";
 
   # jupyter kernel for zed repl
   xdg.data.files."jupyter/kernels/julia-nixpkgs/kernel.json" = {

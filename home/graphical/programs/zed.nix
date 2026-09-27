@@ -162,6 +162,10 @@ let
     vim_mode = true;
     which_key.enabled = true;
   };
+
+  zed-wait = pkgs.writeShellScriptBin "zed-wait" ''
+    exec ${lib.getExe' pkgs.zed-editor "zeditor"} --wait "$@"
+  '';
 in
 {
   packages = [
@@ -179,4 +183,9 @@ in
   };
 
   preservation.preserveAt.state-dir.directories = [ ".local/share/zed" ];
+
+  environment.sessionVariables = {
+    EDITOR = lib.getExe zed-wait;
+    VISUAL = lib.getExe zed-wait;
+  };
 }

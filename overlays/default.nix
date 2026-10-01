@@ -19,6 +19,10 @@ let
       '';
     });
 
+    # zotero no longer builds on firefox-esr-153, and firefox-esr-140 is gone;
+    # remove once https://github.com/NixOS/nixpkgs/issues/568692 is fixed.
+    inherit (inputs.nixpkgs-zotero.legacyPackages.${final.stdenv.hostPlatform.system}) zotero;
+
     # moonlight-qt 6.1.0 predates upstream's ffmpeg 7.1 API migration and no longer builds
     # against current ffmpeg. Follow master until 6.2.0 releases, as in
     # https://github.com/NixOS/nixpkgs/pull/552544

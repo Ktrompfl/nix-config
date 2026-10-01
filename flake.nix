@@ -5,6 +5,9 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     systems.url = "github:nix-systems/default-linux";
 
+    # last nixpkgs where zotero builds, see ./overlays
+    nixpkgs-zotero.url = "github:nixos/nixpkgs/6774f7bc253789b113a4f39285dc0fa100abeacc";
+
     crane.url = "github:ipetkov/crane";
 
     disko = {

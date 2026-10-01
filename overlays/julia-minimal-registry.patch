@@ -1,0 +1,33 @@
+--- a/python/minimal_registry.py
++++ b/python/minimal_registry.py
+@@ -123,6 +123,30 @@
+       Path(out_path / path).mkdir(parents=True, exist_ok=True)
+       shutil.copy2(registry_path / path / "Package.toml", out_path / path / "Package.toml")
+ 
++# Deps.toml and WeakDeps.toml are copied whole, so they also name the
++# dependencies of versions we dropped. Pkg looks up a name for every UUID they
++# mention, so register those too; no versions are needed since none resolve.
++for (uuid, entry) in list(registry["packages"].items()):
++  for f in ["Deps.toml", "WeakDeps.toml"]:
++    deps_path = out_path / entry["path"] / f
++    if not deps_path.exists():
++      continue
++    for deps in toml.load(deps_path).values():
++      for dep_uuid in deps.values():
++        if dep_uuid in registry["packages"]:
++          continue
++        dep_entry = full_registry["packages"].get(dep_uuid)
++        if not dep_entry:
++          # not in the registry at all, so a standard library
++          continue
++        registry["packages"][dep_uuid] = dep_entry
++        dep_path = out_path / dep_entry["path"]
++        if (dep_path / "Package.toml").exists():
++          continue
++        dep_path.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(registry_path / dep_entry["path"] / "Package.toml", dep_path / "Package.toml")
++        (dep_path / "Versions.toml").touch()
++
+ # Finally, dump the Registry.toml
+ with open(out_path / "Registry.toml", "w") as f:
+     toml.dump(registry, f)

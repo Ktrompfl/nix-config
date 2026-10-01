@@ -23,6 +23,23 @@ let
     # remove once https://github.com/NixOS/nixpkgs/issues/568692 is fixed.
     inherit (inputs.nixpkgs-zotero.legacyPackages.${final.stdenv.hostPlatform.system}) zotero;
 
+    # With julia 1.13, Pkg looks up a name for every UUID in a registry's
+    # Deps.toml, including the dependencies of versions the minimal registry
+    # dropped (SnoopPrecompile for Parsers 2.5), and withPackages fails.
+    julia = prev.julia.overrideAttrs (oldAttrs: {
+      passthru = oldAttrs.passthru // {
+        withPackages =
+          let
+            src = final.applyPatches {
+              name = "julia-modules";
+              src = "${inputs.nixpkgs}/pkgs/development/julia-modules";
+              patches = [ ./julia-minimal-registry.patch ];
+            };
+          in
+          final.callPackage src { julia = final.julia; };
+      };
+    });
+
     # moonlight-qt 6.1.0 predates upstream's ffmpeg 7.1 API migration and no longer builds
     # against current ffmpeg. Follow master until 6.2.0 releases, as in
     # https://github.com/NixOS/nixpkgs/pull/552544

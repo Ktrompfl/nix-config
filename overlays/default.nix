@@ -9,7 +9,16 @@ let
       inherit inputs;
     };
 
-  modifications = _final: _prev: {
+  modifications = final: prev: {
+    # usbguard needs C++20, but still compiles with C++17;
+    # remove once https://github.com/NixOS/nixpkgs/pull/568695 is available.
+    usbguard = prev.usbguard.overrideAttrs (oldAttrs: {
+      postPatch = (oldAttrs.postPatch or "") + ''
+        substituteInPlace configure.ac \
+          --replace-fail '-std=c++17' '-std=c++20'
+      '';
+    });
+
     # moonlight-qt 6.1.0 predates upstream's ffmpeg 7.1 API migration and no longer builds
     # against current ffmpeg. Follow master until 6.2.0 releases, as in
     # https://github.com/NixOS/nixpkgs/pull/552544

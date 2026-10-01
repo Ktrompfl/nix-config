@@ -221,6 +221,9 @@ let
         "declarativeNetRequest"
         "management"
         "clipboardWrite"
+        "http://127.0.0.1/*"
+        "https://api.zotero.org/*"
+        "https://repo.zotero.org/*"
       ];
     }
   ];

@@ -163,13 +163,23 @@ let
     which_key.enabled = true;
   };
 
+  # LOCAL_NOTEBOOK_DEV enables the experimental .ipynb editor
+  zed-editor = pkgs.symlinkJoin {
+    inherit (pkgs.zed-editor) name meta;
+    paths = [ pkgs.zed-editor ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/zeditor --set LOCAL_NOTEBOOK_DEV 1
+    '';
+  };
+
   zed-wait = pkgs.writeShellScriptBin "zed-wait" ''
-    exec ${lib.getExe' pkgs.zed-editor "zeditor"} --wait "$@"
+    exec ${lib.getExe' zed-editor "zeditor"} --wait "$@"
   '';
 in
 {
   packages = [
-    pkgs.zed-editor
+    zed-editor
     pkgs.texlive.bin.latexindent
   ];
 

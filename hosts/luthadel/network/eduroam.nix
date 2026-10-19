@@ -26,7 +26,7 @@
         key-mgmt = "wpa-eap";
         proto = "rsn";
         pairwise = "ccmp";
-        group = "ccmp,tkip";
+        group = "ccmp;tkip";
       };
       "802-1x" = {
         eap = "peap";

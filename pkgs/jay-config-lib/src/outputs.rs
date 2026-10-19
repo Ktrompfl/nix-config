@@ -37,7 +37,7 @@ const OUTPUTS: &[Output] = &[
         name: "laptop-integrated",
         match_: Match::Connector("eDP-1"),
         position: (0, 0),
-        mode: (1920, 1080, 60.0),
+        mode: (1920, 1080, 60.049),
         scale: None,
         transform: None,
         vrr: None,

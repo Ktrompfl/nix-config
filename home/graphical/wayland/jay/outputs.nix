@@ -15,7 +15,7 @@ let
       mode = {
         width = 1920;
         height = 1080;
-        refresh-rate = 60.0;
+        refresh-rate = 60.049;
       };
       workspaces = [
         "1"

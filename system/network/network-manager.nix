@@ -6,7 +6,10 @@ lib.mkIf cfg.enable {
   users.users.jacobsen.extraGroups = [ "networkmanager" ];
 
   preservation.preserveAt.state-dir.directories = [
-    "/etc/NetworkManager/system-connections"
+    {
+      directory = "/etc/NetworkManager/system-connections";
+      mode = "0700";
+    }
     "/var/lib/NetworkManager"
   ];
 

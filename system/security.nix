@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   lib,
   pkgs,
@@ -88,6 +89,13 @@
         lock-root = true;
       };
     };
+  };
+
+  # The nixpkgs module clears the packaged limit with an empty `LimitMEMLOCK=`,
+  # which systemd rejects for resource limits. A later assignment overrides
+  # the packaged one anyway.
+  systemd.services.jitterentropy = lib.mkIf config.services.jitterentropy-rngd.enable {
+    serviceConfig.LimitMEMLOCK = lib.mkForce config.services.jitterentropy-rngd.memlockLimit;
   };
 
   environment.systemPackages = [

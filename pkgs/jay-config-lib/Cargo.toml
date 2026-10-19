@@ -9,6 +9,7 @@ name = "jay_config_lib"
 crate-type = ["cdylib"]
 
 [dependencies]
-jay-config = { git = "https://github.com/mahkoh/jay", rev = "ee3c9b875bfe2666bb73214135c599537f824fa0" }
+# `jay` links to the jay version the config is built for
+jay-config = { path = "jay/jay-config" }
 regex = "1"
 log = "0.4"

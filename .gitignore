@@ -16,5 +16,9 @@
 **/result/
 **/target/
 
+# created from the jay package
+/pkgs/jay-config-lib/jay
+/pkgs/jay-config-lib/Cargo.lock
+
 __pycache__/
 *.pyc

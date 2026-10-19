@@ -1,7 +1,6 @@
 {
   lib,
   pkgs,
-  helpers,
   ...
 }:
 {
@@ -16,7 +15,5 @@
       ];
       i3bar-separator = "";
     };
-
-    on-graphics-initialized = [ helpers.jay.bar.init ];
   };
 }

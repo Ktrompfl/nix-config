@@ -26,6 +26,7 @@ in
     ./clients.nix
     ./inputs.nix
     ./outputs.nix
+    ./session.nix
     ./shortcuts.nix
     ./theme.nix
     ./windows.nix

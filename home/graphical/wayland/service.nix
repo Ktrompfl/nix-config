@@ -49,9 +49,9 @@ let
       };
 
       config = {
-        partOf = mkDefault [ "graphical-session.target" ];
-        after = mkDefault [ "graphical-session.target" ];
-        wantedBy = mkDefault [ "graphical-session.target" ];
+        partOf = mkDefault [ "jay-session.target" ];
+        after = mkDefault [ "jay-session.target" ];
+        wantedBy = mkDefault [ "jay-session.target" ];
 
         serviceConfig = mkMerge [
           {
@@ -108,7 +108,7 @@ in
     description = ''
       Units that belong to the graphical session. Each is an ordinary systemd
       service definition; what this adds is the ordering against
-      graphical-session.target, the slice, and the sandbox.
+      jay-session.target, the slice, and the sandbox.
     '';
   };
 

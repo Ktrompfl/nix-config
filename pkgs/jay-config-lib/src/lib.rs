@@ -14,6 +14,7 @@ mod behavior;
 mod clients;
 mod inputs;
 mod outputs;
+mod session;
 mod shortcuts;
 mod theme;
 mod windows;
@@ -43,6 +44,7 @@ fn configure() {
     clients::setup();
     inputs::setup();
     outputs::setup();
+    session::setup();
     shortcuts::setup();
     theme::setup();
     windows::setup();

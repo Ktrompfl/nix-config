@@ -23,7 +23,11 @@
       # fileSystems."/persist".neededForBoot = true;
       keyFile = "/persist/sops/age/keys.txt";
       generateKey = true; # generate key if it does not exist
+      # all hosts use the age key above; without this sops-nix also tries the
+      # ssh host keys, which are not in place yet when secrets are set up
+      sshKeyPaths = [ ];
     };
+    gnupg.sshKeyPaths = [ ];
   };
 
   sops.secrets."api-keys/context7".owner = "jacobsen"; # read by the claude mcp wrapper

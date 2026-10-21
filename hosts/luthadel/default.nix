@@ -34,7 +34,10 @@
 
   console.keyMap = "de";
 
-  hardware.bluetooth.enable = true;
+  hardware = {
+    amdgpu.initrd.enable = true;
+    bluetooth.enable = true;
+  };
 
   programs = {
     # applications
@@ -116,7 +119,7 @@
     HandleLidSwitch = "suspend-then-hibernate";
     HandleLidSwitchDocked = "lock";
     HandleLidSwitchExternalPower = "suspend-then-hibernate";
-    HandlePowerKey = "suspend-then-hibernate";
+    HandlePowerKey = "ignore";
     HandlePowerKeyLongPress = "poweroff";
   };
 

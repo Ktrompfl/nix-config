@@ -1,8 +1,4 @@
-//! Everything that is shown in the bar is rendered by i3status-rust, which
-//! decides icons, thresholds, severity colors, and which blocks to hide; see
-//! home/jacobsen/programs/i3status-rust.nix. Jay only concatenates the blocks
-//! it prints, which is why the separator is empty: every block brings its own
-//! padding.
+use std::fs::File;
 
 use jay_config::{
     exec::Command,
@@ -10,18 +6,37 @@ use jay_config::{
     status::{MessageFormat, set_i3bar_separator, set_status_command},
 };
 
-use crate::exec;
+/// Sets the text of one of i3status-rust's `custom_dbus` blocks.
+fn set_text(path: &str, text: &str) {
+    let mut busctl = Command::new("busctl");
+    for arg in [
+        "--user",
+        "call",
+        "rs.i3status",
+        path,
+        "rs.i3status.custom",
+        "SetText",
+        "ss",
+        text,
+        "",
+    ] {
+        busctl.arg(arg);
+    }
+    // fails while i3status-rust is not on the bus yet
+    if let Ok(null) = File::options().write(true).open("/dev/null")
+        && let Ok(null2) = null.try_clone()
+    {
+        busctl.stdout(null).stderr(null2);
+    }
+    busctl.spawn();
+}
 
-/// Shows the active input mode, `None` being the normal mode.
 pub fn set_mode(mode: Option<&str>) {
-    exec("jay-bar", &["mode", mode.unwrap_or("normal")]);
+    set_text("/mode", &mode.unwrap_or("normal").to_uppercase());
 }
 
 pub fn set_idle_inhibitor(active: bool) {
-    exec(
-        "jay-bar",
-        &["idle-inhibitor", if active { "on" } else { "off" }],
-    );
+    set_text("/idle_inhibitor", if active { "󰅶" } else { "󰾪" });
 }
 
 pub fn setup() {
@@ -32,5 +47,7 @@ pub fn setup() {
         Command::new("i3status-rs").arg("config-jay.toml"),
     );
 
-    exec("jay-bar", &["init"]);
+    // reset after a reload
+    set_mode(None);
+    set_idle_inhibitor(false);
 }

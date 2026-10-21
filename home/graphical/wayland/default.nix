@@ -1,11 +1,11 @@
 { pkgs, ... }:
 {
   imports = [
-    ./jay
     ./notifications
 
     ./clipboard.nix
     ./idle.nix
+    ./jay.nix
     ./launcher.nix
     ./service.nix
     ./status.nix

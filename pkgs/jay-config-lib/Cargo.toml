@@ -11,5 +11,4 @@ crate-type = ["cdylib"]
 [dependencies]
 # `jay` links to the jay version the config is built for
 jay-config = { path = "jay/jay-config" }
-regex = "1"
 log = "0.4"

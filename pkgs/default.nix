@@ -1,11 +1,8 @@
 { pkgs, inputs, ... }:
 let
   inherit (pkgs) callPackage;
-  jayScripts = callPackage ./jay-scripts { };
 in
 {
-  inherit (jayScripts) jay-bar;
-
   firefox-search = callPackage ./firefox-search.nix { };
   jay-config-lib = callPackage ./jay-config-lib { inherit inputs; };
   jay-session = callPackage ./jay-session.nix { };

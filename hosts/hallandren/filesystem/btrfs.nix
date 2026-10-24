@@ -40,8 +40,6 @@
 
   services.journald.settings.Journal.SystemMaxUse = "10G";
 
-  # preservation requires phase1 systemd
-  boot.initrd.systemd.enable = true;
   preservation.enable = true;
 
   # Persisted data.

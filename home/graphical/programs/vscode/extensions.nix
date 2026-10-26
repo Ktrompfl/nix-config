@@ -1,39 +1,41 @@
-{ pkgs }:
-with pkgs.vscode-extensions;
+{ pkgs, palette }:
+let
+  # Latest marketplace releases that support the packaged vscode, updated with
+  # the nix-vscode-extensions input.
+  marketplace =
+    (pkgs.nix-vscode-extensions.forVSCodeVersion pkgs.vscode.version).vscode-marketplace-release;
+in
+with marketplace;
 [
-  # if any extension is ever outdated again switch to  https://github.com/nix-community/nix-vscode-extensions
-  dbaeumer.vscode-eslint
-  eamodio.gitlens
-  esbenp.prettier-vscode
-  formulahendry.code-runner
-  golang.go
-  gruntfuggly.todo-tree
-  james-yu.latex-workshop
-  jnoortheen.nix-ide
-  redhat.java
-  redhat.vscode-xml
-  redhat.vscode-yaml
-  mechatroner.rainbow-csv
-  mhutchie.git-graph
-  ms-azuretools.vscode-docker
-  ms-python.black-formatter # python formatter
+  (pkgs.tinted-vscode.extensionFor palette)
+
+  # extension packs are not resolved, so their members are listed explicitly
+
+  # python, with ty in place of pylance like zed
+  astral-sh.ty
+  charliermarsh.ruff
+  ms-python.debugpy
   ms-python.python
+
+  # julia
+  aviatesk.jetls-client
+
+  # notebooks
   ms-toolsai.jupyter
-  ms-vscode.cpptools
-  myriad-dreamin.tinymist # combined typst lsp and preview
-  naumovs.color-highlight
-  streetsidesoftware.code-spell-checker
-  sumneko.lua
+  ms-toolsai.jupyter-renderers
+
+  # typst
+  myriad-dreamin.tinymist
+
+  # nix
+  jnoortheen.nix-ide
+  mkhl.direnv
+
+  # data and configuration files
+  mechatroner.rainbow-csv
   tamasfe.even-better-toml
+
+  # spelling and grammar, and diagnostics next to the code
+  elijah-potter.harper
   usernamehw.errorlens
-  valentjn.vscode-ltex
-]
-++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-  # not packaged in nixpkgs' vscode-extensions set
-  {
-    name = "jetls-client";
-    publisher = "aviatesk";
-    version = "0.5.0";
-    sha256 = "1cbxli2i41irszjyms6759v3fj9vvvhd28q5n4l8g5p0b33mj2nm";
-  }
 ]

@@ -1,87 +1,53 @@
+{ lib, pkgs }:
 {
-  jetls,
-  lib,
-  pkgs,
-  testrunner,
-}:
-{
-  go = {
-    inlayHints = {
-      assignVariableTypes = true;
-      compositeLiteralFields = true;
-      compositeLiteralTypes = true;
-      constantValues = true;
-      functionTypeParameters = true;
-      parameterNames = true;
-      rangeVariableTypes = true;
+  # julia: the client installs and updates jetls itself
+  jetls-client.settings.formatter.custom = {
+    executable = lib.getExe pkgs.runic;
+    executable_range = lib.getExe pkgs.runic;
+  };
+
+  # jupyter
+  jupyter.askForKernelRestart = false;
+  notebook = {
+    formatOnSave.enabled = true;
+    output = {
+      scrolling = true;
+      wordWrap = true;
     };
-    lintTool = "golangci-lint";
-    useLanguageServer = true;
+    stickyScroll.enabled = true;
   };
 
-  javascript = {
-    inlayHints = {
-      functionLikeReturnTypes.enabled = true;
-      parameterNames.enabled = "all";
-      parameterTypes.enabled = true;
-      propertyDeclarationTypes.enabled = true;
-    };
-    preferGoToSourceDefinition = true;
-    completeFunctionCalls = true;
-  };
-
-  "jetls-client" = {
-    executable = {
-      path = jetls;
-      threads = "auto";
-    };
-    settings = {
-      code_lens.references = true;
-      formatter.custom = {
-        executable = lib.getExe pkgs.runic;
-        executable_range = lib.getExe pkgs.runic;
-      };
-      testrunner.executable = testrunner;
-    };
-  };
-
-  latex-workshop.latex = {
-    outDir = "%DIR%/out";
-    recipe.default = "lastUsed";
-  };
-
-  ltex = {
-    additionalRules.motherTongue = "de-DE";
-    ltex.language = "de-DE";
-  };
-
+  # nix
   nix = {
     enableLanguageServer = true;
-    formatterPath = "${lib.getExe pkgs.nixfmt}";
-    serverPath = "${lib.getExe pkgs.nil}";
-    serverSettings = {
-      nil.formatting.command = [ "${lib.getExe pkgs.nixfmt}" ];
-      nixd.formatting.command = [ "${lib.getExe pkgs.nixfmt}" ];
+    formatterPath = lib.getExe pkgs.nixfmt;
+    serverPath = lib.getExe pkgs.nixd;
+    serverSettings.nixd = {
+      nixpkgs.expr = "import <nixpkgs> {}";
+      formatting.command = [ (lib.getExe pkgs.nixfmt) ];
     };
   };
-
-  python.terminal.executeInFileDir = true;
-
-  typescript = {
-    inlayHints = {
-      functionLikeReturnTypes.enabled = true;
-      parameterNames.enabled = "all";
-      parameterTypes.enabled = true;
-      propertyDeclarationTypes.enabled = true;
-    };
-    preferGoToSourceDefinition = true;
-    suggest.completeFunctionCalls = true;
+  "[nix]" = {
+    "editor.defaultFormatter" = "jnoortheen.nix-ide";
+    "editor.tabSize" = 2;
   };
 
-  # typst (tinymist)
+  # python: ruff formats and lints, ty does the rest
+  python = {
+    languageServer = "None";
+    terminal.executeInFileDir = true;
+  };
+  "[python]" = {
+    "editor.defaultFormatter" = "charliermarsh.ruff";
+    # not fixAll, which deletes imports that are not used yet
+    "editor.codeActionsOnSave"."source.organizeImports" = "explicit";
+  };
+
+  # typst
   tinymist = {
-    tinymist.preview.cursorIndicator = true;
-    exportPdf = "onDocumentHasTitle";
+    exportPdf = "onSave";
     formatterMode = "typstyle";
+    outputPath = "$root/$name";
+    preview.cursorIndicator = true;
   };
 }

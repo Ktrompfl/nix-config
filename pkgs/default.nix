@@ -8,6 +8,7 @@ in
   jay-session = callPackage ./jay-session.nix { };
   ninjabrain-box = callPackage ./ninjabrain-box { inherit inputs; };
   tinted-discord = callPackage ./tinted-discord { };
+  tinted-vscode = callPackage ./tinted-vscode { };
   tinted-zed = callPackage ./tinted-zed { };
   runic = callPackage ./runic.nix { };
 }

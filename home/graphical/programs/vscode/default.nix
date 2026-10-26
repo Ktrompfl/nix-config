@@ -5,139 +5,129 @@
   ...
 }:
 let
-  julia-apps = "${config.directory}/.julia/bin";
-  jetls = "${julia-apps}/jetls";
-  testrunner = "${julia-apps}/testrunner";
+  # A minimal editor for teaching beginners; zed is the one for daily work.
 
   general = {
+    "chat.commandCenter.enabled" = false;
+    "chat.disableAIFeatures" = true;
     "extensions.autoCheckUpdates" = false;
     "extensions.autoUpdate" = false;
+    "extensions.ignoreRecommendations" = true;
+    "security.workspace.trust.enabled" = false;
+    "telemetry.telemetryLevel" = "off";
     "update.mode" = "none";
     "update.showReleaseNotes" = false;
-    "redhat.telemetry.enabled" = false;
-    "telemetry.telemetryLevel" = "off";
-    "security.workspace.trust.enabled" = false;
-    "chat.disableAIFeatures" = true;
+    "workbench.enableExperiments" = false;
   };
 
   window = {
+    "window.commandCenter" = false;
     "window.dialogStyle" = "custom";
-    "window.titleBarStyle" = "custom";
+    "window.menuBarVisibility" = "compact";
+    "window.titleBarStyle" = "custom"; # without this vscode crashes on startup on wayland
   };
 
   files = {
-    "files.autoSave" = "onWindowChange";
+    "files.autoSave" = "onFocusChange";
+    "files.exclude" = lib.genAttrs [
+      # the defaults, which this replaces
+      "**/.git"
+      "**/.svn"
+      "**/.hg"
+      "**/.DS_Store"
+      "**/Thumbs.db"
+
+      "**/.direnv"
+      "**/.ipynb_checkpoints"
+      "**/.pytest_cache"
+      "**/.ruff_cache"
+      "**/__pycache__"
+    ] (_: true);
     "files.insertFinalNewline" = true;
+    "files.trimFinalNewlines" = true;
     "files.trimTrailingWhitespace" = true;
   };
 
   editor = {
-    "editor.bracketPairColorization.enabled" = true;
     "editor.bracketPairColorization.independentColorPoolPerBracketType" = true;
+    "editor.codeLens" = false;
     "editor.cursorBlinking" = "smooth";
     "editor.cursorSmoothCaretAnimation" = "on";
-    "editor.codeActionsOnSave"."source.fixAll" = "always";
-    "editor.fontLigatures" = true;
+    "editor.fontFamily" = "'${config.theme.fonts.monospace.name}'";
+    # beginners should see the characters they type, not `≠` for `!=`
+    "editor.fontLigatures" = false;
+    "editor.fontSize" = 16;
     "editor.fontWeight" = "500";
     "editor.formatOnPaste" = true;
     "editor.formatOnSave" = true;
-    "editor.formatOnType" = true;
     "editor.guides.bracketPairs" = "active";
-    "editor.guides.bracketPairsHorizontal" = "active";
-    "editor.guides.indentation" = true;
-    "editor.inlayHints.enabled" = "on";
-    "editor.inlayHints.padding" = true;
-    "editor.inlineSuggest.enabled" = true;
+    # hold ctrl+alt to show them
+    "editor.inlayHints.enabled" = "offUnlessPressed";
     "editor.linkedEditing" = true;
-    "editor.lineNumbers" = "on";
     "editor.minimap.enabled" = false;
-    "editor.parameterHints.enabled" = true;
+    "editor.mouseWheelZoom" = true;
+    "editor.renderWhitespace" = "selection";
     "editor.scrollbar.horizontal" = "hidden";
-    "editor.semanticHighlighting.enabled" = true;
-    "editor.showUnused" = true;
-    "editor.snippetSuggestions" = "top";
     "editor.stickyScroll.enabled" = true;
-    "editor.tabCompletion" = "on";
-    "editor.tabSize" = 4;
-    "editor.trimAutoWhitespace" = true;
     "editor.wordWrap" = "on";
     "editor.wrappingIndent" = "indent";
   };
 
+  # As in zed: everything docked left, nothing in the title bar.
   workbench = {
     "workbench.activityBar.location" = "top";
+    "workbench.colorTheme" = pkgs.tinted-vscode.themeName config.theme.colors;
+    # single clicks open files for good instead of in a replaceable preview tab
+    "workbench.editor.enablePreview" = false;
     "workbench.editor.empty.hint" = "hidden";
+    "workbench.layoutControl.enabled" = false;
+    "workbench.navigationControl.enabled" = false;
+    "workbench.secondarySideBar.defaultVisibility" = "hidden";
     "workbench.sideBar.location" = "left";
     "workbench.startupEditor" = "none";
+    "workbench.tips.enabled" = false;
     "workbench.tree.indent" = 16;
-    "workbench.layoutControl.enabled" = false;
-    "window.titleBarStyle" = "custom"; # without this vscode crashes on startup on wayland
+    "workbench.welcomePage.walkthroughs.openOnInstall" = false;
   };
 
   terminal = {
+    "terminal.integrated.copyOnSelection" = true;
+    "terminal.integrated.defaultProfile.linux" = "fish";
+    "terminal.integrated.fontSize" = 16;
     "terminal.integrated.gpuAcceleration" = "on";
     "terminal.integrated.minimumContrastRatio" = 1;
-    "terminal.integrated.shell.linux" = (lib.getExe pkgs.fish);
+    "terminal.integrated.profiles.linux".fish.path = lib.getExe pkgs.fish;
   };
 
   # Extension settings
   extension = {
+    direnv.restart.automatic = true;
+
+    # spelling and grammar stay squiggles; errorlens repeats the rest inline
+    errorLens.enabledDiagnosticLevels = [
+      "error"
+      "warning"
+    ];
+    harper.dialect = "British";
+
     git = {
       autofetch = true;
-      # enableCommitSigning = true;
+      confirmSync = false;
       enableSmartCommit = true;
       openRepositoryInParentFolders = "always";
     };
-
-    errorLens = {
-      gutterIconsEnabled = true;
-      gutterIconSet = "defaultOutline";
-    };
-
-    eslint = {
-      format.enable = true;
-      problems.shortenToSingleLine = true;
-      validate = [
-        "javascript"
-        "typescript"
-        "javascriptreact"
-        "typescriptreact"
-        "astro"
-      ];
-    };
-
-    prettier.jsxSingleQuote = true;
-  };
-
-  # Formatter settings
-  formatter = {
-    "[astro]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[css]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[html]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[javascript]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[json]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[jsonc]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[markdown]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[nix]"."editor.defaultFormatter" = "jnoortheen.nix-ide";
-    "[scss]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[typescript]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
-    "[typescriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode";
   };
 
   # Language specific settings
-  language = import ./languages.nix {
-    inherit
-      jetls
-      lib
-      pkgs
-      testrunner
-      ;
-  };
+  language = import ./languages.nix { inherit lib pkgs; };
 
   declarativeSettings =
-    general // window // files // editor // workbench // terminal // extension // formatter // language;
+    general // window // files // editor // workbench // terminal // extension // language;
 
-  extensions = import ./extensions.nix { inherit pkgs; };
+  extensions = import ./extensions.nix {
+    inherit pkgs;
+    palette = config.theme.colors;
+  };
 in
 {
   packages = [

@@ -49,5 +49,6 @@ composeManyExtensions [
 
   inputs.jay.overlays.default
   inputs.jay-screenshot.overlays.default
+  inputs.nix-vscode-extensions.overlays.default
   inputs.nur.overlays.default
 ]

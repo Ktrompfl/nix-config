@@ -282,6 +282,26 @@
         "type": "github"
       }
     },
+    "nix-vscode-extensions": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792987723,
+        "narHash": "sha256-K6VEbto/EB2rmga7JOg0PrWvoRoGLjScW6jbSBFb+G4=",
+        "owner": "nix-community",
+        "repo": "nix-vscode-extensions",
+        "rev": "3bbe514b918a216dc46bf3c0f161621829c9931e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-vscode-extensions",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1792116957,
@@ -381,6 +401,7 @@
         "jay-screenshot": "jay-screenshot",
         "llm-agents": "llm-agents",
         "nix-mineral": "nix-mineral",
+        "nix-vscode-extensions": "nix-vscode-extensions",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-zotero": "nixpkgs-zotero",
         "nur": "nur",

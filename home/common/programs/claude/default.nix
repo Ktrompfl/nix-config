@@ -34,7 +34,9 @@ let
       (below config.storage.state path || below config.storage.data path)
       && !lib.any (directory: below directory path) (lib.attrNames shared)
     ) (lib.splitString ":" value);
-  variables = lib.filterAttrs (_: value: !private (toString value)) config.environment.sessionVariables;
+  variables = lib.filterAttrs (
+    _: value: !private (toString value)
+  ) config.environment.sessionVariables;
   zotero = if config.apps ? zotero then "${config.apps.zotero.storage}/Zotero" else null;
 
   # The manifest name becomes the MCP tool namespace
@@ -126,10 +128,11 @@ in
             command = lib.getExe context7;
             args = [ ];
           };
-          nixos = {
-            command = lib.getExe pkgs.mcp-nixos;
-            args = [ ];
-          };
+          # FIXME: restore once fastmcp-slim supports mcp >= 2 (marked broken in nixpkgs)
+          # nixos = {
+          #   command = lib.getExe pkgs.mcp-nixos;
+          #   args = [ ];
+          # };
         };
       };
     };
@@ -209,7 +212,9 @@ in
         (set-env "TMPDIR" "${storage}/tmp")
       ]
       # bound where the host has them, since that is what the variables say
-      ++ lib.mapAttrsToList (path: mode: if mode == "rw" then try-readwrite path else try-readonly path) shared
+      ++ lib.mapAttrsToList (
+        path: mode: if mode == "rw" then try-readwrite path else try-readonly path
+      ) shared
       ++ lib.mapAttrsToList (name: value: set-env name (toString value)) variables
       ++ lib.optional (zotero != null) (try-readonly zotero);
   };

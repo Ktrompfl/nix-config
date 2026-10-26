@@ -61,7 +61,9 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
 
     nix-mineral = {
-      url = "github:cynicsketch/nix-mineral";
+      # FIXME: restore once https://github.com/cynicsketch/nix-mineral/pull/244 is merged
+      # url = "github:cynicsketch/nix-mineral";
+      url = "github:surfaceflinger/nix-mineral/scripted-stage-1-removal";
       inputs = {
         flake-compat.follows = "flake-compat";
         flake-parts.follows = "flake-parts";

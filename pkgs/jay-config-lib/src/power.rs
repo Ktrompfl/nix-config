@@ -6,28 +6,33 @@ use jay_config::{exec::Command, io::Async, tasks};
 
 use crate::{exec, idle};
 
-/// label and action of each entry, in menu order
-fn entries() -> Vec<(&'static str, fn())> {
+/// label, icon from the icon theme, and action of each entry, in menu order
+fn entries() -> Vec<(&'static str, &'static str, fn())> {
     vec![
-        ("Lock", || exec("swaylock", &["--daemonize"])),
-        ("Suspend", idle::suspend),
+        ("Lock", "system-lock-screen", || {
+            exec("swaylock", &["--daemonize"])
+        }),
+        ("Suspend", "system-suspend", idle::suspend),
         (
             if idle::inhibited() {
                 "Allow idle"
             } else {
                 "Inhibit idle"
             },
+            "caffeine",
             idle::toggle_inhibitor,
         ),
         // stops the session's services before jay itself
-        ("Log out", || {
+        ("Log out", "system-log-out", || {
             exec("systemctl", &["--user", "stop", "jay.service"])
         }),
-        ("Reboot", || exec("systemctl", &["reboot"])),
-        ("Reboot to UEFI", || {
+        ("Reboot", "system-reboot", || exec("systemctl", &["reboot"])),
+        ("Reboot to UEFI", "firmware-manager", || {
             exec("systemctl", &["reboot", "--firmware-setup"])
         }),
-        ("Shut down", || exec("systemctl", &["poweroff"])),
+        ("Shut down", "system-shutdown", || {
+            exec("systemctl", &["poweroff"])
+        }),
     ]
 }
 
@@ -49,22 +54,22 @@ async fn run() -> io::Result<()> {
     let (stdin, mut input) = io::pipe()?;
     let (output, stdout) = io::pipe()?;
     // a few lines, so this cannot block on a full pipe
-    for (label, _) in &entries {
-        writeln!(input, "{label}")?;
+    for (label, icon, _) in &entries {
+        writeln!(input, "{label}\0icon\x1f{icon}")?;
     }
     drop(input);
     Command::new("fuzzel")
         .arg("--dmenu")
         .arg("--index")
         .arg(&format!("--lines={}", entries.len()))
-        .arg("--prompt=power: ")
+        .arg("--prompt=$ ")
         .stdin(stdin)
         .stdout(stdout)
         .spawn();
     // fuzzel prints nothing when the menu is dismissed
     let selection = String::from_utf8_lossy(&read_to_end(output).await?).into_owned();
     if let Ok(index) = selection.trim().parse::<usize>()
-        && let Some((_, action)) = entries.get(index)
+        && let Some((_, _, action)) = entries.get(index)
     {
         action();
     }

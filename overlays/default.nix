@@ -30,6 +30,13 @@ let
           final.callPackage src { julia = final.julia; };
       };
     });
+
+    # wl-mirror allocates its capture buffer in the first dmabuf format the
+    # compositor offers; jay offers formats in random order, including some
+    # (e.g. RGB888, RGBA4444) that gbm cannot allocate on amdgpu.
+    wl-mirror = prev.wl-mirror.overrideAttrs (oldAttrs: {
+      patches = (oldAttrs.patches or [ ]) ++ [ ./wl-mirror-prefer-rgb8888.patch ];
+    });
   };
 
   # Make supported packages use lix instead of nix.

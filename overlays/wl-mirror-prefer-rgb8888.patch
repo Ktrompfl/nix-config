@@ -1,0 +1,23 @@
+--- a/src/mirror/extcopy.c
++++ b/src/mirror/extcopy.c
+@@ -7,6 +7,7 @@
+ #include <wlm/egl/formats.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <drm_fourcc.h>
+ 
+ static void extcopy_frame_cleanup(extcopy_mirror_backend_t * backend) {
+     if (backend->capture_frame != NULL) ext_image_copy_capture_frame_v1_destroy(backend->capture_frame);
+@@ -91,7 +92,11 @@
+ 
+     if (!backend->use_dmabuf) return;
+ 
+-    if (!backend->has_drm_format) {
++    // the compositor sends formats in no particular order, and gbm cannot
++    // allocate all of them, so prefer the 8-bit RGB formats
++    bool preferred = drm_format == DRM_FORMAT_XRGB8888 || drm_format == DRM_FORMAT_ARGB8888;
++    bool have_preferred = backend->has_drm_format && (backend->frame_drm_format == DRM_FORMAT_XRGB8888 || backend->frame_drm_format == DRM_FORMAT_ARGB8888);
++    if (!backend->has_drm_format || (preferred && !have_preferred)) {
+         wlm_log_debug(ctx, "mirror-extcopy::on_capture_session_dmabuf_format(): drm_format = %x\n", drm_format);
+         backend->has_drm_format = true;
+         backend->frame_drm_format = drm_format;

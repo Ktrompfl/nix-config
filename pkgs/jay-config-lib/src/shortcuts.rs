@@ -119,19 +119,6 @@ impl Mode {
 }
 
 fn modes(seat: Seat) {
-    let present = |action: &'static str| move || exec("wl-present", &[action]);
-    Mode::new("mirror", LOGO | SYM_m)
-        .exit_with(SYM_m, present("mirror"))
-        .exit_with(SYM_c, present("custom"))
-        .exit_with(SYM_f, present("toggle-freeze"))
-        .exit_with(SYM_z, present("freeze"))
-        .exit_with(SHIFT | SYM_z, present("unfreeze"))
-        .exit_with(SYM_o, present("set-output"))
-        .exit_with(SYM_r, present("set-region"))
-        .exit_with(SHIFT | SYM_r, present("unset-region"))
-        .exit_with(SYM_s, present("set-scaling"))
-        .install(seat);
-
     let resize = |grow: [i32; 4], step: i32| {
         let [dx1, dy1, dx2, dy2] = grow.map(|d| d * step);
         move || seat.resize(dx1, dy1, dx2, dy2)
@@ -234,6 +221,10 @@ pub fn setup() {
     seat.bind(LOGO | SHIFT | SYM_y, move || {
         seat.create_split_relative(RelativeAxis::Major)
     });
+
+    // mirror of the laptop panel
+    seat.bind(LOGO | SYM_z, || exec("wl-present", &["freeze"]));
+    seat.bind(LOGO | SHIFT | SYM_z, || exec("wl-present", &["unfreeze"]));
 
     // focus
     bind_repeating(seat, LOGO | SYM_Tab, move || {

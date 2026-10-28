@@ -8,13 +8,15 @@ use jay_config::{
     },
 };
 
+use crate::mirror;
+
 pub enum Match {
     Connector(&'static str),
     Model(&'static str),
 }
 
 pub const LAPTOP_PANEL: Match = Match::Connector("eDP-1");
-pub const BEAMER: Match = Match::Model("EPSON PJ");
+const BEAMER: Match = Match::Model("EPSON PJ");
 
 impl Match {
     fn matches(&self, connector: Connector) -> bool {
@@ -24,7 +26,7 @@ impl Match {
         }
     }
 
-    fn find(&self) -> Option<Connector> {
+    pub fn find(&self) -> Option<Connector> {
         connectors()
             .into_iter()
             .find(|&c| c.connected() && self.matches(c))
@@ -59,7 +61,6 @@ const OUTPUTS: &[Output] = &[
         workspaces: &["1", "2", "3", "4", "5"],
     },
     Output {
-        // TODO: automatically spawn wl-mirror
         match_: BEAMER,
         position: (0, 1080),
         mode: (1920, 1080, 60.0),
@@ -127,6 +128,10 @@ pub fn setup() {
             output.apply(connector);
         }
         assign_workspaces(None);
+        mirror::update(None);
     });
-    on_connector_disconnected(|connector| assign_workspaces(Some(connector)));
+    on_connector_disconnected(|connector| {
+        assign_workspaces(Some(connector));
+        mirror::update(Some(connector));
+    });
 }

@@ -12,6 +12,7 @@ mod bar;
 mod clients;
 mod idle;
 mod inputs;
+mod mirror;
 mod outputs;
 mod shortcuts;
 mod theme;
@@ -41,6 +42,7 @@ fn configure() {
     clients::setup();
     idle::setup();
     inputs::setup();
+    mirror::setup();
     outputs::setup();
     shortcuts::setup();
     theme::setup();
@@ -52,6 +54,7 @@ fn configure() {
     let notify_socket = std::env::var("NOTIFY_SOCKET").ok();
     unset_env("NOTIFY_SOCKET");
     on_graphics_initialized(move || {
+        mirror::start();
         if let Some(socket) = notify_socket {
             Command::new("systemd-notify")
                 .arg("--ready")

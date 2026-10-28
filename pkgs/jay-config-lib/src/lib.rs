@@ -14,6 +14,7 @@ mod idle;
 mod inputs;
 mod mirror;
 mod outputs;
+mod power;
 mod shortcuts;
 mod theme;
 mod windows;

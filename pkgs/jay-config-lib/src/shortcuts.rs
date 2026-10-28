@@ -11,7 +11,7 @@ use jay_config::{
     reload, set_show_titles, switch_to_vt,
 };
 
-use crate::{bar, exec, idle};
+use crate::{bar, exec, power};
 
 /// key, arrow key, direction, and how resizing grows the window that way as
 /// `(dx1, dy1, dx2, dy2)`
@@ -39,20 +39,13 @@ fn bind_repeating(seat: Seat, sym: impl Into<ModifiedKeySym>, f: impl FnMut() + 
     seat.set_repeat_bind(sym, true);
 }
 
-/// Shortcuts layered on top of the normal ones while the mode is active. jay's
-/// config API has no mode stack, so entering binds them and exiting unbinds
-/// them again; only one mode is ever active.
+/// Shortcuts layered on top of the normal ones while the mode is active; they
+/// repeat while held. jay's config API has no mode stack, so entering binds
+/// them and exiting unbinds them again; only one mode is ever active.
 struct Mode {
     name: &'static str,
     key: ModifiedKeySym,
-    shortcuts: Vec<(ModifiedKeySym, Shortcut)>,
-}
-
-enum Shortcut {
-    /// exits the mode, then runs
-    Exit(Rc<dyn Fn()>),
-    /// stays in the mode and repeats while held
-    Repeat(Rc<dyn Fn()>),
+    shortcuts: Vec<(ModifiedKeySym, Rc<dyn Fn()>)>,
 }
 
 impl Mode {
@@ -64,15 +57,8 @@ impl Mode {
         }
     }
 
-    fn exit_with(mut self, sym: impl Into<ModifiedKeySym>, f: impl Fn() + 'static) -> Self {
-        self.shortcuts
-            .push((sym.into(), Shortcut::Exit(Rc::new(f))));
-        self
-    }
-
     fn repeat(mut self, sym: impl Into<ModifiedKeySym>, f: impl Fn() + 'static) -> Self {
-        self.shortcuts
-            .push((sym.into(), Shortcut::Repeat(Rc::new(f))));
+        self.shortcuts.push((sym.into(), Rc::new(f)));
         self
     }
 
@@ -86,20 +72,9 @@ impl Mode {
     }
 
     fn enter(self: &Rc<Self>, seat: Seat) {
-        for (sym, shortcut) in &self.shortcuts {
-            match shortcut {
-                Shortcut::Exit(f) => {
-                    let (mode, f) = (self.clone(), f.clone());
-                    seat.bind(*sym, move || {
-                        mode.exit(seat);
-                        f();
-                    });
-                }
-                Shortcut::Repeat(f) => {
-                    let f = f.clone();
-                    bind_repeating(seat, *sym, move || f());
-                }
-            }
+        for (sym, f) in &self.shortcuts {
+            let f = f.clone();
+            bind_repeating(seat, *sym, move || f());
         }
         for sym in [self.key, SYM_Escape.into()] {
             let mode = self.clone();
@@ -132,14 +107,6 @@ fn modes(seat: Seat) {
         }
     }
     resize_mode.install(seat);
-
-    Mode::new("system", LOGO | SYM_p)
-        .exit_with(SYM_l, || exec("swaylock", &["--daemonize"]))
-        .exit_with(SYM_s, || exec("systemctl", &["poweroff"]))
-        .exit_with(SYM_r, || exec("systemctl", &["reboot"]))
-        .exit_with(SYM_h, idle::suspend)
-        .exit_with(SYM_i, idle::toggle_inhibitor)
-        .install(seat);
 }
 
 /// Captures a region and opens it in satty.
@@ -225,6 +192,8 @@ pub fn setup() {
     // mirror of the laptop panel
     seat.bind(LOGO | SYM_z, || exec("wl-present", &["freeze"]));
     seat.bind(LOGO | SHIFT | SYM_z, || exec("wl-present", &["unfreeze"]));
+
+    seat.bind(LOGO | SYM_p, power::menu);
 
     // focus
     bind_repeating(seat, LOGO | SYM_Tab, move || {

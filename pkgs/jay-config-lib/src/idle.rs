@@ -14,6 +14,10 @@ pub fn suspend() {
     exec("systemctl", &["suspend-then-hibernate"]);
 }
 
+pub fn inhibited() -> bool {
+    INHIBITED.get()
+}
+
 pub fn toggle_inhibitor() {
     let inhibited = !INHIBITED.get();
     INHIBITED.set(inhibited);

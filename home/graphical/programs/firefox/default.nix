@@ -18,6 +18,7 @@
       c: with c; [
         gui
         gpu
+        camera
         network
         notifications
       ];

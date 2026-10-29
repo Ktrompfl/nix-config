@@ -15,6 +15,15 @@ inputs.jail.lib.extend {
       (unsafe-add-raw-args "--ro-bind /nix/store /nix/store")
       (runtime-deep-ro-bind "/nonexistent-emits-the-helpers")
       (add-runtime "bindNixStoreClosure() { :; }")
+
+      # The portal identifies the app by the `/.flatpak-info` of its bus peer,
+      # which is the xdg-dbus-proxy rather than the app. `portals` exports the
+      # file before the proxy's jail starts, so the proxy gets it too.
+      (add-runtime ''
+        if [ -n "''${JAIL_FLATPAK_INFO-}" ]; then
+          RUNTIME_ARGS+=(--ro-bind "$JAIL_FLATPAK_INFO" /.flatpak-info)
+        fi
+      '')
     ];
 
   additionalCombinators =
@@ -42,15 +51,23 @@ inputs.jail.lib.extend {
             ];
           })
 
-          (write-text "/.flatpak-info" ''
-            [Application]
-            name=${appId}
+          (
+            let
+              info = pkgs.writeText "flatpak-info-${appId}" ''
+                [Application]
+                name=${appId}
 
-            [Instance]
-            instance-id=jail
-            session-bus-proxy=true
-            system-bus-proxy=false
-          '')
+                [Instance]
+                instance-id=jail
+                session-bus-proxy=true
+                system-bus-proxy=false
+              '';
+            in
+            compose [
+              (bind-pkg "/.flatpak-info" info)
+              (add-runtime "export JAIL_FLATPAK_INFO=${info}")
+            ]
+          )
 
           (fwd-env "XDG_RUNTIME_DIR")
           (rw-bind (noescape "\"$XDG_RUNTIME_DIR/doc/by-app/${appId}\"") (

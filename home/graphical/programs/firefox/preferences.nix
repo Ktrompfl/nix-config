@@ -4,8 +4,7 @@
   ...
 }:
 {
-  apps.firefox.files.".mozilla/firefox/default/user.js" = {
-    mutable = false;
+  files.".mozilla/firefox/default/user.js" = {
     generator = helpers.generators.toMozillaPrefs;
 
     value = {

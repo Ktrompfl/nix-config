@@ -51,7 +51,6 @@ in
   wayland.services = {
     swayidle = {
       description = "Idle manager for Wayland";
-      sandbox = false;
       serviceConfig = {
         Environment = [ "PATH=${lib.makeBinPath [ pkgs.bash ]}" ];
         ExecStart = lib.concatStringsSep " " [

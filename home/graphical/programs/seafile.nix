@@ -1,21 +1,9 @@
 { pkgs, ... }:
 {
-  apps.seafile-client = {
-    package = pkgs.seafile-client;
-    binaries = [ "seafile-applet" ];
-    appId = "com.seafile.seafile-applet";
+  packages = [ pkgs.seafile-client ];
 
-    access.Seafile = "rw";
-
-    jail.permissions =
-      c: with c; [
-        gui
-        gpu
-        network
-        notifications
-        tray
-      ];
+  preservation.preserveAt = {
+    state-dir.directories = [ ".ccnet" ];
+    data-dir.directories = [ "Seafile" ];
   };
-
-  preservation.preserveAt.data-dir.directories = [ "Seafile" ];
 }

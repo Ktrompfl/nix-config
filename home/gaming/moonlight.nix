@@ -1,15 +1,6 @@
 { pkgs, ... }:
 {
-  apps.moonlight-qt = {
-    package = pkgs.moonlight-qt; # remote play
-    binaries = [ "moonlight" ];
-    appId = "com.moonlight_stream.Moonlight";
+  packages = [ pkgs.moonlight-qt ]; # remote play
 
-    jail.permissions =
-      c: with c; [
-        gui
-        gpu
-        network
-      ];
-  };
+  preservation.preserveAt.state-dir.directories = [ ".config/Moonlight Game Streaming Project" ];
 }

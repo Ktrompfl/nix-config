@@ -10,7 +10,6 @@
   # notifications fail silently if this is killed
   wayland.services.swaync = {
     description = "Swaync notification daemon";
-    sandbox = false;
     slice = "session";
     serviceConfig.ExecStart = lib.getExe' pkgs.swaynotificationcenter "swaync";
   };

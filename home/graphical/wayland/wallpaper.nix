@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   ...
@@ -12,11 +11,6 @@
     description = "Animated wallpaper daemon for Wayland";
     path = [ pkgs.awww ];
 
-    serviceConfig = {
-      ExecStart = lib.getExe' pkgs.awww "awww-daemon";
-
-      BindReadOnlyPaths = [ "${config.directory}/Pictures" ];
-      BindPaths = [ config.xdg.cache.directory ];
-    };
+    serviceConfig.ExecStart = lib.getExe' pkgs.awww "awww-daemon";
   };
 }

@@ -56,17 +56,7 @@ let
   );
 in
 {
-  apps.spotify = {
-    package = spotify;
-    appId = "com.spotify.Client";
+  packages = [ spotify ];
 
-    jail.permissions =
-      c: with c; [
-        gui
-        gpu
-        network
-        notifications
-        (mpris "spotify")
-      ];
-  };
+  preservation.preserveAt.state-dir.directories = [ ".config/spotify" ];
 }

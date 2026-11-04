@@ -7,20 +7,16 @@
 }:
 let
   inherit (lib)
-    any
     attrNames
     attrValues
     concatLines
     concatMapStringsSep
-    elem
     escapeShellArg
     filterAttrs
-    hasPrefix
     isDerivation
     isPath
     mapAttrsToList
     mkOption
-    optional
     types
     unique
     ;
@@ -30,38 +26,12 @@ let
   home = config.directory;
 
   # The app's private home, bound over $HOME in the jail. It lives below the
-  # storage roots so that the user can create it without tmpfiles.
-  storageOf =
-    name: app: "${if app.backup then config.storage.data else config.storage.state}/apps/${name}";
+  # storage root so that the user can create it without tmpfiles.
+  storageOf = name: "${config.storage.state}/apps/${name}";
 
   # An `access` key: an XDG user directory by name, or else a path below $HOME.
   grantedPath =
     key: config.environment.sessionVariables."XDG_${lib.toUpper key}_DIR" or "${home}/${key}";
-
-  # Toolkit and cursor theming from the shared home, bound from the store so
-  # that the jail does not see the preservation symlinks.
-  themingFiles =
-    let
-      from =
-        prefix: files:
-        mapAttrsToList (path: file: {
-          path = "${prefix}/${path}";
-          inherit (file) source;
-        }) files;
-      isTheming =
-        path:
-        any (directory: hasPrefix "${directory}/" path) [
-          "gtk-3.0"
-          "gtk-4.0"
-          "Kvantum"
-          "qt5ct"
-          "qt6ct"
-        ];
-    in
-    from ".config" (filterAttrs (path: _: isTheming path) config.xdg.config.files)
-    ++ from ".local/share" (
-      filterAttrs (path: _: elem path [ "icons/default/index.theme" ]) config.xdg.data.files
-    );
 
   # The same file options as hjem's, so that a file can move between
   # `xdg.config.files` and `apps.<name>.files` unchanged.
@@ -80,33 +50,23 @@ let
     else
       pkgs.writeText name generated;
 
-  # Relative, so that links in the private home also resolve on the host.
-  relativeTo =
-    from: to: lib.concatStrings (map (_: "../") (lib.init (lib.splitString "/" from))) + to;
-
   permissionsOf =
     name: app:
     let
-      storage = storageOf name app;
+      storage = storageOf name;
       inStorage = path: escapeShellArg "${storage}/${path}";
 
       copied = filterAttrs (_: file: file.mutable) app.files;
-      bound =
-        mapAttrsToList (path: file: {
-          inherit path;
-          source = contentsOf path file;
-        }) (filterAttrs (_: file: !file.mutable) app.files)
-        ++ themingFiles;
+      bound = mapAttrsToList (path: file: {
+        inherit path;
+        source = contentsOf path file;
+      }) (filterAttrs (_: file: !file.mutable) app.files);
 
       # What was copied in last time, so that removed files can be deleted.
       manifest = pkgs.writeText "${name}-managed" (concatLines (attrNames copied));
 
       # bwrap needs the parent of every bind destination to exist.
-      parents = unique (
-        map (file: dirOf file.path) bound
-        ++ mapAttrsToList (path: _: dirOf path) app.links
-        ++ app.directories
-      );
+      parents = unique (map (file: dirOf file.path) bound ++ app.directories);
     in
     c:
     with c;
@@ -126,12 +86,6 @@ let
         # bwrap cannot bind over a symlink that leads out of the jail
         rm -f ${concatMapStringsSep " " (file: inStorage file.path) bound}
 
-        ${concatLines (
-          mapAttrsToList (
-            path: target: "ln -sfn ${escapeShellArg (relativeTo path target)} ${inStorage path}"
-          ) app.links
-        )}
-
         # Copied rather than bound, so that the app can write them however it
         # likes; the declared contents return at the next launch. `-p` keeps
         # the mtime, which apps use to cache work on the file.
@@ -149,22 +103,8 @@ let
       (readonly "/etc/profiles/per-user/${config.user}")
     ]
 
-    # The jail clears the environment; these are needed for theming, the
-    # Wayland backends and the locale.
-    ++ map try-fwd-env [
-      "GTK2_RC_FILES"
-      "GTK_A11Y"
-      "GTK_PATH"
-      "GTK_THEME"
-      "LOCALE_ARCHIVE"
-      "NIXOS_OZONE_WL"
-      "QT_PLUGIN_PATH"
-      "QT_QPA_PLATFORM"
-      "QT_QPA_PLATFORMTHEME"
-      "QT_STYLE_OVERRIDE"
-      "XDG_CURRENT_DESKTOP"
-      "XENVIRONMENT"
-    ]
+    # The jail clears the environment.
+    ++ [ (try-fwd-env "LOCALE_ARCHIVE") ]
 
     ++ map (file: ro-bind file.source "${home}/${file.path}") bound
 
@@ -172,28 +112,13 @@ let
       key: mode: (if mode == "rw" then readwrite else readonly) (grantedPath key)
     ) app.access
 
-    ++ optional (app.appId != null) (portals app.appId)
-
     ++ app.jail.permissions c;
 
-  # The package's share/, with the desktop entries pointed at the jailed
-  # binaries, so that launchers and `xdg-open` do not run the unjailed ones.
+  # The package's share/, with any desktop entries pointed at the jailed
+  # binaries, so that launchers do not run the unjailed ones.
   resources =
     name: app: binaries:
     pkgs.runCommand "${name}-resources" { } ''
-      ${lib.optionalString (app.appId != null) ''
-        # The jail only lets the app own `appId` on the bus; a mismatch with its
-        # desktop entry makes it exit at startup, so fail the build instead.
-        shipped=$(
-          ls "${app.package}/share/applications" 2>/dev/null |
-            sed 's/\.desktop$//' |
-            grep -E '^[A-Za-z_-][A-Za-z0-9_-]*(\.[A-Za-z_-][A-Za-z0-9_-]*)+$' || true
-        )
-        if [ "$(printf '%s' "$shipped" | grep -c .)" = 1 ] && [ "$shipped" != "${app.appId}" ]; then
-          echo "apps.${name}: appId is '${app.appId}' but the package ships '$shipped.desktop'" >&2
-          exit 1
-        fi
-      ''}
       mkdir -p "$out/share"
       for directory in "${app.package}/share"/*; do
         [ -e "$directory" ] || continue
@@ -290,18 +215,6 @@ let
           description = "Executables to wrap.";
         };
 
-        appId = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-          description = "Application id; setting it grants access to the portals.";
-        };
-
-        backup = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Whether the private home is on /persist rather than /cache.";
-        };
-
         files = mkOption {
           type = types.attrsOf (types.submodule fileModule);
           default = { };
@@ -317,8 +230,7 @@ let
           );
           default = { };
           example = {
-            download = "rw";
-            Seafile = "rw";
+            Repositories = "rw";
           };
           description = ''
             Paths in the shared home the app may reach: an XDG user directory by
@@ -332,19 +244,10 @@ let
           description = "Directories to create in the private home.";
         };
 
-        links = mkOption {
-          type = types.attrsOf types.str;
-          default = { };
-          example = {
-            ".local/share/app/instance/save" = ".local/share/app/saves/one";
-          };
-          description = "Symlinks in the private home, from path to target, both relative to it.";
-        };
-
         jail.permissions = mkOption {
           type = types.functionTo (types.listOf types.raw);
           default = _: [ ];
-          example = lib.literalExpression "c: with c; [ electron network notifications ]";
+          example = lib.literalExpression "c: with c; [ network gpu ]";
           description = "Additional jail.nix combinators.";
         };
 
@@ -363,7 +266,7 @@ let
 
       config = {
         wrapped = wrap name config;
-        storage = storageOf name config;
+        storage = storageOf name;
       };
     };
 in

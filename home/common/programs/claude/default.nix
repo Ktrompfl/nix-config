@@ -14,7 +14,7 @@ let
   storage = config.apps.claude.storage;
   data = config.xdg.data.directory;
 
-  # State shared with the host, so that builds are not cold in every session.
+  # shared with the host, so builds stay warm
   shared = {
     ${config.xdg.cache.directory} = "rw";
     "${data}/julia" = "rw";
@@ -23,9 +23,7 @@ let
     "${data}/gurobi" = "ro";
   };
 
-  # The session variables come in too, bar those that name the host's storage
-  # outside of what is shared: the data and state homes among them, so that
-  # whatever else runs in here keeps its state in the private home.
+  # the host's session variables, minus those pointing into unshared storage
   below = directory: path: path == directory || lib.hasPrefix "${directory}/" path;
   private =
     value:
@@ -37,10 +35,15 @@ let
   variables = lib.filterAttrs (
     _: value: !private (toString value)
   ) config.environment.sessionVariables;
-  zotero = if config.apps ? zotero then "${config.apps.zotero.storage}/Zotero" else null;
+  zotero =
+    if
+      lib.any (entry: entry.directory == "Zotero") config.preservation.preserveAt.state-dir.directories
+    then
+      "${config.storage.state}/Zotero"
+    else
+      null;
 
-  # The manifest name becomes the MCP tool namespace
-  # (`mcp__plugin_<name>_<server>__<tool>`), so it is kept short.
+  # becomes the MCP tool namespace: `mcp__plugin_<name>_<server>__<tool>`
   pluginName = "local";
   pluginDir = ".claude/skills/nix-managed";
 
@@ -52,8 +55,7 @@ in
 {
   imports = [ ./skills.nix ];
 
-  # Claude only ever runs in this jail, so it may do anything in there without
-  # asking. Its login, history and config live in the jail's private home.
+  # only ever runs in this jail, so it may act without asking
   apps.claude = {
     package = llm-packages.claude-code;
 
@@ -69,10 +71,7 @@ in
           # the terminal's sixteen colours, which follow the system scheme
           theme = "${config.theme.colors.meta.variant or "dark"}-ansi";
 
-          # Bash commands get the project's direnv environment, re-evaluated
-          # before each one so that it follows `cd`. An .envrc that was never
-          # allowed on the host stays inert, since the allow list is read-only
-          # in here.
+          # direnv environment for Bash commands, re-evaluated on every call
           hooks.SessionStart = [
             {
               hooks = [
@@ -111,8 +110,7 @@ in
           disk, one subdirectory per task, cleaned after 7 days).
       '';
 
-      # Language servers and MCP servers are delivered through a generated
-      # plugin rather than through settings.json.
+      # language and MCP servers come through a generated plugin
       "${pluginDir}/.claude-plugin/plugin.json" = {
         generator = json "claude-plugin.json";
         value.name = pluginName;
@@ -148,15 +146,10 @@ in
         gpu
         (add-pkg-deps [ pkgs.ast-grep ])
 
-        # Without a session of its own claude stays in the terminal's
-        # foreground process group, and so gets the SIGWINCH that tells it the
-        # terminal was resized. What --new-session guards against, typing into
-        # the terminal through TIOCSTI, is refused anyway while
-        # dev.tty.legacy_tiocsti is 0, which nix-mineral sets.
+        # keeps SIGWINCH on resize; TIOCSTI is disabled by nix-mineral anyway
         no-new-session
 
-        # Started from $HOME, mount-cwd would put the real home over the
-        # private one.
+        # mount-cwd from $HOME would cover the private home
         (add-runtime ''
           if [ "$PWD" = "$HOME" ]; then
             echo "claude: refusing to expose the whole home directory" >&2
@@ -164,8 +157,7 @@ in
           fi
         '')
         mount-cwd
-        # bwrap would otherwise start in the physical cwd, which below
-        # ~/Repositories is a /persist path the jail does not have
+        # the logical cwd; the physical one is a /persist path
         (unsafe-add-raw-args "--chdir \"$PWD\"")
 
         (readwrite "/persist/nixos")
@@ -201,17 +193,12 @@ in
 
         (try-fwd-env "COLORTERM")
 
-        # $EDITOR, which comes in with the session variables below, is the
-        # host's Zed. Its CLI hands a path to the running instance over the
-        # socket in Zed's data directory, and that instance then connects back
-        # to a socket the CLI makes under $TMPDIR and opens the file, which
-        # also lives there. So $TMPDIR is the same directory as ~/tmp in here,
-        # but at the path the host has for it.
+        # $EDITOR is the host's Zed, which reaches its CLI through a socket in
+        # $TMPDIR, so that has to be a path the host also has
         (try-ro-bind "${data}/zed" "${home}/.local/share/zed")
         (readwrite "${storage}/tmp")
         (set-env "TMPDIR" "${storage}/tmp")
       ]
-      # bound where the host has them, since that is what the variables say
       ++ lib.mapAttrsToList (
         path: mode: if mode == "rw" then try-readwrite path else try-readonly path
       ) shared
@@ -219,7 +206,7 @@ in
       ++ lib.optional (zotero != null) (try-readonly zotero);
   };
 
-  # ccusage and claudecode.nvim on the host find the jail's state through this.
+  # for ccusage and claudecode.nvim on the host
   packages = [ llm-packages.ccusage ];
   environment.sessionVariables.CLAUDE_CONFIG_DIR = "${storage}/.claude";
 

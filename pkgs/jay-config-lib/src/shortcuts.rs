@@ -245,6 +245,17 @@ pub fn setup() {
     seat.bind(SYM_XF86AudioMicMute, || {
         exec("wpctl", &["set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"])
     });
+    seat.bind(LOGO | SYM_m, || {
+        exec(
+            "sh",
+            &[
+                "-c",
+                "systemctl --user is-active -q mic-monitor \
+                 && systemctl --user stop mic-monitor \
+                 || systemctl --user start mic-monitor",
+            ],
+        )
+    });
     seat.bind(SYM_XF86AudioPlay, || exec("playerctl", &["play-pause"]));
     seat.bind(SYM_XF86AudioPause, || exec("playerctl", &["play-pause"]));
     seat.bind(SYM_XF86AudioNext, || exec("playerctl", &["next"]));

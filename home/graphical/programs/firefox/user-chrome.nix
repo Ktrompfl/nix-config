@@ -1,6 +1,5 @@
 {
-  apps.firefox.files.".mozilla/firefox/default/chrome/userChrome.css" = {
-    mutable = false;
+  files.".mozilla/firefox/default/chrome/userChrome.css" = {
     text = # css
       ''
         /* hide window controls */

@@ -1,29 +1,6 @@
 { pkgs, ... }:
 {
-  apps.libreoffice = {
-    package = pkgs.libreoffice;
+  packages = [ pkgs.libreoffice ];
 
-    binaries = [
-      "libreoffice"
-      "sbase"
-      "scalc"
-      "sdraw"
-      "simpress"
-      "smath"
-    ];
-
-    appId = "org.libreoffice.LibreOffice";
-
-    access = {
-      documents = "rw";
-      download = "rw";
-    };
-
-    jail.permissions =
-      c: with c; [
-        gui
-        gpu
-        open-args
-      ];
-  };
+  preservation.preserveAt.state-dir.directories = [ ".config/libreoffice" ];
 }

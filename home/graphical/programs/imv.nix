@@ -5,20 +5,10 @@
   ...
 }:
 {
-  apps.imv = {
-    package = pkgs.imv;
+  packages = [ pkgs.imv ];
 
-    files.".config/imv/config" = {
-      generator = helpers.generators.toINI { };
-      value.options.background = config.theme.colors.withoutHashtag.base00;
-      mutable = false;
-    };
-
-    jail.permissions =
-      c: with c; [
-        gui
-        gpu
-        open-args
-      ];
+  xdg.config.files."imv/config" = {
+    generator = helpers.generators.toINI { };
+    value.options.background = config.theme.colors.withoutHashtag.base00;
   };
 }

@@ -8,33 +8,22 @@ let
   inherit (config.theme) colors fonts;
 in
 {
-  apps.mpv = {
-    package = pkgs.mpv;
+  packages = [ pkgs.mpv ];
 
-    jail.permissions =
-      c: with c; [
-        gui
-        gpu
-        open-args
-        network # streaming urls
-      ];
+  xdg.config.files."mpv/mpv.conf" = {
+    generator = helpers.generators.toKeyValueLines { quote = true; };
 
-    files.".config/mpv/mpv.conf" = {
-      mutable = false;
-      generator = helpers.generators.toKeyValueLines { quote = true; };
+    value = {
+      osd-font = fonts.sansSerif.name;
+      sub-font = fonts.sansSerif.name;
+    }
+    // (with colors.withHashtag; {
+      background-color = base00;
 
-      value = {
-        osd-font = fonts.sansSerif.name;
-        sub-font = fonts.sansSerif.name;
-      }
-      // (with colors.withHashtag; {
-        background-color = base00;
-
-        osd-back-color = base01;
-        osd-border-color = base01;
-        osd-color = base05;
-        osd-shadow-color = base00;
-      });
-    };
+      osd-back-color = base01;
+      osd-border-color = base01;
+      osd-color = base05;
+      osd-shadow-color = base00;
+    });
   };
 }

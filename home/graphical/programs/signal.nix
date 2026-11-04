@@ -1,18 +1,6 @@
 { pkgs, ... }:
 {
-  apps.signal-desktop = {
-    package = pkgs.signal-desktop;
-    appId = "org.signal.Signal";
+  packages = [ pkgs.signal-desktop ];
 
-    # attachments are saved straight to disk rather than through the portal
-    access.download = "rw";
-
-    jail.permissions =
-      c: with c; [
-        gui
-        gpu
-        network
-        notifications
-      ];
-  };
+  preservation.preserveAt.state-dir.directories = [ ".config/Signal" ];
 }

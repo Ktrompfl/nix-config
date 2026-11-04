@@ -35,7 +35,6 @@ let
   };
 
   settings = {
-    "widget.use-xdg-desktop-portal.file-picker" = 1; # required inside jail
     "browser.display.use_system_colors" = true;
     "browser.display.document_color_use" = 2; # always use system colors, ignore contrast
     "mailnews.mark_message_read.auto" = false;
@@ -151,33 +150,23 @@ let
   );
 in
 {
-  apps.thunderbird = {
-    package = pkgs.thunderbird;
-    appId = "org.mozilla.thunderbird";
+  packages = [ pkgs.thunderbird ];
 
-    backup = true;
+  preservation.preserveAt.data-dir.directories = [ ".thunderbird" ];
 
-    # attachments are saved to disk directly; adding them goes through the portal
-    access.download = "rw";
+  files = {
+    ".thunderbird/profiles.ini" = {
+      type = "copy";
+      permissions = "0644";
+      generator = helpers.generators.toMozillaProfiles;
+      value.name = profile;
+    };
 
-    jail.permissions =
-      c: with c; [
-        gui
-        gpu
-        network
-        notifications
-      ];
-
-    files = {
-      ".thunderbird/profiles.ini" = {
-        generator = helpers.generators.toMozillaProfiles;
-        value.name = profile;
-      };
-
-      ".thunderbird/${profile}/user.js" = {
-        generator = helpers.generators.toMozillaPrefs;
-        value = settings // accountPrefs;
-      };
+    ".thunderbird/${profile}/user.js" = {
+      type = "copy";
+      permissions = "0644";
+      generator = helpers.generators.toMozillaPrefs;
+      value = settings // accountPrefs;
     };
   };
 }

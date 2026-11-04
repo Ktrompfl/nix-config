@@ -7,13 +7,9 @@ let
   inherit (lib)
     mapAttrs
     mkDefault
-    mkIf
-    mkMerge
     mkOption
     types
     ;
-
-  homeDirectory = config.directory;
 
   serviceModule =
     { config, ... }:
@@ -30,17 +26,6 @@ let
           description = "Which of the graphical slices the unit is accounted to.";
         };
 
-        sandbox = mkOption {
-          type = types.bool;
-          default = true;
-          description = ''
-            Whether the hardening below applies. It is the default because
-            these daemons want the wayland socket and almost nothing else;
-            turn it off only for one that cannot live inside it at all, and
-            say why.
-          '';
-        };
-
         serviceConfig = mkOption {
           type = types.attrsOf types.raw;
           default = { };
@@ -53,51 +38,11 @@ let
         after = mkDefault [ "graphical-session.target" ];
         wantedBy = mkDefault [ "graphical-session.target" ];
 
-        serviceConfig = mkMerge [
-          {
-            Type = mkDefault "simple";
-            Restart = mkDefault "on-failure";
-            Slice = mkDefault "${config.slice}-graphical.slice";
-          }
-          (mkIf config.sandbox {
-            TemporaryFileSystem = mkDefault "${homeDirectory}:ro";
-
-            NoNewPrivileges = mkDefault true;
-            PrivateTmp = mkDefault true;
-            ProtectSystem = mkDefault "full";
-            ProtectKernelTunables = mkDefault true;
-            ProtectKernelModules = mkDefault true;
-            ProtectKernelLogs = mkDefault true;
-            ProtectControlGroups = mkDefault true;
-            ProtectClock = mkDefault true;
-            ProtectHostname = mkDefault true;
-            RestrictNamespaces = mkDefault true;
-            RestrictRealtime = mkDefault true;
-            RestrictSUIDSGID = mkDefault true;
-            LockPersonality = mkDefault true;
-
-            RestrictAddressFamilies = mkDefault [ "AF_UNIX" ];
-
-            SystemCallArchitectures = mkDefault "native";
-            # Thread libraries tune their own threads through two calls in
-            # `~@resources`, which kills the whole process with SIGSYS: GTK's
-            # GPU driver drops its workers to SCHED_IDLE and pins them to a
-            # cache domain (sched_setscheduler, sched_setaffinity), and
-            # libpipewire asks for its data thread's policy the same way. Both
-            # are let back in. RestrictRealtime still refuses the realtime
-            # policies, and without CAP_SYS_NICE a thread can only lower its
-            # own priority or move within the CPUs it already has.
-            SystemCallFilter = mkDefault [
-              "@system-service"
-              "~@privileged"
-              "~@resources"
-              "sched_setscheduler"
-              "sched_setaffinity"
-            ];
-
-            UMask = mkDefault "0077";
-          })
-        ];
+        serviceConfig = {
+          Type = mkDefault "simple";
+          Restart = mkDefault "on-failure";
+          Slice = mkDefault "${config.slice}-graphical.slice";
+        };
       };
     };
 in
@@ -108,15 +53,11 @@ in
     description = ''
       Units that belong to the graphical session. Each is an ordinary systemd
       service definition; what this adds is the ordering against
-      graphical-session.target, the slice, and the sandbox.
+      graphical-session.target and the slice.
     '';
   };
 
   config.systemd.services = mapAttrs (
-    _: service:
-    removeAttrs service [
-      "slice"
-      "sandbox"
-    ]
+    _: service: removeAttrs service [ "slice" ]
   ) config.wayland.services;
 }

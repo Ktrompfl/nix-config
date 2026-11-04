@@ -29,6 +29,10 @@
       "amd_prefcore=enable"
     ];
 
+    # sends SIGRTMIN+4 (poweroff) to pid 1 on the firmware's power button
+    # notify when waking from s2idle, see NixOS/nixpkgs#577729
+    blacklistedKernelModules = [ "tiny_power_button" ];
+
     plymouth.enable = true;
   };
 

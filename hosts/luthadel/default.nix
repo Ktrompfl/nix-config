@@ -27,6 +27,9 @@
     kernelParams = [
       "amd_pstate=active"
       "amd_prefcore=enable"
+      # disable panel self refresh (0x10), its selective update variant (0x200)
+      # and panel replay (0x400), which make the internal panel flicker
+      "amdgpu.dcdebugmask=0x610"
     ];
 
     # sends SIGRTMIN+4 (poweroff) to pid 1 on the firmware's power button

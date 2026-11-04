@@ -41,7 +41,8 @@
     jail.url = "sourcehut:~alexdavid/jail.nix";
 
     jay = {
-      url = "github:mahkoh/jay";
+      # pinned to 2026-09-14 because of graphical glitches in later versions
+      url = "github:mahkoh/jay/854207018151d5c418e78d584587d55340891421";
       inputs = {
         crane.follows = "crane";
         nixpkgs.follows = "nixpkgs";

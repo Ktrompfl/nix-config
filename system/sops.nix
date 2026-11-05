@@ -7,7 +7,7 @@
     sops
   ];
 
-  # To add a new host create a private age key with `age-keygen -o ~/.config/sops/age/keys.txt`
+  # To add a new host create a private age key with `age-keygen -o /persist/sops/age/keys.txt`
   # and add the public key together with the host name in `.sops.nix`.
   # Finally, update the encrypted secrets secrets with `sops updatekeys secrets/default.yaml`.
 

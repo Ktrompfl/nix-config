@@ -1,5 +1,4 @@
 { pkgs, ... }:
 {
-  # FIXME: broken package
-  # packages = [ pkgs.better-control ];
+  packages = [ pkgs.better-control ];
 }

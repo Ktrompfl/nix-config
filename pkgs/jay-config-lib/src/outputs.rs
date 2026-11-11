@@ -3,7 +3,7 @@
 use jay_config::{
     get_workspace,
     video::{
-        Connector, Mode, Transform, VrrMode, connectors, on_connector_connected,
+        Connector, Format, Mode, Transform, VrrMode, connectors, on_connector_connected,
         on_connector_disconnected,
     },
 };
@@ -44,6 +44,9 @@ struct Output {
     scale: Option<f64>,
     transform: Option<Transform>,
     vrr: Option<VrrMode>,
+    /// assume the primaries advertised in the EDID instead of sRGB
+    native_gamut: Option<bool>,
+    format: Option<Format>,
     /// the workspaces that start out here, unless an earlier output has them
     workspaces: &'static [&'static str],
 }
@@ -54,6 +57,8 @@ const PANEL: Output = Output {
     scale: None,
     transform: None,
     vrr: None,
+    native_gamut: None,
+    format: None,
     workspaces: &["1", "2", "3", "4", "5"],
 };
 
@@ -65,6 +70,8 @@ const MIRRORED: Output = Output {
     scale: Some(1.0),
     transform: Some(Transform::None),
     vrr: None,
+    native_gamut: None,
+    format: None,
     workspaces: &["0"],
 };
 
@@ -73,12 +80,14 @@ const OUTPUTS: &[(Match, Output)] = &[
     (
         Match::Model("VG270U P"),
         Output {
-            position: (0, 240),
+            position: (0, 410),
             mode: (2560, 1440, 143.995),
             scale: Some(1.0),
             transform: Some(Transform::None),
             // if this does not work try VARIANT_2
             vrr: Some(VrrMode::VARIANT_3),
+            native_gamut: Some(true),
+            format: Some(Format::XRGB2101010),
             workspaces: &["1", "2", "3", "4", "5"],
         },
     ),
@@ -86,10 +95,12 @@ const OUTPUTS: &[(Match, Output)] = &[
         Match::Model("BenQ GL2480"),
         Output {
             position: (2560, 0),
-            mode: (1920, 1080, 60.0),
-            scale: Some(1.0),
+            mode: (1920, 1080, 74.973),
+            scale: Some(102.0 / 120.0),
             transform: Some(Transform::Rotate90),
             vrr: None,
+            native_gamut: None,
+            format: None,
             workspaces: &["6", "7", "8", "9", "0"],
         },
     ),
@@ -139,6 +150,12 @@ impl Output {
         }
         if let Some(vrr) = self.vrr {
             connector.set_vrr_mode(vrr);
+        }
+        if let Some(native_gamut) = self.native_gamut {
+            connector.set_use_native_gamut(native_gamut);
+        }
+        if let Some(format) = self.format {
+            connector.set_format(format);
         }
     }
 }

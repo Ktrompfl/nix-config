@@ -144,6 +144,7 @@ let
         "dns"
         "menus"
         "privacy"
+        "publicSuffix"
         "storage"
         "tabs"
         "unlimitedStorage"

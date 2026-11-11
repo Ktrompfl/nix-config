@@ -131,7 +131,14 @@ let
 in
 {
   packages = [
-    (pkgs.vscode-with-extensions.override { vscodeExtensions = extensions; })
+    (pkgs.vscode-with-extensions.override {
+      # TODO: drop once its electron is based on chromium >= 152; older ones
+      # render too small on outputs with a fractional scale below 1
+      vscode = pkgs.vscode.override {
+        commandLineArgs = "--disable-features=WaylandFractionalScaleV1";
+      };
+      vscodeExtensions = extensions;
+    })
   ];
 
   xdg.config.files."Code/User/settings.json" = {

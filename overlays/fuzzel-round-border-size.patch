@@ -1,0 +1,11 @@
+--- a/render.c
++++ b/render.c
+@@ -2100,7 +2100,7 @@
+         ? render->conf->pad.inner * scale
+         : 0;
+ 
+-    const unsigned border_size = render->conf->border.size * scale;
++    const unsigned border_size = round(render->conf->border.size * scale);
+     const unsigned border_radius = render->conf->border.radius * scale;
+     const unsigned selection_border_radius = render->conf->selection_border.radius * scale;
+ 

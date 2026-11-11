@@ -20,6 +20,12 @@ let
     wl-mirror = prev.wl-mirror.overrideAttrs (oldAttrs: {
       patches = (oldAttrs.patches or [ ]) ++ [ ./wl-mirror-prefer-rgb8888.patch ];
     });
+
+    # fuzzel truncates the scaled border width, so a 1px border vanishes on
+    # outputs with a fractional scale below 1.
+    fuzzel = prev.fuzzel.overrideAttrs (oldAttrs: {
+      patches = (oldAttrs.patches or [ ]) ++ [ ./fuzzel-round-border-size.patch ];
+    });
   };
 
   # Make supported packages use lix instead of nix.

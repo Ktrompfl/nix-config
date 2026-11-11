@@ -41,8 +41,7 @@
     jail.url = "sourcehut:~alexdavid/jail.nix";
 
     jay = {
-      # pinned to 2026-09-14 because of graphical glitches in later versions
-      url = "github:mahkoh/jay/854207018151d5c418e78d584587d55340891421";
+      url = "github:mahkoh/jay";
       inputs = {
         crane.follows = "crane";
         nixpkgs.follows = "nixpkgs";
@@ -62,9 +61,7 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
 
     nix-mineral = {
-      # FIXME: restore once https://github.com/cynicsketch/nix-mineral/pull/244 is merged
-      # url = "github:cynicsketch/nix-mineral";
-      url = "github:surfaceflinger/nix-mineral/scripted-stage-1-removal";
+      url = "github:cynicsketch/nix-mineral";
       inputs = {
         flake-compat.follows = "flake-compat";
         flake-parts.follows = "flake-parts";

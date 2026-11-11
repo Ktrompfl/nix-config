@@ -5,7 +5,7 @@
   ...
 }:
 let
-  spotify = inputs.spicetify-nix.lib.mkSpicetify pkgs (
+  spicetified = inputs.spicetify-nix.lib.mkSpicetify pkgs (
     let
       spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
     in
@@ -54,6 +54,15 @@ let
       };
     }
   );
+
+  # TODO: drop once its cef is based on chromium >= 152; older ones render
+  # too small on outputs with a fractional scale below 1
+  spotify = spicetified.overrideAttrs (old: {
+    postFixup = (old.postFixup or "") + ''
+      wrapProgramShell $out/share/spotify/spotify \
+        --add-flags --disable-features=WaylandFractionalScaleV1
+    '';
+  });
 in
 {
   packages = [ spotify ];

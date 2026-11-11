@@ -117,7 +117,7 @@ in
       };
       "${pluginDir}/.lsp.json" = {
         generator = json "claude-lsp.json";
-        value = (import ../lsp.nix { inherit lib pkgs; }).claude;
+        value = (import ../lsp.nix { inherit config lib pkgs; }).claude;
       };
       "${pluginDir}/.mcp.json" = {
         generator = json "claude-mcp.json";

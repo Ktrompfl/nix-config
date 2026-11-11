@@ -119,7 +119,7 @@ let
   };
 
   # Language specific settings
-  language = import ./languages.nix { inherit lib pkgs; };
+  language = import ./languages.nix { inherit config lib pkgs; };
 
   declarativeSettings =
     general // window // files // editor // workbench // terminal // extension // language;

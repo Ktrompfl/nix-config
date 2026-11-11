@@ -5,12 +5,6 @@
   ...
 }:
 let
-  # Graphical programs started from a terminal would otherwise inherit the
-  # terminal's slice; these wrappers hand them to the app slice instead.
-  #
-  # `--dir` because the unit starts in the home directory otherwise, and a
-  # relative argument would quietly mean something else: `zed .` would open
-  # `~` rather than wherever it was typed.
   runInAppSlice = {
     chromium = "chromium";
     code = "code";
@@ -158,9 +152,8 @@ in
     );
 
     # julia installs its apps here; PATH cannot come from environment.d
-    "fish/conf.d/10-julia.fish".source = pkgs.writers.writeFish "10-julia.fish" (
-      "fish_add_path --append ${config.xdg.data.directory}/julia/bin"
-    );
+    "fish/conf.d/10-julia.fish".source =
+      pkgs.writers.writeFish "10-julia.fish" "fish_add_path --append ${config.xdg.data.directory}/julia/bin";
 
     "direnv/lib/nix-direnv.sh".source = "${pkgs.nix-direnv}/share/nix-direnv/direnvrc";
   };

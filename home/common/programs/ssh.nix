@@ -5,13 +5,8 @@
   ...
 }:
 let
-  # ssh only ever reads its configuration from ~/.ssh, but everything else is
-  # named here: the keys and known hosts on the backed up partition, the
-  # control sockets in the runtime directory.
   directory = "${config.storage.data}/.local/share/ssh";
-
-  # Every one named has to exist, or ssh complains on each connection.
-  identities = [ "id_ed25519" ];
+  identities = [ "id_ed25519" ]; # must exist
 
   hosts = {
     "*" = {

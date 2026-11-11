@@ -111,7 +111,7 @@ let
     };
 
     load_direnv = "shell_hook";
-    lsp = (import ../../common/programs/lsp.nix { inherit lib pkgs; }).zed;
+    lsp = (import ../../common/programs/lsp.nix { inherit config lib pkgs; }).zed;
     node = {
       path = lib.getExe pkgs.nodejs;
       npm_path = lib.getExe' pkgs.nodejs "npm";

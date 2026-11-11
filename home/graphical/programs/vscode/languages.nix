@@ -1,9 +1,16 @@
-{ lib, pkgs }:
+{
+  config,
+  lib,
+  pkgs,
+}:
+let
+  runic = "${config.xdg.data.directory}/julia/bin/runic";
+in
 {
   # julia: the client installs and updates jetls itself
   jetls-client.settings.formatter.custom = {
-    executable = lib.getExe pkgs.runic;
-    executable_range = lib.getExe pkgs.runic;
+    executable = runic;
+    executable_range = runic;
   };
 
   # jupyter

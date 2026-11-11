@@ -10,5 +10,4 @@ in
   tinted-discord = callPackage ./tinted-discord { };
   tinted-vscode = callPackage ./tinted-vscode { };
   tinted-zed = callPackage ./tinted-zed { };
-  runic = callPackage ./runic.nix { };
 }

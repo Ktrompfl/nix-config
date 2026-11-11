@@ -14,23 +14,6 @@ let
     # remove once https://github.com/NixOS/nixpkgs/issues/568692 is fixed.
     inherit (inputs.nixpkgs-zotero.legacyPackages.${final.stdenv.hostPlatform.system}) zotero;
 
-    # With julia 1.13, Pkg looks up a name for every UUID in a registry's
-    # Deps.toml, including the dependencies of versions the minimal registry
-    # dropped (SnoopPrecompile for Parsers 2.5), and withPackages fails.
-    julia = prev.julia.overrideAttrs (oldAttrs: {
-      passthru = oldAttrs.passthru // {
-        withPackages =
-          let
-            src = final.applyPatches {
-              name = "julia-modules";
-              src = "${inputs.nixpkgs}/pkgs/development/julia-modules";
-              patches = [ ./julia-minimal-registry.patch ];
-            };
-          in
-          final.callPackage src { julia = final.julia; };
-      };
-    });
-
     # wl-mirror allocates its capture buffer in the first dmabuf format the
     # compositor offers; jay offers formats in random order, including some
     # (e.g. RGB888, RGBA4444) that gbm cannot allocate on amdgpu.

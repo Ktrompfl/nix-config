@@ -1,4 +1,8 @@
-{ lib, pkgs }:
+{
+  config,
+  lib,
+  pkgs,
+}:
 let
   inherit (lib)
     getExe
@@ -10,6 +14,10 @@ let
     ;
 
   toLang = lang: exts: genAttrs exts (_: lang);
+
+  # julia tooling comes from Pkg, see julia.nix
+  julia = getExe pkgs.julia-bin;
+  runic = "${config.xdg.data.directory}/julia/bin/runic";
 
   bash-language-server = {
     command = getExe pkgs.bash-language-server;
@@ -72,8 +80,8 @@ let
     settings = {
       code_lens.references = true;
       formatter.custom = {
-        executable = getExe pkgs.runic;
-        executable_range = getExe pkgs.runic;
+        executable = runic;
+        executable_range = runic;
       };
     };
   };
@@ -88,7 +96,7 @@ let
   };
 
   julia-lsp = {
-    command = getExe (pkgs.julia.withPackages [ "LanguageServer" ]);
+    command = julia;
     args = [
       "--startup-file=no"
       "--history-file=no"

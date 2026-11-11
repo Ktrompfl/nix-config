@@ -53,8 +53,8 @@ in
       sansSerif = lib.mkOption {
         type = lib.types.attrs;
         default = {
-          package = pkgs.dejavu_fonts;
-          name = "DejaVu Sans";
+          package = pkgs.inter;
+          name = "Inter";
         };
       };
       monospace = lib.mkOption {
@@ -69,6 +69,14 @@ in
         default = {
           package = pkgs.noto-fonts-color-emoji;
           name = "Noto Color Emoji";
+        };
+      };
+      # nerd font icons sized for use next to proportional text
+      symbols = lib.mkOption {
+        type = lib.types.attrs;
+        default = {
+          package = pkgs.nerd-fonts.symbols-only;
+          name = "Symbols Nerd Font";
         };
       };
 
@@ -130,6 +138,7 @@ in
         cfg.fonts.sansSerif.package
         cfg.fonts.monospace.package
         cfg.fonts.emoji.package
+        cfg.fonts.symbols.package
       ];
 
       fontconfig.defaultFonts = {

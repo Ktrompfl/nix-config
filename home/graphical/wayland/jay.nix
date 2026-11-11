@@ -50,7 +50,7 @@ in
       lib.mapAttrsToList (name: value: "${name} = ${builtins.toJSON (toString value)}\n") (
         base16
         // {
-          monospace_font = "${config.theme.fonts.monospace.name} 12";
+          sans_font = "${config.theme.fonts.sansSerif.name} ${toString config.theme.fonts.sizes.desktop}";
         }
       )
     );

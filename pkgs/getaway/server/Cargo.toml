@@ -1,0 +1,19 @@
+[package]
+name = "getaway-server"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+rustix.workspace = true
+libc.workspace = true
+kbvm = "0.2"
+xcursor = "0.3"
+log.workspace = true
+wire = { package = "getaway-wire", path = "../wire" }
+geom = { package = "getaway-geom", path = "../geom" }
+gfx = { package = "getaway-gfx", path = "../gfx" }
+wm = { package = "getaway-wm", path = "../wm" }
+nested = { package = "getaway-nested", path = "../nested" }
+kms = { package = "getaway-kms", path = "../kms" }
+backend = { package = "getaway-backend", path = "../backend" }

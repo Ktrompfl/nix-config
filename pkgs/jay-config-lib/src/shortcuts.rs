@@ -8,10 +8,10 @@ use jay_config::{
         mods::{ALT, CTRL, LOGO, SHIFT},
         syms::*,
     },
-    reload, set_show_titles, switch_to_vt,
+    quit, reload, set_show_titles, switch_to_vt,
 };
 
-use crate::{bar, exec, power};
+use crate::{bar, exec};
 
 /// key, arrow key, direction, and how resizing grows the window that way as
 /// `(dx1, dy1, dx2, dy2)`
@@ -160,10 +160,7 @@ pub fn setup() {
         seat.bind(CTRL | ALT | sym, move || switch_to_vt(n));
     }
 
-    // stops the session's services before jay itself
-    seat.bind(LOGO | SHIFT | SYM_q, || {
-        exec("systemctl", &["--user", "stop", "jay.service"])
-    });
+    seat.bind(LOGO | SHIFT | SYM_q, quit);
     seat.bind(LOGO | SHIFT | SYM_r, reload);
 
     // windows
@@ -193,7 +190,7 @@ pub fn setup() {
     seat.bind(LOGO | SYM_z, || exec("wl-present", &["freeze"]));
     seat.bind(LOGO | SHIFT | SYM_z, || exec("wl-present", &["unfreeze"]));
 
-    seat.bind(LOGO | SYM_p, power::menu);
+    seat.bind(LOGO | SYM_p, || exec("power-menu", &[]));
 
     // focus
     bind_repeating(seat, LOGO | SYM_Tab, move || {

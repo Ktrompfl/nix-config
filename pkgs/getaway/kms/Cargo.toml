@@ -1,0 +1,16 @@
+[package]
+name = "getaway-kms"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+backend = { package = "getaway-backend", path = "../backend" }
+gfx = { package = "getaway-gfx", path = "../gfx" }
+rustix.workspace = true
+log.workspace = true
+drm = "0.14"
+drm-ffi = "0.9"
+gbm = { version = "0.18", default-features = false, features = ["drm-support"] }
+libseat = "0.2"
+input = { version = "0.9", features = ["libinput_1_19"] }

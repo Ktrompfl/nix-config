@@ -7,9 +7,23 @@
 }:
 let
   lock = "${lib.getExe pkgs.swaylock} --daemonize";
+  wlopm = lib.getExe pkgs.wlopm;
+  jay = lib.getExe pkgs.jay;
+
+  screens = pkgs.writeShellScript "screens" ''
+    case "$XDG_CURRENT_DESKTOP:$1" in
+      jay:off) ${jay} idle set 1s ;;
+      jay:on) ${jay} idle set disabled ;;
+      *:off) ${wlopm} --off '*' ;;
+      *:on) ${wlopm} --on '*' ;;
+    esac
+  '';
 in
 {
-  packages = [ pkgs.swaylock ];
+  packages = [
+    pkgs.swaylock
+    pkgs.wlopm
+  ];
 
   xdg.config.files."swaylock/config" = {
     generator = helpers.generators.toKeyValueLines { flags = true; };
@@ -49,6 +63,18 @@ in
   };
 
   wayland.services = {
+    idle = {
+      description = "Turn the outputs off and suspend when idle";
+      path = [ pkgs.bash ];
+      serviceConfig.ExecStart = lib.concatStringsSep " " [
+        (lib.getExe pkgs.swayidle)
+        "timeout 600 '${screens} off'"
+        "resume '${screens} on'"
+        "timeout 615 'systemctl suspend-then-hibernate'"
+      ];
+      slice = "session";
+    };
+
     swayidle = {
       description = "Idle manager for Wayland";
       serviceConfig = {

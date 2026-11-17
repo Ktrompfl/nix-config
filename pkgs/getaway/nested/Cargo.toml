@@ -1,0 +1,14 @@
+[package]
+name = "getaway-nested"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+backend = { package = "getaway-backend", path = "../backend" }
+gfx = { package = "getaway-gfx", path = "../gfx" }
+gbm = { version = "0.18", default-features = false }
+rustix.workspace = true
+log.workspace = true
+wayland-client = "0.31"
+wayland-protocols = { version = "0.32", features = ["client", "staging", "unstable"] }

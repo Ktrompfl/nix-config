@@ -8,45 +8,32 @@
 {
   packages = [ pkgs.i3status-rust ];
 
-  xdg.config.files."i3status-rust/config-jay.toml" = {
-    generator = (pkgs.formats.toml { }).generate "i3status-rust-jay.toml";
+  xdg.config.files."i3status-rust/config.toml" = {
+    generator = (pkgs.formats.toml { }).generate "i3status-rust.toml";
     value =
       with config.theme.colors.withHashtag;
       let
-        # icons from the proportional nerd font, dimmed so the values stand
-        # out; they keep the block's color, so they follow its state
         glyph = text: "<span font_family='${config.theme.fonts.symbols.name}' fgalpha='60%'>${text}</span>";
-        # for things that need attention
         alert =
           text: "<span font_family='${config.theme.fonts.symbols.name}' foreground='${error}'>${text}</span>";
         icon = glyph "$icon";
-        # numbers padded to two digits with figure spaces (U+2007), which are
-        # as wide as a digit, so values keep their width as they change
         figureSpace = builtins.fromJSON ''" "'';
-        # tnum: tabular figures, all digits equally wide
         number =
           args: name:
           "<span font_features='tnum'>$" + "${name}.eng(${args}, pad_with:'${figureSpace}')</span>";
         num = number "w:2";
-        # rates from 0 to 999 per unit, at least in kilobytes; only the prefix
-        # (k, M, G) is shown, the arrows already say it is a rate
         speed = number "w:3, prefix:K, hide_unit:true";
-        # the blocks carry their own spacing: a gap between the items of a
-        # group, a divider between groups
         gap = "  ";
         divider = "  <span foreground='${base03}'>│</span>  ";
 
         hasRptuVpn = osConfig.systemd.network.netdevs ? "30-wg-rptu";
 
-        # one entry per device; the path is any mount on it
         disks = [
           {
-            # the tmpfs root, as a plain dimmed slash in the text font
             label = "<span fgalpha='60%'>/</span>";
             path = "/";
           }
           {
-            # the main pool, shared by /persist, /nix, /cache, /var/log
             label = glyph "󰋊";
             path = "/persist";
           }
@@ -56,7 +43,6 @@
           path = "/extra";
         };
 
-        # the number of failed system and user units, nothing if there are none
         failedUnits = pkgs.writeShellScript "failed-units" ''
           system=$(systemctl --failed --no-legend --plain | wc -l)
           user=$(systemctl --user --failed --no-legend --plain | wc -l)
@@ -170,7 +156,6 @@
             critical_mem = 95;
           }
 
-          # the gpu: load, temperature, vram
           {
             block = "amd_gpu";
             interval = 2;
@@ -195,7 +180,6 @@
           }
 
         ]
-        # a group of its own, each disk with its label
         ++ lib.imap0 (i: disk: {
           block = "disk_space";
           inherit (disk) path;
@@ -214,7 +198,6 @@
             missing_format = "${divider}${glyph "󰌙"}";
           }
         ]
-        # the rptu wireguard tunnel, shown while it is up
         ++ lib.optional hasRptuVpn {
           block = "net";
           device = "wg-rptu";
@@ -257,7 +240,6 @@
           {
             block = "time";
             interval = 60;
-            # the date dimmed next to the time
             format = "${divider}<span foreground='${base04}'>$timestamp.datetime(f:'%a %d %b')</span>  $timestamp.datetime(f:'%H:%M')";
           }
 
@@ -283,20 +265,6 @@
           }
 
           {
-            # only while something captures the microphone, screen or camera
-            block = "privacy";
-            driver = [ { name = "pipewire"; } ];
-            format = lib.concatMapStrings (kind: "{${gap}${alert "$icon_${kind}"}|}") [
-              "audio"
-              "audio_sink"
-              "video"
-              "webcam"
-              "unknown"
-            ];
-          }
-
-          {
-            # only while units have failed
             block = "custom";
             command = "${failedUnits}";
             interval = 60;
@@ -305,15 +273,47 @@
           }
 
           {
-            block = "custom_dbus";
-            path = "/idle_inhibitor";
-            format = {
-              # trailing gap: the tray follows
-              full = "${gap}${glyph "{$text.pango-str()|󰾪}"}${gap}";
-              short = "";
-            };
+            block = "custom";
+            command = "systemctl --user is-active -q idle.service && echo 󰾪 || echo 󰅶";
+            interval = 5;
+            # trailing gap: the tray follows
+            format = "${gap}${glyph "$text"}${gap}";
           }
         ];
       };
+  };
+
+  xdg.config.files."i3bar-wl/config.toml" = {
+    generator = (pkgs.formats.toml { }).generate "i3bar-wl.toml";
+    value = {
+      command = [
+        (lib.getExe pkgs.i3status-rust)
+        "config.toml"
+      ];
+      env.I3RS_DBUS_NAME = "bar";
+      font = "${config.theme.fonts.sansSerif.name} ${toString config.theme.fonts.sizes.desktop}";
+      height = 18;
+      position = "bottom";
+      colors = with config.theme.colors.withHashtag; {
+        background = base01;
+        text = base05;
+        separator = base03;
+        workspace = base01;
+        workspace_text = base04;
+        active = base0D;
+        active_text = base00;
+        urgent = base09;
+        urgent_text = base00;
+        menu = base01;
+        menu_border = base03;
+        menu_disabled = base03;
+      };
+    };
+  };
+
+  wayland.services.i3bar-wl = {
+    description = "Status bar with i3 input protocol for Wayland";
+    serviceConfig.ExecStart = lib.getExe pkgs.i3bar-wl;
+    slice = "session";
   };
 }

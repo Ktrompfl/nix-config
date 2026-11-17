@@ -1,0 +1,13 @@
+[package]
+name = "getaway"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+log.workspace = true
+env_logger = { version = "0.11", default-features = false }
+toml = { version = "1", default-features = false, features = ["std", "parse", "serde"] }
+server = { package = "getaway-server", path = "../server" }
+wm = { package = "getaway-wm", path = "../wm" }
+wm-tree = { package = "getaway-wm-tree", path = "../wm-tree" }

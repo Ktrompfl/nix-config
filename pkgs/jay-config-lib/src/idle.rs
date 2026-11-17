@@ -1,32 +1,11 @@
-use std::{cell::Cell, time::Duration};
+use std::time::Duration;
 
-use jay_config::{on_idle, set_idle, set_idle_grace_period};
+use jay_config::{set_idle, set_idle_grace_period};
 
-use crate::{bar, exec};
-
-const TIMEOUT: Duration = Duration::from_secs(10 * 60);
-
-thread_local! {
-    static INHIBITED: Cell<bool> = const { Cell::new(false) };
-}
-
-pub fn suspend() {
-    exec("systemctl", &["suspend-then-hibernate"]);
-}
-
-pub fn inhibited() -> bool {
-    INHIBITED.get()
-}
-
-pub fn toggle_inhibitor() {
-    let inhibited = !INHIBITED.get();
-    INHIBITED.set(inhibited);
-    set_idle(if inhibited { None } else { Some(TIMEOUT) });
-    bar::set_idle_inhibitor(inhibited);
-}
-
+/// No idle timer of jay's own: swayidle (idle.service, shared with getaway)
+/// decides when, and turns the outputs off with `jay idle set 1s`, which this
+/// grace period of zero makes immediate.
 pub fn setup() {
-    set_idle(Some(TIMEOUT));
-    set_idle_grace_period(Duration::from_secs(15));
-    on_idle(suspend);
+    set_idle(None);
+    set_idle_grace_period(Duration::ZERO);
 }

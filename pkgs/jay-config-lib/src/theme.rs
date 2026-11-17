@@ -4,8 +4,7 @@
 use std::{collections::HashMap, env, fs, path::PathBuf};
 
 use jay_config::theme::{
-    BarPosition, Color, ContainerBorders, colors, set_bar_font, set_bar_position,
-    set_container_borders, set_font, set_title_font, sized,
+    Color, ContainerBorders, colors, set_container_borders, set_font, set_title_font, sized,
 };
 
 /// The flat `key = "value"` lines of `jay/theme.toml`.
@@ -43,14 +42,10 @@ pub fn setup() {
         .unwrap_or("sans-serif 10");
     set_font(font);
     set_title_font(font);
-    set_bar_font(font);
 
     sized::BORDER_WIDTH.set(1);
     sized::TITLE_HEIGHT.set(18);
-    sized::BAR_HEIGHT.set(18);
-    sized::BAR_SEPARATOR_WIDTH.set(1);
     set_container_borders(ContainerBorders::FullSmart);
-    set_bar_position(BarPosition::Bottom);
 
     colors::BACKGROUND_COLOR.set_color(color("base00"));
     colors::BORDER_COLOR.set_color(color("base03"));
@@ -63,11 +58,7 @@ pub fn setup() {
     colors::FOCUSED_TITLE_BACKGROUND_COLOR.set_color(color("base0d"));
     colors::FOCUSED_TITLE_TEXT_COLOR.set_color(color("base00"));
     colors::SEPARATOR_COLOR.set_color(color("base03"));
-    // also the inactive workspaces, which thereby blend into the bar
     colors::UNFOCUSED_TITLE_BACKGROUND_COLOR.set_color(color("base01"));
     colors::UNFOCUSED_TITLE_TEXT_COLOR.set_color(color("base04"));
     colors::HIGHLIGHT_COLOR.set_color(color("base0b"));
-
-    colors::BAR_BACKGROUND_COLOR.set_color(color("base01"));
-    colors::BAR_STATUS_TEXT_COLOR.set_color(color("base05"));
 }

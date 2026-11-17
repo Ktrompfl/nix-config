@@ -163,28 +163,8 @@
             devShells = {
               default = config.pre-commit.devShell;
 
-              rust =
-                let
-                  rustBin = inputs.rust-overlay.lib.mkRustBin { } pkgs;
-                in
-                pkgs.mkShell {
-                  # the same jay source and lockfile the package build uses
-                  shellHook = ''
-                    lib=$(git rev-parse --show-toplevel)/pkgs/jay-config-lib
-                    ln -sfn ${pkgs.jay.src} "$lib/jay"
-                    install -m 0644 ${pkgs.jay.src}/Cargo.lock "$lib/Cargo.lock"
-                  '';
-
-                  buildInputs = [
-                    (rustBin.stable.latest.default.override {
-                      extensions = [
-                        "rust-src"
-                        "rustfmt"
-                        "clippy"
-                      ];
-                    })
-                  ];
-                };
+              # all rust projects under pkgs/, loaded by pkgs/.envrc
+              rust = import ./pkgs/shell.nix { inherit inputs pkgs; };
             };
           };
 

@@ -29,4 +29,8 @@
       };
     };
   };
+
+  # the user's programs for user units that set no PATH of their own
+  systemd.user.settings.Manager.DefaultEnvironment =
+    "PATH=/run/wrappers/bin:/etc/profiles/per-user/%u/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin:$PATH";
 }

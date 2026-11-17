@@ -2,8 +2,8 @@
   imports = [
     ./corectrl.nix
     ./gamemode.nix
+    ./getaway.nix
     ./dconf.nix
-    ./jay-session.nix
     ./shell.nix
     ./steam.nix
   ];

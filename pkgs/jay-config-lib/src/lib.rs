@@ -1,6 +1,6 @@
 use jay_config::{
     config,
-    exec::{Command, unset_env},
+    exec::Command,
     input::{FallbackOutputMode, FocusFollowsMouseMode, get_default_seat},
     keyboard::syms::SYM_Super_L,
     set_middle_click_paste_enabled, set_show_titles, set_split_reuses_container,
@@ -14,7 +14,6 @@ mod idle;
 mod inputs;
 mod mirror;
 mod outputs;
-mod power;
 mod shortcuts;
 mod theme;
 mod windows;
@@ -49,20 +48,7 @@ fn configure() {
     theme::setup();
     windows::setup();
 
-    // jay.service, and with it graphical-session.target, is only ready once jay
-    // can render; clients committing shm buffers before then are disconnected.
-    // Nothing else jay spawns gets to report for the service.
-    let notify_socket = std::env::var("NOTIFY_SOCKET").ok();
-    unset_env("NOTIFY_SOCKET");
-    on_graphics_initialized(move || {
-        mirror::start();
-        if let Some(socket) = notify_socket {
-            Command::new("systemd-notify")
-                .arg("--ready")
-                .env("NOTIFY_SOCKET", &socket)
-                .spawn();
-        }
-    });
+    on_graphics_initialized(mirror::start);
 }
 
 config!(configure);

@@ -7,10 +7,13 @@
     ./idle.nix
     ./jay.nix
     ./launcher.nix
+    ./outputs.nix
+    ./portal.nix
+    ./power.nix
     ./service.nix
     ./status.nix
     ./terminal.nix
-    ./tray.nix
+    ./theme.nix
     ./wallpaper.nix
   ];
 

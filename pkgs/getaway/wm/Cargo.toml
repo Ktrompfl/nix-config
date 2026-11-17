@@ -1,0 +1,8 @@
+[package]
+name = "getaway-wm"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+geom = { package = "getaway-geom", path = "../geom" }

@@ -1,0 +1,19 @@
+[workspace]
+resolver = "3"
+members = ["wire", "geom", "gfx", "wm", "wm-tree", "backend", "nested", "kms", "server", "getaway"]
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
+license = "GPL-3.0-only"
+
+[workspace.dependencies]
+rustix = { version = "1", features = ["event", "net", "fs", "mm", "param", "process", "thread", "time"] }
+libc = "0.2"
+log = "0.4"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

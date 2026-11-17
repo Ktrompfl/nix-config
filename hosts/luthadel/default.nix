@@ -99,7 +99,7 @@
     # greeter
     greetd =
       let
-        session = "jay-session";
+        session = "/run/wrappers/bin/jay run";
       in
       {
         enable = true;

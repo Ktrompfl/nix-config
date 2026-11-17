@@ -1,0 +1,16 @@
+[package]
+name = "getaway-gfx"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+build = "build.rs"
+
+[dependencies]
+geom = { package = "getaway-geom", path = "../geom" }
+cairo-rs = "0.21"
+pango = "0.21"
+pangocairo = "0.21"
+ash = "0.38"
+rustix.workspace = true
+log.workspace = true

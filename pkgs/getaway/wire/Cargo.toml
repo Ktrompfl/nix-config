@@ -1,0 +1,12 @@
+[package]
+name = "getaway-wire"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+rustix.workspace = true
+log.workspace = true
+
+[build-dependencies]
+quick-xml = "0.38"

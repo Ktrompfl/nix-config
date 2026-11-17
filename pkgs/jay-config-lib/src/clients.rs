@@ -1,15 +1,17 @@
 use jay_config::client::{
-    CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_IDLE_NOTIFIER, CC_LAYER_SHELL, CC_SCREENCOPY,
-    CC_SESSION_LOCK, ClientCriterion,
+    CC_DATA_CONTROL, CC_FOREIGN_TOPLEVEL_MANAGER, CC_HEAD_MANAGER, CC_IDLE_NOTIFIER,
+    CC_LAYER_SHELL, CC_SCREENCOPY, CC_SESSION_LOCK, CC_WORKSPACE_MANAGER, ClientCriterion,
 };
 
 pub fn setup() {
     let capabilities = [
+        ("i3bar-wl", CC_LAYER_SHELL | CC_WORKSPACE_MANAGER),
         ("grim", CC_SCREENCOPY),
         (
             "ninjabrain-box",
             CC_DATA_CONTROL | CC_FOREIGN_TOPLEVEL_MANAGER | CC_LAYER_SHELL,
         ),
+        ("shikane", CC_HEAD_MANAGER),
         ("swayidle", CC_IDLE_NOTIFIER),
         ("swaylock", CC_LAYER_SHELL | CC_SESSION_LOCK),
         ("swaync", CC_LAYER_SHELL),

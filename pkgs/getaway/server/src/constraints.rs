@@ -170,6 +170,16 @@ fn notify(st: &mut State, surface: Key, on: bool) {
     });
 }
 
+pub fn yield_to_warp(st: &mut State, x: f64, y: f64) {
+    let Some((k, lock)) = active(st) else { return };
+    if !lock && confine(st, k, (x, y)) == (x, y) {
+        return;
+    }
+    notify(st, k, false);
+    st.seat.constrained = None;
+    st.backend.constrain(None);
+}
+
 pub fn active(st: &State) -> Option<(Key, bool)> {
     st.seat.constrained.and_then(|k| Some((k, constraint(st, k)?.lock)))
 }

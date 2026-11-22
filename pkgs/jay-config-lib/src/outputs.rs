@@ -74,7 +74,7 @@ const OUTPUTS: &[(Match, Output)] = &[
             vrr: Some(VrrMode::VARIANT_3),
             native_gamut: Some(true),
             format: Some(Format::XRGB2101010),
-            workspaces: &["1", "2", "3", "4", "5"],
+            workspaces: &["1", "3", "5", "7", "9"],
         },
     ),
     (
@@ -83,7 +83,7 @@ const OUTPUTS: &[(Match, Output)] = &[
             vrr: None,
             native_gamut: None,
             format: None,
-            workspaces: &["6", "7", "8", "9", "0"],
+            workspaces: &["2", "4", "6", "8", "0"],
         },
     ),
 ];

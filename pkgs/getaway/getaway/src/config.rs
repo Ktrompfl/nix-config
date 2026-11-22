@@ -54,8 +54,8 @@ fn outputs(info: &OutputInfo, all: &[OutputInfo]) -> OutputConfig {
     let (workspaces, mirror, vrr) = match (info.name.as_str(), info.model.as_str()) {
         (LAPTOP_PANEL, _) => (vec![1, 2, 3, 4, 5], None, false),
         _ if laptop => (vec![], Some(LAPTOP_PANEL.into()), false),
-        (_, "VG270U P") => (vec![1, 2, 3, 4, 5], None, true),
-        (_, "BenQ GL2480") => (vec![6, 7, 8, 9, 0], None, false),
+        (_, "VG270U P") => (vec![1, 3, 5, 7, 9], None, true),
+        (_, "BenQ GL2480") => (vec![2, 4, 6, 8, 0], None, false),
         _ => (vec![], None, false),
     };
     OutputConfig { enabled: true, workspaces, mirror, vrr, ..Default::default() }
@@ -129,6 +129,7 @@ pub fn bindings(b: &mut Bindings<Wm>) {
     b.bind(m, key::B, |wm, _| wm.split());
     b.repeat(m, key::G, |wm, _| wm.focus_parent());
     b.repeat(m, key::TAB, |wm, _| wm.focus_previous());
+    b.bind(m, key::C, |wm, _| wm.warp_pointer());
     b.bind(m | SHIFT, key::E, |_, cx| cx.quit());
     b.bind(m, key::Z, |_, cx| cx.freeze_mirrors(true));
     b.bind(m | SHIFT, key::Z, |_, cx| cx.freeze_mirrors(false));

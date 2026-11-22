@@ -139,6 +139,7 @@ pub struct TreeWm {
     urgent: Vec<WindowId>,
     lift: usize,
     active: usize,
+    warps: u64,
 }
 
 impl TreeWm {
@@ -146,8 +147,8 @@ impl TreeWm {
         let workspaces = (0..10).map(|_| Split::new(Layout::Horizontal, vec![])).collect();
         let (titles, history, shown) = (HashMap::new(), vec![], HashMap::new());
         let (outputs, homes, fullscreen) = (vec![], vec![None; 10], vec![None; 10]);
-        let (lift, active, urgent) = (0, 1, vec![]);
-        Self { theme, outputs, shown, homes, workspaces, fullscreen, titles, history, urgent, lift, active }
+        let (lift, active, urgent, warps) = (0, 1, vec![], 0);
+        Self { theme, outputs, shown, homes, workspaces, fullscreen, titles, history, urgent, lift, active, warps }
     }
 
     fn root(&mut self) -> &mut Split {
@@ -164,7 +165,12 @@ impl TreeWm {
         path
     }
 
+    pub fn warp_pointer(&mut self) {
+        self.warps += 1;
+    }
+
     pub fn focus_dir(&mut self, dir: Dir) {
+        self.warp_pointer();
         match self.neighbor(dir) {
             _ if self.cycle_tab(dir) => {}
             Some(n) => self.focus_window(n),
@@ -175,15 +181,18 @@ impl TreeWm {
     pub fn focus_parent(&mut self) {
         let depth = self.workspaces[self.active].focus_path().len();
         self.lift = (self.lift + 1).min(depth.saturating_sub(1));
+        self.warp_pointer();
     }
 
     pub fn focus_previous(&mut self) {
+        self.warp_pointer();
         if let Some(&w) = self.history.iter().rev().nth(1) {
             self.focus_window(w);
         }
     }
 
     pub fn move_dir(&mut self, dir: Dir) {
+        self.warp_pointer();
         let Some(cur) = self.focused() else { return };
         let other = self.neighbor(dir);
         let root = self.root();
@@ -259,6 +268,11 @@ impl TreeWm {
     }
 
     pub fn show(&mut self, workspace: usize) {
+        self.warp_pointer();
+        self.show_workspace(workspace);
+    }
+
+    fn show_workspace(&mut self, workspace: usize) {
         self.lift = 0;
         if self.output_showing(workspace).is_none() {
             let home = self.homes[workspace].filter(|&o| self.output(o).is_some());
@@ -272,6 +286,7 @@ impl TreeWm {
     }
 
     pub fn focus_output(&mut self, dir: Dir) {
+        self.warp_pointer();
         if let Some(o) = self.output_towards(dir) {
             self.activate_output(o);
         }
@@ -286,6 +301,7 @@ impl TreeWm {
     }
 
     pub fn move_to_output(&mut self, dir: Dir) {
+        self.warp_pointer();
         let target = self.output_towards(dir).and_then(|o| self.shown.get(&o).copied());
         if let (Some(w), Some(workspace)) = (self.focused(), target) {
             self.remove(w);
@@ -347,6 +363,7 @@ impl TreeWm {
     }
 
     pub fn move_to(&mut self, workspace: usize) {
+        self.warp_pointer();
         if let Some(w) = self.focused().filter(|_| workspace != self.active) {
             self.remove(w);
             self.insert(workspace, w);
@@ -442,7 +459,7 @@ impl TreeWm {
 
     fn focus_window(&mut self, w: WindowId) {
         if let Some(i) = self.select(w) {
-            self.show(i);
+            self.show_workspace(i);
             self.note_focus();
         }
     }
@@ -625,7 +642,7 @@ impl WindowManager for TreeWm {
 
     fn activate_workspace(&mut self, name: &str) {
         if let Some(i) = name.parse().ok().filter(|&i: &usize| i < self.workspaces.len()) {
-            self.show(i);
+            self.show_workspace(i);
         }
     }
 
@@ -644,6 +661,7 @@ impl WindowManager for TreeWm {
         }
         self.outline_selection(out);
         out.pointer = self.pointer_rect(out);
+        out.warps = self.warps;
     }
 }
 
@@ -880,6 +898,50 @@ mod tests {
         wm.focus_output(Dir::Left);
         wm.fullscreen(WindowId(1), true, None);
         assert_eq!(pointer(&wm), Some(Rect::new(0, 0, 100, 100)));
+    }
+
+    fn warps(wm: &TreeWm) -> u64 {
+        let mut a = Arrangement::default();
+        wm.arrange(&mut a);
+        a.warps
+    }
+
+    #[test]
+    fn only_commands_request_explicit_warps() {
+        let mut wm = wm();
+        two_outputs(&mut wm);
+        let quiet = |wm: &mut TreeWm, f: &dyn Fn(&mut TreeWm)| {
+            let before = warps(wm);
+            f(wm);
+            assert_eq!(warps(wm), before);
+        };
+        quiet(&mut wm, &|wm| add(wm, &[1, 2, 3]));
+        quiet(&mut wm, &|wm| wm.window_removed(WindowId(3)));
+        quiet(&mut wm, &|wm| wm.focus(WindowId(1), Cause::Activation));
+        quiet(&mut wm, &|wm| wm.toggle_split());
+        quiet(&mut wm, &|wm| wm.toggle_fullscreen());
+        quiet(&mut wm, &|wm| wm.toggle_fullscreen());
+        quiet(&mut wm, &|wm| wm.resize(Dir::Right, 10));
+        quiet(&mut wm, &|wm| wm.activate_workspace("3"));
+        quiet(&mut wm, &|wm| {
+            wm.pointer(Hit::Window(WindowId(2)), &mut Cx::default());
+            wm.pointer(Hit::Output(2), &mut Cx::default());
+        });
+        let commands: [&dyn Fn(&mut TreeWm); 8] = [
+            &|wm| wm.focus_dir(Dir::Left),
+            &|wm| wm.move_dir(Dir::Right),
+            &|wm| wm.focus_parent(),
+            &|wm| wm.focus_previous(),
+            &|wm| wm.show(1),
+            &|wm| wm.move_to(4),
+            &|wm| wm.focus_output(Dir::Right),
+            &|wm| wm.warp_pointer(),
+        ];
+        for command in commands {
+            let before = warps(&wm);
+            command(&mut wm);
+            assert!(warps(&wm) > before);
+        }
     }
 
     #[test]

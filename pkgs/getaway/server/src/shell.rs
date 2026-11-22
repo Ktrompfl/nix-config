@@ -84,12 +84,15 @@ fn finish(st: &mut State) {
             surface::apply(st, key, pending);
         }
     }
-    let moved = st.shell.shown.pointer != st.shell.target.pointer;
+    let (old, new) = (&st.shell.shown, &st.shell.target);
+    let refocused = old.focus != new.focus;
+    let away = |r: wm::Rect| st.seat.pointer().is_none_or(|(x, y)| !r.contains(x, y));
+    let warp = old.warps != new.warps || (refocused && new.pointer.is_some_and(away));
     st.shell.shown = st.shell.target.clone();
     st.shell.ghosts.clear();
     st.render_dirty = true;
-    match st.shell.shown.pointer.filter(|_| moved && !session_lock::locked(st)) {
-        Some(r) => seat::follow(st, r),
+    match st.shell.shown.pointer.filter(|_| warp && !session_lock::locked(st)) {
+        Some(r) => seat::warp_to_center(st, r),
         None => seat::rehover(st),
     }
 }

@@ -53,6 +53,7 @@ pub struct Arrangement {
     pub windows: Vec<Placed>,
     pub focus: Option<WindowId>,
     pub pointer: Option<Rect>,
+    pub warps: u64,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -161,6 +162,7 @@ pub const LOGO: Mods = 64;
 pub mod key {
     pub const DIGITS: [u32; 10] = [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39];
     pub const B: u32 = 0x62;
+    pub const C: u32 = 0x63;
     pub const D: u32 = 0x64;
     pub const E: u32 = 0x65;
     pub const F: u32 = 0x66;

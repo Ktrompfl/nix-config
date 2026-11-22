@@ -570,15 +570,14 @@ pub fn warp_to(st: &mut State, x: f64, y: f64) {
     st.render_dirty = true;
 }
 
-pub fn follow(st: &mut State, r: Rect) {
-    let locked = matches!(constraints::active(st), Some((_, true)));
-    match st.seat.pointer.is_none_or(|(x, y)| !r.contains(x, y)) && !st.seat.inactive && !dnd::active(st) && !locked {
-        true => {
-            hover(st, f64::from(r.x + r.w / 2), f64::from(r.y + r.h / 2), false);
-            st.render_dirty = true;
-        }
-        false => rehover(st),
+pub fn warp_to_center(st: &mut State, r: Rect) {
+    if st.seat.inactive || dnd::active(st) {
+        return rehover(st);
     }
+    let (x, y) = (f64::from(r.x + r.w / 2), f64::from(r.y + r.h / 2));
+    constraints::yield_to_warp(st, x, y);
+    hover(st, x, y, false);
+    st.render_dirty = true;
 }
 
 pub fn move_pointer(st: &mut State, dx: f64, dy: f64) {

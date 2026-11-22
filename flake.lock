@@ -238,15 +238,15 @@
       "locked": {
         "lastModified": 1790270265,
         "narHash": "sha256-/tLfetxtuuC6DFPF3wC7KtuPTxn0YV6S/8jokvNKj50=",
-        "ref": "refs/heads/master",
+        "owner": "mahkoh",
+        "repo": "kbvm",
         "rev": "c590a12249a93bba5c03effa0eb6dd463dde6237",
-        "revCount": 127,
-        "type": "git",
-        "url": "file:///home/jacobsen/Repositories/kbvm"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/jacobsen/Repositories/kbvm"
+        "owner": "mahkoh",
+        "repo": "kbvm",
+        "type": "github"
       }
     },
     "llm-agents": {

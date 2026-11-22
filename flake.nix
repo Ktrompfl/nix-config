@@ -58,7 +58,7 @@
     };
 
     kbvm = {
-      url = "git+file:///home/jacobsen/Repositories/kbvm";
+      url = "github:mahkoh/kbvm";
       flake = false;
     };
 

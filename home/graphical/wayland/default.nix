@@ -26,5 +26,6 @@
 
   packages = with pkgs; [
     wev # prints the wayland events a surface receives
+    kbvm
   ];
 }

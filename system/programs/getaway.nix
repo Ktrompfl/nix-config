@@ -21,7 +21,9 @@
 
   xdg.portal = {
     enable = true;
-    configPackages = [ pkgs.getaway ];
+    # mkDefault like the jay module, so both lists merge instead of this one
+    # replacing jay-portals.conf
+    configPackages = lib.mkDefault [ pkgs.getaway ];
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
       xdg-desktop-portal-wlr

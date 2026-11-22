@@ -233,6 +233,22 @@
         "type": "github"
       }
     },
+    "kbvm": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790270265,
+        "narHash": "sha256-/tLfetxtuuC6DFPF3wC7KtuPTxn0YV6S/8jokvNKj50=",
+        "ref": "refs/heads/master",
+        "rev": "c590a12249a93bba5c03effa0eb6dd463dde6237",
+        "revCount": 127,
+        "type": "git",
+        "url": "file:///home/jacobsen/Repositories/kbvm"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///home/jacobsen/Repositories/kbvm"
+      }
+    },
     "llm-agents": {
       "inputs": {
         "bun2nix": "bun2nix",
@@ -398,6 +414,7 @@
         "jail": "jail",
         "jay": "jay",
         "jay-screenshot": "jay-screenshot",
+        "kbvm": "kbvm",
         "llm-agents": "llm-agents",
         "nix-mineral": "nix-mineral",
         "nix-vscode-extensions": "nix-vscode-extensions",

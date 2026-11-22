@@ -57,6 +57,11 @@
       };
     };
 
+    kbvm = {
+      url = "git+file:///home/jacobsen/Repositories/kbvm";
+      flake = false;
+    };
+
     # omitting follows costs a second nixpkgs evaluation but guarantees binary cache hits
     llm-agents.url = "github:numtide/llm-agents.nix";
 

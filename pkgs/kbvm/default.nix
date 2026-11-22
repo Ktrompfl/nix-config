@@ -1,7 +1,15 @@
 {
   lib,
-  pkgs,
+  stdenv,
+  autoPatchelfHook,
   inputs,
+  installShellFiles,
+  libx11,
+  makeWrapper,
+  pkg-config,
+  pkgs,
+  wayland,
+  xkeyboard_config,
 }:
 let
   craneLib = inputs.crane.mkLib pkgs;
@@ -12,8 +20,8 @@ let
     src = inputs.kbvm;
     strictDeps = true;
     cargoExtraArgs = "--locked -p kbvm-cli";
-    nativeBuildInputs = [ pkgs.pkg-config ];
-    buildInputs = [ pkgs.xkeyboard_config ];
+    nativeBuildInputs = [ pkg-config ];
+    buildInputs = [ xkeyboard_config ];
     doCheck = false;
   };
 in
@@ -22,16 +30,19 @@ craneLib.buildPackage (
   // {
     cargoArtifacts = craneLib.buildDepsOnly common;
     nativeBuildInputs = common.nativeBuildInputs ++ [
-      pkgs.installShellFiles
-      pkgs.makeWrapper
+      autoPatchelfHook
+      installShellFiles
+      makeWrapper
     ];
+    buildInputs = common.buildInputs ++ [ stdenv.cc.cc.lib ];
+    runtimeDependencies = [ wayland ];
     postInstall = ''
       installShellCompletion --cmd kbvm \
         --bash <($out/bin/kbvm generate-completion bash) \
         --fish <($out/bin/kbvm generate-completion fish) \
         --zsh <($out/bin/kbvm generate-completion zsh)
       wrapProgram $out/bin/kbvm \
-        --set-default XLOCALEDIR ${pkgs.libx11.out}/share/X11/locale
+        --set-default XLOCALEDIR ${libx11.out}/share/X11/locale
     '';
     meta = {
       description = "A rust implementation of XKB";

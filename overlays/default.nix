@@ -26,6 +26,20 @@ let
     fuzzel = prev.fuzzel.overrideAttrs (oldAttrs: {
       patches = (oldAttrs.patches or [ ]) ++ [ ./fuzzel-round-border-size.patch ];
     });
+
+    # btop 1.4.8 redraws the cpu box on proc box input even when it is hidden,
+    # constructing a graph with negative height that spins forever;
+    # go back to the nixpkgs release once it includes 00cbab2.
+    btop = prev.btop.overrideAttrs (_: {
+      version = "1.4.8-unstable-2026-11-09";
+      src = final.fetchFromGitHub {
+        owner = "aristocratos";
+        repo = "btop";
+        rev = "00cbab2dba28bf5b0b33d5f84af6a77c21b1d61d";
+        hash = "sha256-57u4QMeXN+ESpeQof9iN/rVi2Hc1Y6JwOcygkPHj1bc=";
+      };
+      preVersionCheck = "version=1.4.8";
+    });
   };
 
   # Make supported packages use lix instead of nix.
